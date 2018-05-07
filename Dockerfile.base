@@ -1,0 +1,4 @@
+FROM tensorflow/tensorflow
+
+COPY ./metaml /opt/metaml
+RUN python /opt/metaml/setup.py install
