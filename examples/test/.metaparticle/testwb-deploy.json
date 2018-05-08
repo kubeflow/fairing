@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "testwb",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "replicas": 4,
+    "selector": {
+      "matchLabels": {
+        "app": "testwb"
+      }
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "app": "testwb"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "testwb-0",
+            "image": "wbuchwalter/testwb:latest",
+            "resources": {}
+          }
+        ]
+      }
+    },
+    "strategy": {}
+  },
+  "status": {}
+}

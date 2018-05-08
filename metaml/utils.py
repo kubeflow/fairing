@@ -10,7 +10,7 @@ class Train(object):
     self.hp = hp
     self.draws = draws
     package = {'repository': 'wbuchwalter', 'name': 'trainer_{}'.format(uuid.uuid4())}
-    runtime = {'replicas': draws}
+    runtime = {'replicas': draws, 'executor': 'metaparticle'}
     self.containerize = Containerize(package=package, runtime=runtime)
   
   def __call__(self, func):

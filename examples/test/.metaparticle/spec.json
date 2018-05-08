@@ -1,0 +1,1 @@
+{"name": "testwb", "guid": 1234567, "services": [{"name": "testwb", "replicas": 4, "shardSpec": null, "containers": [{"image": "wbuchwalter/testwb:latest"}], "ports": [{"number": 8080, "protocol": "TCP"}]}], "serve": {"name": "testwb", "public": true}}

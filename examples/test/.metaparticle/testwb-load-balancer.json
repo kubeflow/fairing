@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "name": "testwb",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "ports": [
+      {
+        "protocol": "TCP",
+        "port": 8080,
+        "targetPort": 0
+      }
+    ],
+    "selector": {
+      "app": "testwb"
+    },
+    "type": "LoadBalancer"
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
