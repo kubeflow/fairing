@@ -27,14 +27,43 @@ import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
+from metaml.config import use_backend, Kubeflow
 from metaml.train import Train
-
-# Basic model parameters as external flags.
-FLAGS = None
 
 package_repo = 'wbuchwalter'
 package_name = 'mp-mnist'
+use_backend(Kubeflow)
 
+# Basic model parameters as external flags.
+FLAGS = None
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--max_steps',
+    type=int,
+    default=2000,
+    help='Number of steps to run trainer.'
+)
+parser.add_argument(
+    '--batch_size',
+    type=int,
+    default=100,
+    help='Batch size.  Must divide evenly into the dataset sizes.'
+)
+parser.add_argument(
+    '--input_data_dir',
+    type=str,
+    default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
+                          'tensorflow/mnist/input_data'),
+    help='Directory to put the input data.'
+)
+parser.add_argument(
+    '--log_dir',
+    type=str,
+    default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
+                          'tensorflow/mnist/logs/fully_connected_feed'),
+    help='Directory to put the log data.'
+)
+FLAGS, unparsed = parser.parse_known_args()
 
 def placeholder_inputs(batch_size):
   images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size,
@@ -80,12 +109,16 @@ def gen_hyperparameters():
   }
 
 @Train(
+    package={'name': package_name, 'repository': package_repo, 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
       'parallelism': 4,
-      'tensorboard': True
     },
-    package={'name': package_name, 'repository': package_repo, 'publish': True}
+    tensorboard={
+      'log_dir': FLAGS.log_dir,
+      'pvc_name': 'azurefile',
+      'public': True
+    }
 )
 def run_training(learning_rate, hidden1, hidden2):
   """Train MNIST for a number of steps."""
@@ -163,34 +196,5 @@ def main(_):
 
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser()
-  parser.add_argument(
-      '--max_steps',
-      type=int,
-      default=2000,
-      help='Number of steps to run trainer.'
-  )
-  parser.add_argument(
-      '--batch_size',
-      type=int,
-      default=100,
-      help='Batch size.  Must divide evenly into the dataset sizes.'
-  )
-  parser.add_argument(
-      '--input_data_dir',
-      type=str,
-      default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                           'tensorflow/mnist/input_data'),
-      help='Directory to put the input data.'
-  )
-  parser.add_argument(
-      '--log_dir',
-      type=str,
-      default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                           'tensorflow/mnist/logs/fully_connected_feed'),
-      help='Directory to put the log data.'
-  )
-
-
-  FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+  

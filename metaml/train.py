@@ -7,7 +7,7 @@ from collections import namedtuple
 
 import metaparticle_pkg.builder as builder
 import metaparticle_pkg.option as option
-from metaml.custom_runner import CustomRunnner
+from metaml.native_runner import NativeRunnner
 
 def is_in_docker_container():
     mp_in_container = os.getenv('METAPARTICLE_IN_CONTAINER', None)
@@ -49,8 +49,9 @@ class Train(object):
   # and feed it with predifined, or user generated HP generator
   # containerize the code and deploy on k8s
 
-  def __init__(self, options, package):
+  def __init__(self, options, package, tensorboard):
     self.train_options = TrainOptions(**options)
+    self.tensorboard_options = TensorboardOptions(**tensorboard)
     self.package = option.load(option.PackageOptions, package)
     self.image = "{repo}/{name}:latest".format(
           repo=self.package.repository,
@@ -58,7 +59,9 @@ class Train(object):
       )
 
     self.builder = builder.select(self.package.builder)
-    self.runner = CustomRunnner()
+
+    # Todo: choose runner based on backend
+    self.runner = NativeRunnner()
   
   def __call__(self, func):
     def wrapped():
@@ -82,7 +85,7 @@ class Train(object):
       signal.signal(signal.SIGINT, signal_handler)
 
       # TODO: pass args
-      self.runner.run(self.image, self.package.name, self.train_options)
+      self.runner.run(self.image, self.package.name, self.train_options, self.tensorboard_options)
 
       return self.runner.logs(self.package.name)
     return wrapped
@@ -97,9 +100,14 @@ class Train(object):
       return func(**params)
 
 
-class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism, tensorboard')):
+class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism')):
+  def __new__(cls, hyper_parameters={}, parallelism=1):
+    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism)
 
-  def __new__(cls, hyper_parameters={}, parallelism=1, tensorboard=False):
-    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism, tensorboard)
+# Todo: we should probably ask for the storageclass instead of the pvc_name and create a pvc on deployment.
+# This would need to be implemented in the AST
+class TensorboardOptions(namedtuple('Tensorboard', 'log_dir, pvc_name, public')):
+  def __new__(cls, log_dir, pvc_name, public):
+    return super(TensorboardOptions, cls).__new__(cls, log_dir, pvc_name, public)
 
 
