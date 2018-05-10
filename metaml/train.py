@@ -100,9 +100,9 @@ class Train(object):
       return func(**params)
 
 
-class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism')):
-  def __new__(cls, hyper_parameters={}, parallelism=1):
-    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism)
+class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism, completion')):
+  def __new__(cls, hyper_parameters={}, parallelism=1, completion=None):
+    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism, completion)
 
 # Todo: we should probably ask for the storageclass instead of the pvc_name and create a pvc on deployment.
 # This would need to be implemented in the AST

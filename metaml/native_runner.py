@@ -15,7 +15,6 @@ class NativeRunnner:
     def compile_ast(self, img, name, train_options, tensorboard_options):
 
         volumes = []
-        volumeMounts = []
         svc = {
             "name": name,
             "guid": 1234567,
@@ -58,9 +57,15 @@ class NativeRunnner:
         svc["jobs"] = [
             {
                 "name": name,
-                "replicas": train_options.parallelism,
+                "parallelism": train_options.parallelism,
+                "completion": train_options.completion if train_options.completion else train_options.parallelism,
                 "containers": [
-                    {"image": img, "volumeMounts": volumeMounts}
+                    {
+                        "image": img,
+                        "volumeMounts": [{
+                            "name": "tensorboard",
+                            "mountPath": tensorboard_options.log_dir
+                        }]}
                 ],
                 "volumes": volumes
             }

@@ -56,11 +56,14 @@ parser.add_argument(
                           'tensorflow/mnist/input_data'),
     help='Directory to put the input data.'
 )
+
+ # HACK: Ideally we would want to have a unique subpath for each instance of the job, but since we can't
+ # we are instead appending HOSTNAME to the logdir
 parser.add_argument(
     '--log_dir',
     type=str,
     default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                          'tensorflow/mnist/logs/fully_connected_feed'),
+                          'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', '')),
     help='Directory to put the log data.'
 )
 FLAGS, unparsed = parser.parse_known_args()
@@ -112,7 +115,7 @@ def gen_hyperparameters():
     package={'name': package_name, 'repository': package_repo, 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
-      'parallelism': 1,
+      'parallelism': 4
     },
     tensorboard={
       'log_dir': FLAGS.log_dir,
