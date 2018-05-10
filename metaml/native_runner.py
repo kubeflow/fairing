@@ -36,8 +36,11 @@ class NativeRunnner:
                     "name": "{}-tensorboard".format(name),
                     "replicas": 1,
                     "containers": [
-                        {"image": "tensorflow/tensorflow",
-                         "volumeMounts": volumeMounts}
+                        {
+                            "image": "tensorflow/tensorflow",
+                            "command": ["tensorboard", "--host", "0.0.0.0", "--logdir", tensorboard_options.log_dir],
+                            "volumeMounts": volumeMounts
+                        }
                     ],
                     "ports": [{
                         'number': 6006,

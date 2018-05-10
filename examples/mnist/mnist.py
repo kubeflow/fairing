@@ -112,7 +112,7 @@ def gen_hyperparameters():
     package={'name': package_name, 'repository': package_repo, 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
-      'parallelism': 4,
+      'parallelism': 1,
     },
     tensorboard={
       'log_dir': FLAGS.log_dir,
