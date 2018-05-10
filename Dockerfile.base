@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow
+FROM wbuchwalter/tf-metaparticle_pkg
 
 COPY ./ /opt/metaml
 WORKDIR /opt/metaml

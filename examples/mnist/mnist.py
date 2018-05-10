@@ -22,20 +22,21 @@ import random
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+import numpy as np
 
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-from metaml.utils import Train
+from metaml.train import Train
 
 # Basic model parameters as external flags.
 FLAGS = None
 
+package_repo = 'wbuchwalter'
+package_name = 'mp-mnist'
+
 
 def placeholder_inputs(batch_size):
-  # Note that the shapes of the placeholders match the shapes of the full
-  # image and label tensors, except the first dimension is now batch_size
-  # rather than the full size of the train or test data sets.
   images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size,
                                                          mnist.IMAGE_PIXELS))
   labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
@@ -43,8 +44,6 @@ def placeholder_inputs(batch_size):
 
 
 def fill_feed_dict(data_set, images_pl, labels_pl):
-  # Create the feed_dict for the placeholders filled with the next
-  # `batch size` examples.
   images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
                                                  False)
   feed_dict = {
@@ -73,73 +72,53 @@ def do_eval(sess,
         (num_examples, true_count, precision))
 
 
-def get_hyperparameters():
-  return [random.normalvariate(0.5, 0.5), 128, 32] 
+def gen_hyperparameters():
+  return {
+    'learning_rate': random.normalvariate(0.5, 0.5),
+    'hidden1': np.random.choice([64, 128, 256], 1)[0],
+    'hidden2': np.random.choice([16, 32, 64], 1)[0],
+  }
 
-
-@Train(hp=get_hyperparameters(), draws=1)
+@Train(
+    options={
+      'hyper_parameters': gen_hyperparameters,
+      'parallelism': 4,
+      'tensorboard': True
+    },
+    package={'name': package_name, 'repository': package_repo, 'publish': True}
+)
 def run_training(learning_rate, hidden1, hidden2):
   """Train MNIST for a number of steps."""
-  # Get the sets of images and labels for training, validation, and
-  # test on MNIST.
-  print("Training with LR: {} and batch size: {}".format(learning_rate, FLAGS.batch_size))
+  print("Training with LR: {} and layer sizes: {}, {}".format(learning_rate, hidden1, hidden2))
+
   data_sets = input_data.read_data_sets(FLAGS.input_data_dir)
 
-  # Tell TensorFlow that the model will be built into the default Graph.
   with tf.Graph().as_default():
-    # Generate placeholders for the images and labels.
     images_placeholder, labels_placeholder = placeholder_inputs(
         FLAGS.batch_size)
 
-    # Build a Graph that computes predictions from the inference model.
     logits = mnist.inference(images_placeholder,
                              hidden1,
                              hidden2)
 
-    # Add to the Graph the Ops for loss calculation.
     loss = mnist.loss(logits, labels_placeholder)
-
-    # Add to the Graph the Ops that calculate and apply gradients.
     train_op = mnist.training(loss, learning_rate)
-
-    # Add the Op to compare the logits to the labels during evaluation.
     eval_correct = mnist.evaluation(logits, labels_placeholder)
-
-    # Build the summary Tensor based on the TF collection of Summaries.
     summary = tf.summary.merge_all()
-
-    # Add the variable initializer Op.
     init = tf.global_variables_initializer()
-
-    # Create a saver for writing training checkpoints.
     saver = tf.train.Saver()
-
-    # Create a session for running Ops on the Graph.
     sess = tf.Session()
-
-    # Instantiate a SummaryWriter to output summaries and the Graph.
     summary_writer = tf.summary.FileWriter(FLAGS.log_dir, sess.graph)
-
-    # And then after everything is built:
-
-    # Run the Op to initialize the variables.
     sess.run(init)
 
     # Start the training loop.
     for step in xrange(FLAGS.max_steps):
       start_time = time.time()
 
-      # Fill a feed dictionary with the actual set of images and labels
-      # for this particular training step.
       feed_dict = fill_feed_dict(data_sets.train,
                                  images_placeholder,
                                  labels_placeholder)
 
-      # Run one step of the model.  The return values are the activations
-      # from the `train_op` (which is discarded) and the `loss` Op.  To
-      # inspect the values of your Ops or variables, you may include them
-      # in the list passed to sess.run() and the value tensors will be
-      # returned in the tuple from the call.
       _, loss_value = sess.run([train_op, loss],
                                feed_dict=feed_dict)
 
@@ -147,9 +126,7 @@ def run_training(learning_rate, hidden1, hidden2):
 
       # Write the summaries and print an overview fairly often.
       if step % 100 == 0:
-        # Print status to stdout.
         print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
-        # Update the events file.
         summary_str = sess.run(summary, feed_dict=feed_dict)
         summary_writer.add_summary(summary_str, step)
         summary_writer.flush()
@@ -182,41 +159,17 @@ def run_training(learning_rate, hidden1, hidden2):
 
 
 def main(_):
-
-  # FLAGS.log_dir = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/mnist/logs/fully_connected_feed')
-
-  # if tf.gfile.Exists(FLAGS.log_dir):
-  #   tf.gfile.DeleteRecursively(FLAGS.log_dir)
-  # tf.gfile.MakeDirs(FLAGS.log_dir)
   run_training()
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  # parser.add_argument(
-  #     '--learning_rate',
-  #     type=float,
-  #     default=0.01,
-  #     help='Initial learning rate.'
-  # )
   parser.add_argument(
       '--max_steps',
       type=int,
       default=2000,
       help='Number of steps to run trainer.'
   )
-  # parser.add_argument(
-  #     '--hidden1',
-  #     type=int,
-  #     default=128,
-  #     help='Number of units in hidden layer 1.'
-  # )
-  # parser.add_argument(
-  #     '--hidden2',
-  #     type=int,
-  #     default=32,
-  #     help='Number of units in hidden layer 2.'
-  # )
   parser.add_argument(
       '--batch_size',
       type=int,
