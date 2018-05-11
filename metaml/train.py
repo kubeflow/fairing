@@ -7,7 +7,7 @@ from collections import namedtuple
 
 import metaparticle_pkg.builder as builder
 import metaparticle_pkg.option as option
-from metaml.native_runner import NativeRunnner
+from metaml.backend import get_backend
 
 def is_in_docker_container():
     mp_in_container = os.getenv('METAPARTICLE_IN_CONTAINER', None)
@@ -49,7 +49,8 @@ class Train(object):
   # and feed it with predifined, or user generated HP generator
   # containerize the code and deploy on k8s
 
-  def __init__(self, options, package, tensorboard):
+  def __init__(self, backend, options, package, tensorboard):
+    self.backend = backend
     self.train_options = TrainOptions(**options)
     self.tensorboard_options = TensorboardOptions(**tensorboard)
     self.package = option.load(option.PackageOptions, package)
@@ -59,9 +60,7 @@ class Train(object):
       )
 
     self.builder = builder.select(self.package.builder)
-
-    # Todo: choose runner based on backend
-    self.runner = NativeRunnner()
+    self.backend = get_backend(backend)
   
   def __call__(self, func):
     def wrapped():
@@ -80,14 +79,14 @@ class Train(object):
         self.builder.publish(self.image)
 
       def signal_handler(signal, frame):
-        self.runner.cancel(self.package.name)
+        self.backend.cancel(self.package.name)
         sys.exit(0)
       signal.signal(signal.SIGINT, signal_handler)
 
       # TODO: pass args
-      self.runner.run(self.image, self.package.name, self.train_options, self.tensorboard_options)
+      self.backend.run(self.image, self.package.name, self.train_options, self.tensorboard_options)
 
-      return self.runner.logs(self.package.name)
+      return self.backend.logs(self.package.name)
     return wrapped
 
   def exec_user_code(self, func):

@@ -27,12 +27,12 @@ import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-from metaml.config import use_backend, Kubeflow
+import metaml.backend
 from metaml.train import Train
 
 package_repo = 'wbuchwalter'
 package_name = 'mp-mnist'
-use_backend(Kubeflow)
+BACKEND = metaml.backend.Kubeflow
 
 # Basic model parameters as external flags.
 FLAGS = None
@@ -112,10 +112,11 @@ def gen_hyperparameters():
   }
 
 @Train(
+    backend = BACKEND,
     package={'name': package_name, 'repository': package_repo, 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
-      'parallelism': 4
+      'parallelism': 1
     },
     tensorboard={
       'log_dir': FLAGS.log_dir,
@@ -196,6 +197,13 @@ def run_training(learning_rate, hidden1, hidden2):
 
 def main(_):
   run_training()
+
+  if BACKEND == metaml.backend.Kubeflow:
+    # Kubeflow delete pods as soon as they are completed, since it expects
+    # that cluster logging is enabled. But this is not practical for demos,
+    # So we sleep once the training is done to allow users to look at the pod's log
+    import time
+    time.sleep(1800)
 
 
 if __name__ == '__main__':

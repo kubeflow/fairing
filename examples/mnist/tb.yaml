@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mp-mnist-tensorboard
+  name: mp-mnist-tensorboard
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mp-mnist-tensorboard
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mp-mnist-tensorboard
+    spec:
+      containers:
+      - command:
+        - tensorboard
+        - --host 
+        - "0.0.0.0"
+        - --logdir 
+        - /tmp/tensorflow/mnist/logs/fully_connected_feed
+        image: tensorflow/tensorflow
+        imagePullPolicy: Always
+        name: mp-mnist-tensorboard-0
+        volumeMounts:
+        - mountPath: /tmp/tensorflow/mnist/logs/fully_connected_feed
+          name: tensorboard
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: tensorboard
+        persistentVolumeClaim:
+          claimName: azurefile
