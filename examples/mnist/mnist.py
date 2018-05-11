@@ -19,6 +19,7 @@ import os
 import sys
 import time
 import random
+import logging
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -30,8 +31,10 @@ from tensorflow.examples.tutorials.mnist import mnist
 import metaml.backend
 from metaml.train import Train
 
-package_repo = 'wbuchwalter'
-package_name = 'mp-mnist'
+logging.basicConfig(level=logging.INFO)
+
+PACKAGE_REPO = 'wbuchwalter'
+PACKAGE_NAME = 'mp-mnist'
 BACKEND = metaml.backend.Kubeflow
 
 # Basic model parameters as external flags.
@@ -113,7 +116,7 @@ def gen_hyperparameters():
 
 @Train(
     backend = BACKEND,
-    package={'name': package_name, 'repository': package_repo, 'publish': True},
+    package={'name': PACKAGE_NAME, 'repository': PACKAGE_REPO, 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
       'parallelism': 1

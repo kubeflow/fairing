@@ -1,12 +1,14 @@
 import signal
 import sys
+import os
 import types
 from collections import namedtuple
+import logging
 
-import metaparticle_pkg.builder as builder
-import metaparticle_pkg.option as option
 from metaml.backend import get_backend
-from metaml.docker import is_in_docker_container, write_dockerfile
+from metaml.docker import is_in_docker_container, write_dockerfile, DockerBuilder
+
+logger = logging.getLogger('metaml')
 
 class Train(object):
   # Calls the user defined training function 
@@ -17,13 +19,13 @@ class Train(object):
     self.backend = backend
     self.train_options = TrainOptions(**options)
     self.tensorboard_options = TensorboardOptions(**tensorboard)
-    self.package = option.load(option.PackageOptions, package)
+    self.package = PackageOptions(**package)
     self.image = "{repo}/{name}:latest".format(
           repo=self.package.repository,
           name=self.package.name
       )
 
-    self.builder = builder.select(self.package.builder)
+    self.builder = DockerBuilder()
     self.backend = get_backend(backend)
   
   def __call__(self, func):
@@ -42,6 +44,7 @@ class Train(object):
       if self.package.publish:
         self.builder.publish(self.image)
 
+
       def signal_handler(signal, frame):
         self.backend.cancel(self.package.name)
         sys.exit(0)
@@ -49,6 +52,7 @@ class Train(object):
 
       # TODO: pass args
       self.backend.run(self.image, self.package.name, self.train_options, self.tensorboard_options)
+      print("Training(s) launched.")
 
       return self.backend.logs(self.package.name)
     return wrapped
@@ -72,5 +76,12 @@ class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism, completio
 class TensorboardOptions(namedtuple('Tensorboard', 'log_dir, pvc_name, public')):
   def __new__(cls, log_dir, pvc_name, public):
     return super(TensorboardOptions, cls).__new__(cls, log_dir, pvc_name, public)
+
+class PackageOptions(namedtuple('Package', 'repository name builder publish py_version')):
+    required_options = ['repository']
+
+    def __new__(cls, repository, name, builder='docker', publish=False, py_version=3, dockerfile=None):
+        name = name if name else os.path.basename(os.getcwd())
+        return super(PackageOptions, cls).__new__(cls, repository, name, builder, publish, py_version)
 
 
