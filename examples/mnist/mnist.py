@@ -119,7 +119,7 @@ def gen_hyperparameters():
     package={'name': PACKAGE_NAME, 'repository': PACKAGE_REPO, 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
-      'parallelism': 1
+      'parallelism': 3
     },
     # resources={'gpu': 1},
     tensorboard={

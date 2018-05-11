@@ -53,15 +53,6 @@ This decorator is not yet implemented
 
 ## Installing
 
-#### `metaparticle_pkg`
-
-`metaparticle_pkg` package is outdated currently, so it needs to be installed manually from source:
-```bash
-git clone https://github.com/metaparticle-io/package
-cd package/python
-python setup.py install
-```
-
 #### `metaparticle-ast`
 
 This project uses a fork of `metaparticle-ast` for now, that need to be installed from source as well:
