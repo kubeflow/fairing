@@ -118,6 +118,7 @@ def gen_hyperparameters():
       'hyper_parameters': gen_hyperparameters,
       'parallelism': 1
     },
+    # resources={'gpu': 1},
     tensorboard={
       'log_dir': FLAGS.log_dir,
       'pvc_name': 'azurefile',
@@ -198,12 +199,12 @@ def run_training(learning_rate, hidden1, hidden2):
 def main(_):
   run_training()
 
-  if BACKEND == metaml.backend.Kubeflow:
-    # Kubeflow delete pods as soon as they are completed, since it expects
-    # that cluster logging is enabled. But this is not practical for demos,
-    # So we sleep once the training is done to allow users to look at the pod's log
-    import time
-    time.sleep(1800)
+  # if BACKEND == metaml.backend.Kubeflow:
+  #   # Kubeflow delete pods as soon as they are completed, since it expects
+  #   # that cluster logging is enabled. But this is not practical for demos,
+  #   # So we sleep once the training is done to allow users to look at the pod's log
+  #   import time
+  #   time.sleep(1800)
 
 
 if __name__ == '__main__':
