@@ -15,6 +15,13 @@ class Backend:
     def compile_ast(self, img, name, train_options, tensorboard_options):
       raise NotImplementedError()
     
+    def validate(self, train_options, tensorboard_options):
+        # Todo: do common validation here  
+        self.validate_options(train_options, tensorboard_options)
+    
+    def validate_options(self, train_options, tensorboard_options):
+        raise NotImplementedError()
+
     def run(self, img, name, train_options, tensorboard_options):
         svc = self.compile_ast(img, name, train_options, tensorboard_options)
 

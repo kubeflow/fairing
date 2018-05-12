@@ -5,6 +5,10 @@ from metaml.backend.backend import Backend
 
 class NativeBackend(Backend):
 
+    def validate_options(self, train_options, tensorboard_options):
+         if train_options.distributed_training:
+            raise Exception("Distributed training is not implemented in the native backend. Use Kubeflow instead.")
+            
     def compile_ast(self, img, name, train_options, tensorboard_options):
         volumes = []
         svc = {

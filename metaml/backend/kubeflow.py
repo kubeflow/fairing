@@ -3,10 +3,13 @@ import os
 import subprocess
 from metaml.backend.backend import Backend
 
+
 class KubeflowBackend(Backend):
 
+    def validate_options(self, train_options, tensorboard_options):
+        pass
+
     def compile_ast(self, img, name, train_options, tensorboard_options):
-        volumes = []
         svc = {
             "name": name,
             "guid": 1234567,
@@ -50,20 +53,52 @@ class KubeflowBackend(Backend):
         for ix in range(train_options.parallelism):
             tfjobs.append({
                 "name": "{}-{}".format(name, ix),
-                "replicaSpecs": [{
-                    "replicaType": "MASTER",
-                    "replicas": 1,
-                    "containers": [
-                    {
-                        "image": img,
-                        "volumeMounts": [{
-                            "name": "tensorboard",
-                            "mountPath": tensorboard_options.log_dir
-                        }]}
-                ],
-                "volumes": volumes
-                }]
+                "replicaSpecs": self.build_replica_specs(img, train_options, tensorboard_options)
             })
 
         svc["tfJobs"] = tfjobs
         return svc
+
+    def build_replica_specs(self, img, train_options, tb_options):
+        replica_specs = []
+        volumeMounts = [{
+            "name": "tensorboard",
+            "mountPath": tb_options.log_dir
+        }]
+        volumes = [{
+            "name": "tensorboard",
+            "persistentVolumeClaim": tb_options.pvc_name
+        }]
+        replica_specs.append({
+            "replicaType": "MASTER",
+            "replicas": 1,
+            "containers": [
+                {
+                    "image": img,
+                    "volumeMounts": volumeMounts
+                }
+            ],
+            "volumes": volumes
+        })
+
+        if train_options.distributed_training:
+            replica_specs.append({
+                "replicaType": "WORKER",
+                "replicas": train_options.distributed_training.worker,
+                "containers": [
+                    {
+                        "image": img
+                    }
+                ]
+            })
+            replica_specs.append({
+                "replicaType": "PS",
+                "replicas": train_options.distributed_training.ps,
+                "containers": [
+                    {
+                        "image": img
+                    }
+                ]
+            })
+
+        return replica_specs

@@ -27,6 +27,7 @@ class Train(object):
 
     self.builder = DockerBuilder()
     self.backend = get_backend(backend)
+    self.backend.validate(self.train_options, self.tensorboard_options)
   
   def __call__(self, func):
     def wrapped():
@@ -44,7 +45,6 @@ class Train(object):
       if self.package.publish:
         self.builder.publish(self.image)
 
-
       def signal_handler(signal, frame):
         self.backend.cancel(self.package.name)
         sys.exit(0)
@@ -58,6 +58,9 @@ class Train(object):
     return wrapped
 
   def exec_user_code(self, func):
+      if not self.train_options.hyper_parameters:
+        return func()
+
       params = None
       if isinstance(self.train_options.hyper_parameters, types.FunctionType):
         params = self.train_options.hyper_parameters()
@@ -67,12 +70,19 @@ class Train(object):
       return func(**params)
 
 
-class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism, completion')):
-  def __new__(cls, hyper_parameters={}, parallelism=1, completion=None):
-    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism, completion)
+class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism, completion, distributed_training')):
+  def __new__(cls, hyper_parameters={}, parallelism=1, completion=None, distributed_training=None):
+    if not completion:
+      completion = parallelism
+    distributed_training = DistributedTrainingOptions(**distributed_training)
+    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism, completion, distributed_training)
+
+class DistributedTrainingOptions(namedtuple('DistributedTraining', 'ps, worker')):
+  def __new__(cls, ps, worker):
+    return super(DistributedTrainingOptions, cls).__new__(cls, ps, worker)
 
 # Todo: we should probably ask for the storageclass instead of the pvc_name and create a pvc on deployment.
-# This would need to be implemented in the AST
+# This would need to be supported in the AST
 class TensorboardOptions(namedtuple('Tensorboard', 'log_dir, pvc_name, public')):
   def __new__(cls, log_dir, pvc_name, public):
     return super(TensorboardOptions, cls).__new__(cls, log_dir, pvc_name, public)

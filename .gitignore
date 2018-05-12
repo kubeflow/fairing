@@ -1,4 +1,5 @@
 .metaparticle
+examples/*/Dockerfile
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -33,10 +33,6 @@ from metaml.train import Train
 
 logging.basicConfig(level=logging.INFO)
 
-PACKAGE_REPO = 'wbuchwalter'
-PACKAGE_NAME = 'mp-mnist'
-BACKEND = metaml.backend.Kubeflow
-
 # Basic model parameters as external flags.
 FLAGS = None
 parser = argparse.ArgumentParser()
@@ -115,8 +111,8 @@ def gen_hyperparameters():
   }
 
 @Train(
-    backend = BACKEND,
-    package={'name': PACKAGE_NAME, 'repository': PACKAGE_REPO, 'publish': True},
+    backend = metaml.backend.Kubeflow,
+    package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
     options={
       'hyper_parameters': gen_hyperparameters,
       'parallelism': 3
