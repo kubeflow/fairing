@@ -11,7 +11,7 @@ class KubeflowBackend(NativeBackend):
 
     def add_jobs(self, svc, name, img):
         tfjobs = []
-        for ix in range(self.strategy.parallelism):
+        for ix in range(self.strategy.runs):
             tfjobs.append({
                 "name": "{}-{}".format(name, ix),
                 "replicaSpecs": self.build_replica_specs(img)
@@ -46,10 +46,10 @@ class KubeflowBackend(NativeBackend):
             "volumes": volumes
         })
 
-        if type(self.strategy) is DistributedTraining:
+        if type(self.architecture) is DistributedTraining:
             replica_specs.append({
                 "replicaType": "WORKER",
-                "replicas": self.strategy.worker_count,
+                "replicas": self.architecture.worker_count,
                 "containers": [
                     {
                         "image": img
@@ -58,7 +58,7 @@ class KubeflowBackend(NativeBackend):
             })
             replica_specs.append({
                 "replicaType": "PS",
-                "replicas": self.strategy.ps_count,
+                "replicas": self.architecture.ps_count,
                 "containers": [
                     {
                         "image": img

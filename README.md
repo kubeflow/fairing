@@ -49,8 +49,8 @@ Currently two strategies are implemented:
 Allows you to run multiple trainings in parallel, each one with different values for your hyperparameters.
 
 The `HyperparameterTuning` class takes 2 arguments:
-* `hyperparameters`
-* `parallelism`
+* `hyperparameters`:
+* `parallelism`:
 
 ```python
 @Train(
