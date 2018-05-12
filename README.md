@@ -1,8 +1,9 @@
+**This project is an experiment**
+
 # MetaML
 
 Easily train and serve ML models on Kubernetes, directly from your python code.
-
-**This work is an experiment**
+This projects uses [Metaparticle](https://github.com/wbuchwalter/metaparticle-ast) behind the scene.
 
 ## Overview
 
@@ -102,7 +103,7 @@ Complete example: [examples/simple-training/main.py](./examples/simple-training/
 
 ##### `DistributedTraining`
 
-**Only supported with `Kubeflow` backend.
+**Only supported with `Kubeflow` backend.**
 
 This will start a [Distributed Training](https://www.tensorflow.org/deploy/distributed). 
 Specify the number of desired parameter servers with `ps_count` and the number of workers with `worker_count`.
@@ -120,6 +121,8 @@ def train_func():
   # some training logic
   ...
 ```
+
+See [https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config](https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config) to understand how you need to modify your model to support distributed training with Kubeflow.
 
 Complete example: [examples/distributed-training/main.py](./examples/distributed-training/main.py)
 
