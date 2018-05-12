@@ -27,21 +27,6 @@ def is_in_docker_container():
   except IOError:
       return False
 
-def write_dockerfile(package, exec_file):
-    if hasattr(package, 'dockerfile') and package.dockerfile is not None:
-        shutil.copy(package.dockerfile, 'Dockerfile')
-        return
-
-    with open('Dockerfile', 'w+t') as f:
-        f.write("""FROM wbuchwalter/metaml
-
-COPY ./ /app/
-RUN pip install --no-cache -r /app/requirements.txt
-
-CMD python /app/{exec_file}
-""".format(version=package.py_version, exec_file=exec_file))
-
-
 class DockerBuilder:
     def __init__(self):
         self.docker_client = None

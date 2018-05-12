@@ -1,12 +1,12 @@
 import signal
 import sys
-import os
 import types
-from collections import namedtuple
 import logging
+import shutil
 
-from metaml.backend import get_backend
-from metaml.docker import is_in_docker_container, write_dockerfile, DockerBuilder
+from metaml.backend import get_backend, Native
+from metaml.docker import is_in_docker_container, DockerBuilder
+from metaml.options import TensorboardOptions, PackageOptions
 
 logger = logging.getLogger('metaml')
 
@@ -15,9 +15,10 @@ class Train(object):
   # and feed it with predifined, or user generated HP generator
   # containerize the code and deploy on k8s
 
-  def __init__(self, backend, options, package, tensorboard):
+  def __init__(self, strategy, package, tensorboard, backend=Native):
     self.backend = backend
-    self.train_options = TrainOptions(**options)
+    # self.train_options = TrainOptions(**options)
+    self.strategy = strategy
     self.tensorboard_options = TensorboardOptions(**tensorboard)
     self.package = PackageOptions(**package)
     self.image = "{repo}/{name}:latest".format(
@@ -27,7 +28,7 @@ class Train(object):
 
     self.builder = DockerBuilder()
     self.backend = get_backend(backend)
-    self.backend.validate(self.train_options, self.tensorboard_options)
+    self.backend.validate_training(self.strategy, self.tensorboard_options)
   
   def __call__(self, func):
     def wrapped():
@@ -39,7 +40,7 @@ class Train(object):
       if slash_ix != -1:
         exec_file = exec_file[slash_ix:]
 
-      write_dockerfile(self.package, exec_file)
+      self.write_dockerfile(self.package, exec_file)
       self.builder.build(self.image)
 
       if self.package.publish:
@@ -51,47 +52,29 @@ class Train(object):
       signal.signal(signal.SIGINT, signal_handler)
 
       # TODO: pass args
-      self.backend.run(self.image, self.package.name, self.train_options, self.tensorboard_options)
+      self.backend.run_training(self.image, self.package.name, self.strategy, self.tensorboard_options)
       print("Training(s) launched.")
 
       return self.backend.logs(self.package.name)
     return wrapped
 
   def exec_user_code(self, func):
-      if not self.train_options.hyper_parameters:
-        return func()
+      return func(**self.strategy.get_params())
+  
 
-      params = None
-      if isinstance(self.train_options.hyper_parameters, types.FunctionType):
-        params = self.train_options.hyper_parameters()
-      else:
-        params = self.train_options.hyper_parameters
+  def write_dockerfile(self, package, exec_file):
+    if hasattr(package, 'dockerfile') and package.dockerfile is not None:
+        shutil.copy(package.dockerfile, 'Dockerfile')
+        return
 
-      return func(**params)
+    with open('Dockerfile', 'w+t') as f:
+        f.write("""FROM wbuchwalter/metaml
 
+COPY ./ /app/
+RUN pip install --no-cache -r /app/requirements.txt
 
-class TrainOptions(namedtuple('Train', 'hyper_parameters, parallelism, completion, distributed_training')):
-  def __new__(cls, hyper_parameters={}, parallelism=1, completion=None, distributed_training=None):
-    if not completion:
-      completion = parallelism
-    distributed_training = DistributedTrainingOptions(**distributed_training)
-    return super(TrainOptions, cls).__new__(cls, hyper_parameters, parallelism, completion, distributed_training)
+CMD python /app/{exec_file}
+""".format(version=package.py_version, exec_file=exec_file))
 
-class DistributedTrainingOptions(namedtuple('DistributedTraining', 'ps, worker')):
-  def __new__(cls, ps, worker):
-    return super(DistributedTrainingOptions, cls).__new__(cls, ps, worker)
-
-# Todo: we should probably ask for the storageclass instead of the pvc_name and create a pvc on deployment.
-# This would need to be supported in the AST
-class TensorboardOptions(namedtuple('Tensorboard', 'log_dir, pvc_name, public')):
-  def __new__(cls, log_dir, pvc_name, public):
-    return super(TensorboardOptions, cls).__new__(cls, log_dir, pvc_name, public)
-
-class PackageOptions(namedtuple('Package', 'repository name builder publish py_version')):
-    required_options = ['repository']
-
-    def __new__(cls, repository, name, builder='docker', publish=False, py_version=3, dockerfile=None):
-        name = name if name else os.path.basename(os.getcwd())
-        return super(PackageOptions, cls).__new__(cls, repository, name, builder, publish, py_version)
 
 

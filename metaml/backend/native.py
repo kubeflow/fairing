@@ -2,15 +2,15 @@ import json
 import os
 import subprocess
 from metaml.backend.backend import Backend
+from metaml.strategies import DistributedTraining, HyperparameterTuning
 
 class NativeBackend(Backend):
 
-    def validate_options(self, train_options, tensorboard_options):
-         if train_options.distributed_training:
+    def validate_training_options(self, strategy, tensorboard_options):
+         if type(strategy) is DistributedTraining:
             raise Exception("Distributed training is not implemented in the native backend. Use Kubeflow instead.")
-            
-    def compile_ast(self, img, name, train_options, tensorboard_options):
-        volumes = []
+
+    def compile_training_ast(self, img, name, strategy, tensorboard_options):
         svc = {
             "name": name,
             "guid": 1234567,
@@ -49,12 +49,28 @@ class NativeBackend(Backend):
                 "name": "{}-tensorboard".format(name),
                 "public": tensorboard_options.public
             }
+        
+        svc = self.add_jobs(svc, name, img, strategy, tensorboard_options)
 
+        return svc
+    
+    def add_jobs(self, svc, name, img, strategy, tensorboard_options):
+        if not type(strategy) is HyperparameterTuning:
+            raise Exception('{} strategy is not supported by Native backend'.format(type(strategy)))
+        
+        volumeMounts = [{
+            "name": "tensorboard",
+            "mountPath": tensorboard_options.log_dir
+        }]
+        volumes = [{
+            "name": "tensorboard",
+            "persistentVolumeClaim": tensorboard_options.pvc_name
+        }]
         svc["jobs"] = [
             {
                 "name": name,
-                "parallelism": train_options.parallelism,
-                "completion": train_options.completion if train_options.completion else train_options.parallelism,
+                "parallelism": strategy.parallelism,
+                "completion": strategy.completion,
                 "containers": [
                     {
                         "image": img,
@@ -66,5 +82,34 @@ class NativeBackend(Backend):
                 "volumes": volumes
             }
         ]
-
         return svc
+
+    def compile_serving_ast(self, img, name, serving_options):
+        svc = {
+            "name": name,
+            "guid": 456789,
+        }
+
+        svc["services"] = [
+            {
+                "name": "{}-metaml-serving".format(name),
+                "replicas": 1,
+                "containers": [
+                    {
+                        "image": img,
+                    }
+                ],
+                "ports": [{
+                    'number': 80,
+                    'protocol': 'TCP'
+                }],
+            }
+        ]
+
+        svc["serve"] = {
+            "name": "{}-metaml-serving".format(name),
+            "public": True
+        }
+        return svc
+
+    

@@ -53,6 +53,8 @@ This decorator is not yet implemented
 
 ## Installing
 
+**This projects requires python 3**
+
 #### `metaparticle-ast`
 
 This project uses a fork of `metaparticle-ast` for now, that need to be installed from source as well:
