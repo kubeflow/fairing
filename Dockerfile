@@ -1,6 +1,5 @@
-FROM wbuchwalter/metaml
+FROM tensorflow/tensorflow
 
-COPY ./ /app/
-RUN pip install --no-cache -r /app/requirements.txt
-
-CMD python /app/testmp.py
+COPY ./ /opt/metaml
+WORKDIR /opt/metaml
+RUN python ./setup.py install

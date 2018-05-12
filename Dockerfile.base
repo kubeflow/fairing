@@ -1,5 +1,0 @@
-FROM wbuchwalter/tf-metaparticle_pkg
-
-COPY ./ /opt/metaml
-WORKDIR /opt/metaml
-RUN python ./setup.py install
