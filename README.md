@@ -2,6 +2,8 @@
 
 Easily train and serve ML models on Kubernetes, directly from your python code.
 
+**This work is an experiment**
+
 ## Overview
 
 MetaML allows you to express how you want your model to be trained and served using native python decorators.  
@@ -103,7 +105,7 @@ Complete example: [examples/simple-training/main.py](./examples/simple-training/
 **Only supported with `Kubeflow` backend.
 
 This will start a [Distributed Training](https://www.tensorflow.org/deploy/distributed). 
-Specify the number of desired parameter servers with `ps` and the number of workers with `worker`.
+Specify the number of desired parameter servers with `ps_count` and the number of workers with `worker_count`.
 Another instance of type master will always be created.
 
 ```python
