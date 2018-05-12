@@ -27,11 +27,28 @@ def is_in_docker_container():
   except IOError:
       return False
 
+
 class DockerBuilder:
     def __init__(self):
         self.docker_client = None
+    
+    def write_dockerfile(self, package, exec_file):
+        if hasattr(package, 'dockerfile') and package.dockerfile is not None:
+            shutil.copy(package.dockerfile, 'Dockerfile')
+            return
+
+        with open('Dockerfile', 'w+t') as f:
+            f.write("""FROM wbuchwalter/metaml
+
+COPY ./ /app/
+RUN pip install --no-cache -r /app/requirements.txt
+
+CMD python /app/{exec_file}
+""".format(version=package.py_version, exec_file=exec_file))
+
 
     def build(self, img, path='.'):
+        print('Building docker image...')
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
 
@@ -43,14 +60,17 @@ class DockerBuilder:
 
         for line in bld:
             self._process_stream(line)
+        print('Done building docker image.')
 
     def publish(self, img):
+        print('Publishing image...')
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
 
         # TODO: do we need to set tag?
         for line in self.docker_client.push(img, stream=True):
             self._process_stream(line)
+        print('Done publishing')
 
     def _process_stream(self, line):
         raw = line.decode('utf-8').strip()

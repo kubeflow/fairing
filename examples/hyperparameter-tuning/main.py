@@ -32,7 +32,7 @@ import metaml.backend
 from metaml.train import Train
 from metaml.strategies import HyperparameterTuning
 
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 
 # Basic model parameters as external flags.
 FLAGS = None

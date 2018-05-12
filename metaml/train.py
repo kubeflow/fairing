@@ -40,7 +40,7 @@ class Train(object):
       if slash_ix != -1:
         exec_file = exec_file[slash_ix:]
 
-      self.write_dockerfile(self.package, exec_file)
+      self.builder.write_dockerfile(self.package, exec_file)
       self.builder.build(self.image)
 
       if self.package.publish:
@@ -60,21 +60,6 @@ class Train(object):
 
   def exec_user_code(self, func):
       return func(**self.strategy.get_params())
-  
-
-  def write_dockerfile(self, package, exec_file):
-    if hasattr(package, 'dockerfile') and package.dockerfile is not None:
-        shutil.copy(package.dockerfile, 'Dockerfile')
-        return
-
-    with open('Dockerfile', 'w+t') as f:
-        f.write("""FROM wbuchwalter/metaml
-
-COPY ./ /app/
-RUN pip install --no-cache -r /app/requirements.txt
-
-CMD python /app/{exec_file}
-""".format(version=package.py_version, exec_file=exec_file))
 
 
 
