@@ -64,6 +64,7 @@ git remote add wbuchwalter https://github.com/wbuchwalter/metaparticle-ast
 git pull wbuchwalter master
 
 go get -d ./cmd/compiler/
+rm -rf $GOPATH/src/github.com/kubeflow/tf-operator/vendor
 go install ./cmd/compiler/mp-compiler.go
 ```
 
