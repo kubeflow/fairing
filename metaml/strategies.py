@@ -1,24 +1,17 @@
 import types
 
-class TrainingStrategy(object):
+class BasicTrainingStrategy(object):
   def __init__(self):
-    self.parallelism = 1
+    self.runs = 1
 
   def get_params(self):
     return {}
 
-class DistributedTraining(TrainingStrategy):
-  def __init__(self, ps_count, worker_count):
-    super(DistributedTraining, self).__init__()
-    self.ps_count = ps_count
-    self.worker_count = worker_count
-  
-class HyperparameterTuning(TrainingStrategy):
-  def __init__(self, hyper_parameters, parallelism=1, completion=None):
+class HyperparameterTuning(BasicTrainingStrategy):
+  def __init__(self, hyper_parameters, runs=1):
     super(HyperparameterTuning, self).__init__()
     self.hyper_parameters = hyper_parameters
-    self.parallelism = parallelism
-    self.completion = completion if completion else parallelism
+    self.runs = runs
   
   def get_params(self):
     if isinstance(self.hyper_parameters, types.FunctionType):

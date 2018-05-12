@@ -11,11 +11,9 @@ MetaML allows you to express how you want your model to be trained and served us
 ```python
 @Train(
     package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True},
-    options={
-      'hyper_parameters': {'learning_rate': random.normalvariate(0.5, 0.5)},
-    },
+    strategy=HyperparameterTuning({'learning_rate': random.normalvariate(0.5, 0.5)}, parallelism=3),
     tensorboard={
-      'log_dir': '/some/path',
+      'log_dir': FLAGS.log_dir,
     }
 )
 def my_training_function(learning_rate):
@@ -34,18 +32,40 @@ Currently, MetaML supports two backends:
 The `Train` decorator takes 4 arguments:
 
 * `package`: Defines the repository (this could be your DockerHub username, or something like `somerepo.acr.io` on Azure for example) and name that should be used to build the image. You can control wether you want to publish the image by setting `publish` to `True`.
-
-* `options`: These are the options specific to the training itself
-  * `parallelism`: How many trainings should run in parallel? Default to `1`.
-  * `completion`: [Only for `Native` backend] How many trainings should run in total. If omitted, this will be set to the value of `parallelism`.
-  * `hyper_parameters`: What hyperparameters should be used for each training. You can either pass an object (in which case every instance will receive the same values) or a function (the function will be called separatly in every instance, allowing you to explore the HP space).
-
+* `strategy`: Specify which `TrainingStrategy` should be used (more details below).
 * `tensorboard`: [Optional] If specified, will spawn an instance of TensorBoard to monitor your trainings
   * `log_dir`: Directory where the summaries are saved.
   * `pvc_name`: Name of an existing `PermanentVolumeClaim` that should be mounted.
   * `public`: If set to `True` then a public IP will be created for TensorBoard (provided your Kubernetes cluster supports this). Otherwise only a private IP will be created.
 
-* `backend`: Which backend to use.
+* `backend`: [Optionnal] Which backend to use. If not specified, the `Native` backend will be used.
+
+#### Training Strategies
+
+Training strategies define how your code will be deployed in Kubernetes.  
+Currently two strategies are implemented:
+
+##### `HyperparameterTuning`
+Allows you to run multiple trainings in parallel, each one with different values for your hyperparameters.
+
+The `HyperparameterTuning` class takes 2 arguments:
+* `hyperparameters`
+* `parallelism`
+
+```python
+@Train(
+    package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True},
+    strategy=HyperparameterTuning(hyperparameters=),
+)
+def my_training_function(learning_rate):
+  # some training logic
+  ...
+```
+
+
+##### `DistributedTraining`
+wefn
+
 
 ### `@Serve` decorator
 

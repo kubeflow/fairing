@@ -7,6 +7,8 @@ import shutil
 from metaml.backend import get_backend, Native
 from metaml.docker import is_in_docker_container, DockerBuilder
 from metaml.options import TensorboardOptions, PackageOptions
+from metaml.strategies import BasicTrainingStrategy
+from metaml.architectures import BasicArchitecture
 
 logger = logging.getLogger('metaml')
 
@@ -15,11 +17,12 @@ class Train(object):
   # and feed it with predifined, or user generated HP generator
   # containerize the code and deploy on k8s
 
-  def __init__(self, strategy, package, tensorboard, backend=Native):
+  def __init__(self, package, tensorboard=None, backend=Native, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):
     self.backend = backend
     # self.train_options = TrainOptions(**options)
     self.strategy = strategy
-    self.tensorboard_options = TensorboardOptions(**tensorboard)
+    self.architecture = architecture
+    self.tensorboard_options = TensorboardOptions(**tensorboard) if tensorboard else None
     self.package = PackageOptions(**package)
     self.image = "{repo}/{name}:latest".format(
           repo=self.package.repository,
@@ -28,7 +31,7 @@ class Train(object):
 
     self.builder = DockerBuilder()
     self.backend = get_backend(backend)
-    self.backend.validate_training(self.strategy, self.tensorboard_options)
+    self.backend.init_training(self.architecture, self.strategy, self.tensorboard_options)
   
   def __call__(self, func):
     def wrapped():
@@ -52,7 +55,7 @@ class Train(object):
       signal.signal(signal.SIGINT, signal_handler)
 
       # TODO: pass args
-      self.backend.run_training(self.image, self.package.name, self.strategy, self.tensorboard_options)
+      self.backend.run_training(self.image, self.package.name)
       print("Training(s) launched.")
 
       return self.backend.logs(self.package.name)

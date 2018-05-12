@@ -36,9 +36,9 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 import metaml.backend
 from metaml.train import Train
-from metaml.strategies import DistributedTraining
+from metaml.architectures import DistributedTraining
 
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--fake_data', nargs='?', const=True, type=bool,
@@ -67,8 +67,7 @@ FLAGS, unparsed = parser.parse_known_args()
 @Train(
     backend = metaml.backend.Kubeflow,
     package={'name': 'mp-dist-mnist', 'repository': 'wbuchwalter', 'publish': True},
-    strategy=DistributedTraining(ps_count=1, worker_count=3),
-    # resources={'gpu': 1},
+    architecture=DistributedTraining(ps_count=1, worker_count=3),
     tensorboard={
       'log_dir': FLAGS.logdir,
       'pvc_name': 'azurefile',

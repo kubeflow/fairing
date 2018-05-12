@@ -4,6 +4,21 @@ import subprocess
 
 
 class Backend:
+    def __init__(self):
+        self.architecture = None
+        self.strategy = None
+        self.tensorboard_options = None
+        self.serving_options = None
+
+    def init_training(self, architecture, strategy, tensorboard_options):
+        self.architecture = architecture
+        self.strategy = strategy
+        self.tensorboard_options = tensorboard_options
+        self.validate_training()
+    
+    def init_serving(self, serving_options):
+        self.serving_options = serving_options
+
     def cancel(self, name):
         subprocess.check_call(
             ['mp-compiler', '-f', '.metaparticle/spec.json', '--delete'])
@@ -12,25 +27,25 @@ class Backend:
         subprocess.check_call(
             ['mp-compiler', '-f', '.metaparticle/spec.json', '--deploy=false', '--attach=true'])
   
-    def validate_training(self, train_options, tensorboard_options):
+    def validate_training(self):
         # Todo: do common validation here  
-        self.validate_training_options(train_options, tensorboard_options)
+        self.validate_training_options()
     
-    def validate_training_options(self, train_options, tensorboard_options):
+    def validate_training_options(self):
         raise NotImplementedError()
     
-    def compile_training_ast(self, img, name, train_options, tensorboard_options):
+    def compile_training_ast(self, img, name):
       raise NotImplementedError()
     
-    def compile_serving_ast(self, img, name, serving_options):
+    def compile_serving_ast(self, img, name):
       raise NotImplementedError()
 
-    def run_serving(self, img, name, serving_options):
-        svc = self.compile_serving_ast(img, name, serving_options)
+    def run_serving(self, img, name):
+        svc = self.compile_serving_ast(img, name)
         self.run(svc)
 
-    def run_training(self, img, name, train_options, tensorboard_options):
-        svc = self.compile_training_ast(img, name, train_options, tensorboard_options)
+    def run_training(self, img, name):
+        svc = self.compile_training_ast(img, name)
         self.run(svc)
     
     def run(self, svc):

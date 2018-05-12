@@ -28,11 +28,8 @@ import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-import metaml.backend
 from metaml.train import Train
-from metaml.strategies import HyperparameterTuning
 
-#logging.basicConfig(level=logging.INFO)
 
 # Basic model parameters as external flags.
 FLAGS = None
@@ -104,27 +101,12 @@ def do_eval(sess,
         (num_examples, true_count, precision))
 
 
-def gen_hyperparameters():
-  return {
-    'learning_rate': random.normalvariate(0.5, 0.5),
-    'hidden1': np.random.choice([64, 128, 256], 1)[0],
-    'hidden2': np.random.choice([16, 32, 64], 1)[0],
-  }
-
-@Train(
-    backend = metaml.backend.Kubeflow,
-    package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
-    strategy=HyperparameterTuning(gen_hyperparameters, runs=3),
-    tensorboard={
-      'log_dir': FLAGS.log_dir,
-      'pvc_name': 'azurefile',
-      'public': True
-    }
-)
-def run_training(learning_rate, hidden1, hidden2):
+@Train(package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True})
+def run_training():
   """Train MNIST for a number of steps."""
-  print("Training with LR: {} and layer sizes: {}, {}".format(learning_rate, hidden1, hidden2))
-
+  learning_rate = 0.1
+  hidden1 = 128 
+  hidden2 = 32
   data_sets = input_data.read_data_sets(FLAGS.input_data_dir)
 
   with tf.Graph().as_default():

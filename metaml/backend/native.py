@@ -2,28 +2,38 @@ import json
 import os
 import subprocess
 from metaml.backend.backend import Backend
-from metaml.strategies import DistributedTraining, HyperparameterTuning
+from metaml.strategies import HyperparameterTuning
+from metaml.architectures import DistributedTraining
+
 
 class NativeBackend(Backend):
 
-    def validate_training_options(self, strategy, tensorboard_options):
-         if type(strategy) is DistributedTraining:
-            raise Exception("Distributed training is not implemented in the native backend. Use Kubeflow instead.")
+    def validate_training_options(self):
+        if type(self.architecture) is DistributedTraining:
+            raise Exception(
+                "Distributed training is not implemented in the native backend. Use Kubeflow instead.")
 
-    def compile_training_ast(self, img, name, strategy, tensorboard_options):
+    def compile_training_ast(self, img, name):
         svc = {
             "name": name,
             "guid": 1234567,
         }
 
-        if tensorboard_options:
+        svc = self.compile_tensorboard(svc, name)
+
+        svc = self.add_jobs(svc, name, img)
+
+        return svc
+
+    def compile_tensorboard(self, svc, name):
+        if self.tensorboard_options:
             volumeMounts = [{
                 "name": "tensorboard",
-                "mountPath": tensorboard_options.log_dir
+                "mountPath": self.tensorboard_options.log_dir
             }]
             volumes = [{
                 "name": "tensorboard",
-                "persistentVolumeClaim": tensorboard_options.pvc_name
+                "persistentVolumeClaim": self.tensorboard_options.pvc_name
             }]
 
             svc["services"] = [
@@ -33,7 +43,7 @@ class NativeBackend(Backend):
                     "containers": [
                         {
                             "image": "tensorflow/tensorflow",
-                            "command": ["tensorboard", "--host", "0.0.0.0", "--logdir", tensorboard_options.log_dir],
+                            "command": ["tensorboard", "--host", "0.0.0.0", "--logdir", self.tensorboard_options.log_dir],
                             "volumeMounts": volumeMounts
                         }
                     ],
@@ -47,44 +57,40 @@ class NativeBackend(Backend):
 
             svc["serve"] = {
                 "name": "{}-tensorboard".format(name),
-                "public": tensorboard_options.public
+                "public": self.tensorboard_options.public
             }
-        
-        svc = self.add_jobs(svc, name, img, strategy, tensorboard_options)
-
         return svc
-    
-    def add_jobs(self, svc, name, img, strategy, tensorboard_options):
-        if not type(strategy) is HyperparameterTuning:
-            raise Exception('{} strategy is not supported by Native backend'.format(type(strategy)))
-        
-        volumeMounts = [{
-            "name": "tensorboard",
-            "mountPath": tensorboard_options.log_dir
-        }]
-        volumes = [{
-            "name": "tensorboard",
-            "persistentVolumeClaim": tensorboard_options.pvc_name
-        }]
+
+    def add_jobs(self, svc, name, img):
+        volumeMounts = []
+        volumes = []
+        if self.tensorboard_options:
+            volumeMounts = [{
+                "name": "tensorboard",
+                "mountPath": self.tensorboard_options.log_dir
+            }] 
+            volumes = [{
+                "name": "tensorboard",
+                "persistentVolumeClaim": self.tensorboard_options.pvc_name
+            }]
         svc["jobs"] = [
             {
                 "name": name,
-                "parallelism": strategy.parallelism,
-                "completion": strategy.completion,
+                #TODO should parallelism and completion be surfaced ? How would that be implemented in all backends
+                "parallelism": self.strategy.runs,
+                "completion": self.strategy.runs,
                 "containers": [
                     {
                         "image": img,
-                        "volumeMounts": [{
-                            "name": "tensorboard",
-                            "mountPath": tensorboard_options.log_dir
-                        }]}
+                        "volumeMounts": volumeMounts
+                    }
                 ],
                 "volumes": volumes
             }
         ]
         return svc
 
-    def compile_serving_ast(self, img, name, serving_options):
+    def compile_serving_ast(self, img, name):
         svc = {
             "name": name,
             "guid": 456789,
@@ -99,6 +105,7 @@ class NativeBackend(Backend):
                         "image": img,
                     }
                 ],
+                # TODO: Use self.serving_options
                 "ports": [{
                     'number': 80,
                     'protocol': 'TCP'
@@ -111,5 +118,3 @@ class NativeBackend(Backend):
             "public": True
         }
         return svc
-
-    
