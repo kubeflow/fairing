@@ -1,8 +1,8 @@
+:warning:  **This work is an experiment** :warning:
+
 # MetaML
 
 Easily train and serve ML models on Kubernetes, directly from your python code.
-
-**This work is an experiment**
 
 ## Overview
 
