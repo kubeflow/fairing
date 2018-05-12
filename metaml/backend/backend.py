@@ -8,7 +8,6 @@ class Backend:
         self.architecture = None
         self.strategy = None
         self.tensorboard_options = None
-        self.serving_options = None
 
     def init_training(self, architecture, strategy, tensorboard_options):
         self.architecture = architecture
@@ -16,9 +15,6 @@ class Backend:
         self.tensorboard_options = tensorboard_options
         self.validate_training()
     
-    def init_serving(self, serving_options):
-        self.serving_options = serving_options
-
     def cancel(self, name):
         subprocess.check_call(
             ['mp-compiler', '-f', '.metaparticle/spec.json', '--delete'])
@@ -37,11 +33,11 @@ class Backend:
     def compile_training_ast(self, img, name):
       raise NotImplementedError()
     
-    def compile_serving_ast(self, img, name):
+    def compile_serving_ast(self, img, name, port, replicas):
       raise NotImplementedError()
 
-    def run_serving(self, img, name):
-        svc = self.compile_serving_ast(img, name)
+    def run_serving(self, img, name, port, replicas):
+        svc = self.compile_serving_ast(img, name, port, replicas)
         self.run(svc)
 
     def run_training(self, img, name):

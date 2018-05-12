@@ -1,9 +1,5 @@
 from collections import namedtuple
 
-class ServeOptions(namedtuple('Serve', 'route, port, replicas')):
-  def __new__(cls, route='/predict', port=80, replicas=1):    
-    return super(ServeOptions, cls).__new__(cls, route, port, replicas)
-
 # Todo: we should probably ask for the storageclass instead of the pvc_name and create a pvc on deployment.
 # This would need to be supported in the AST
 class TensorboardOptions(namedtuple('Tensorboard', 'log_dir, pvc_name, public')):

@@ -90,7 +90,7 @@ class NativeBackend(Backend):
         ]
         return svc
 
-    def compile_serving_ast(self, img, name):
+    def compile_serving_ast(self, img, name, port, replicas):
         svc = {
             "name": name,
             "guid": 456789,
@@ -99,7 +99,7 @@ class NativeBackend(Backend):
         svc["services"] = [
             {
                 "name": "{}-metaml-serving".format(name),
-                "replicas": 1,
+                "replicas": replicas,
                 "containers": [
                     {
                         "image": img,
@@ -107,7 +107,7 @@ class NativeBackend(Backend):
                 ],
                 # TODO: Use self.serving_options
                 "ports": [{
-                    'number': 80,
+                    'number': port,
                     'protocol': 'TCP'
                 }],
             }

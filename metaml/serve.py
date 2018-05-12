@@ -6,17 +6,22 @@ import logging
 
 from metaml.backend import get_backend, Native
 from metaml.docker import is_in_docker_container, DockerBuilder
-from metaml.options import PackageOptions, ServeOptions
+from metaml.options import PackageOptions
 
 logger = logging.getLogger('metaml')
 
 user_function = None
+serving_route = None
 
 class Serve(object):
 
-    def __init__(self, package, serve_options={}, backend=Native):
+    def __init__(self, package, route='/predict', port=8080, replicas=1, backend=Native):
+        global serving_route
+        serving_route = route
         self.backend = backend
-        self.serve_options = ServeOptions(**serve_options)
+        self.route = route
+        self.port = port
+        self.replicas = replicas
         self.package = PackageOptions(**package)
         self.image = "{repo}/{name}:latest".format(
             repo=self.package.repository,
@@ -48,7 +53,7 @@ class Serve(object):
             signal.signal(signal.SIGINT, signal_handler)
 
             self.backend.run_serving(
-                self.image, self.package.name, self.serve_options)
+                self.image, self.package.name, self.port, self.replicas)
             print("Server deployed.")
 
             return self.backend.logs(self.package.name)
@@ -58,17 +63,18 @@ class Serve(object):
         global user_function
         user_function = func
         # TODO: Serve only on url passed to decorator + port
-        httpd = http.server.HTTPServer(('', 8080), HTTPHandler)
+        httpd = http.server.HTTPServer(('', self.port), HTTPHandler)
         print('Server running on port 8080...')
         httpd.serve_forever()
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()
-        #TODO: Handle parameters + error catching
-        res = user_function()
-        self.wfile.write(bytes(res, "utf8"))
+        if self.path == serving_route:
+            self.send_response(200)
+            self.send_header('Content-type','text/html')
+            self.end_headers()
+            #TODO: Handle parameters + error catching
+            res = user_function()
+            self.wfile.write(bytes(res, "utf8"))
         return
