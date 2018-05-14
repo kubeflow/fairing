@@ -4,21 +4,26 @@ import shutil
 import http.server
 import logging
 
-from metaml.backend import get_backend, Native
+from metaml.backend import NativeBackend
 from metaml.docker import is_in_docker_container, DockerBuilder
 from metaml.options import PackageOptions
+import metaml.metaparticle as mp
 
 logger = logging.getLogger('metaml')
 
 user_function = None
 serving_route = None
 
+
 class Serve(object):
 
-    def __init__(self, package, route='/predict', port=8080, replicas=1, backend=Native):
+    def __init__(self, package, route='/predict', port=8080, replicas=1):
         global serving_route
         serving_route = route
-        self.backend = backend
+
+        # For now we force native backend for serving,
+        # we might want to give more option later, i.e using seldon + kubeflow
+        self.backend = NativeBackend()
         self.route = route
         self.port = port
         self.replicas = replicas
@@ -29,7 +34,6 @@ class Serve(object):
         )
 
         self.builder = DockerBuilder()
-        self.backend = get_backend(backend)
 
     def __call__(self, func):
         def wrapped():
@@ -41,6 +45,9 @@ class Serve(object):
             if slash_ix != -1:
                 exec_file = exec_file[slash_ix:]
 
+            ast = self.backend.compile_serving_ast(
+                self.image, self.package.name, self.port, self.replicas)
+
             self.builder.write_dockerfile(self.package, exec_file)
             self.builder.build(self.image)
 
@@ -48,15 +55,14 @@ class Serve(object):
                 self.builder.publish(self.image)
 
             def signal_handler(signal, frame):
-                self.backend.cancel(self.package.name)
+                mp.cancel(self.package.name)
                 sys.exit(0)
             signal.signal(signal.SIGINT, signal_handler)
 
-            self.backend.run_serving(
-                self.image, self.package.name, self.port, self.replicas)
+            mp.run(ast)
             print("Server deployed.")
 
-            return self.backend.logs(self.package.name)
+            return mp.logs(self.package.name)
         return wrapped
 
     def serve(self, func):
@@ -72,9 +78,9 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == serving_route:
             self.send_response(200)
-            self.send_header('Content-type','text/html')
+            self.send_header('Content-type', 'text/html')
             self.end_headers()
-            #TODO: Handle parameters + error catching
+            # TODO: Handle parameters + error catching
             res = user_function()
             self.wfile.write(bytes(res, "utf8"))
         return

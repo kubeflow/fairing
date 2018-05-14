@@ -29,6 +29,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
 from metaml.train import Train
+from metaml.architectures.kubeflow.basic import BasicArchitecture
 
 
 # Basic model parameters as external flags.
@@ -101,7 +102,7 @@ def do_eval(sess,
         (num_examples, true_count, precision))
 
 
-@Train(package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True})
+@Train(package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True}, architecture=BasicArchitecture())
 def run_training():
   """Train MNIST for a number of steps."""
   learning_rate = 0.1

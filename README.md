@@ -40,8 +40,6 @@ The `Train` decorator takes 4 arguments:
   * `pvc_name`: Name of an existing `PermanentVolumeClaim` that should be mounted.
   * `public`: If set to `True` then a public IP will be created for TensorBoard (provided your Kubernetes cluster supports this). Otherwise only a private IP will be created.
 
-* `backend`: [Optionnal] Which backend to use. If not specified, the `Native` backend will be used.
-
 #### Training Strategies
 
 ##### `BasicTrainingStrategy`
@@ -49,6 +47,8 @@ The `Train` decorator takes 4 arguments:
 This is the default value for `strategy`. A single training run will be deployed. 
 
 ```python
+from metaml.train import Train
+
 # Note: we are note specifiying any strategy since this is the default value
 @Train(package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True})
 def train_func():
@@ -67,7 +67,8 @@ The `HyperparameterTuning` class takes 2 arguments:
 * `runs`: Number of trainings that should be deployed
 
 ```python
-from metaml.strategies import HyperparameterTuning
+from metaml.train import Train
+from metaml.strategies.hp import HyperparameterTuning
 
 def gen_hp():
   return {'learning_rate': random.normalvariate(0.5, 0.5)}
@@ -103,19 +104,18 @@ Complete example: [examples/simple-training/main.py](./examples/simple-training/
 
 ##### `DistributedTraining`
 
-**Only supported with `Kubeflow` backend.**
+**This architecture is currently only supported with `Kubeflow`. So you need to have Kubeflow deployed in your Kubernetes cluster**
 
 This will start a [Distributed Training](https://www.tensorflow.org/deploy/distributed). 
 Specify the number of desired parameter servers with `ps_count` and the number of workers with `worker_count`.
 Another instance of type master will always be created.
 
 ```python
-from metaml.architectures import DistribuedTraining
-from metaml.backend import Kubeflow
+from metaml.train import Train
+from metaml.architectures.kubeflow.distributed import DistributedTraining
 @Train(
     package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True},
     architecture=DistributedTraining(ps_count=2, worker_count=5),
-    backend=Kubeflow
 )
 def train_func():
   # some training logic
@@ -125,6 +125,21 @@ def train_func():
 See [https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config](https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config) to understand how you need to modify your model to support distributed training with Kubeflow.
 
 Complete example: [examples/distributed-training/main.py](./examples/distributed-training/main.py)
+
+### TensorBoard
+
+You can easily attach a TensorBoard instance to monitor your training:
+
+```python
+@Train(
+    package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
+    tensorboard={
+      'log_dir': FLAGS.log_dir,
+      'pvc_name': 'azurefile',
+      'public': True # Request a public IP
+    }
+)
+```
 
 ### `@Serve` decorator
 

@@ -28,9 +28,8 @@ import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-import metaml.backend
 from metaml.train import Train
-from metaml.strategies import HyperparameterTuning
+from metaml.strategies.hp import HyperparameterTuning
 
 #logging.basicConfig(level=logging.INFO)
 
@@ -112,7 +111,6 @@ def gen_hyperparameters():
   }
 
 @Train(
-    backend = metaml.backend.Kubeflow,
     package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
     strategy=HyperparameterTuning(gen_hyperparameters, runs=3),
     tensorboard={

@@ -4,65 +4,70 @@ import types
 import logging
 import shutil
 
-from metaml.backend import get_backend, Native
+# from metaml.backend import get_backend, Native
 from metaml.docker import is_in_docker_container, DockerBuilder
 from metaml.options import TensorboardOptions, PackageOptions
-from metaml.strategies import BasicTrainingStrategy
-from metaml.architectures import BasicArchitecture
+from metaml.architectures.native.basic import BasicArchitecture
+from metaml.strategies.basic import BasicTrainingStrategy
+import metaml.metaparticle as mp
 
 logger = logging.getLogger('metaml')
 
+
 class Train(object):
-  # Calls the user defined training function 
-  # and feed it with predifined, or user generated HP generator
-  # containerize the code and deploy on k8s
 
-  def __init__(self, package, tensorboard=None, backend=Native, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):
-    self.backend = backend
-    # self.train_options = TrainOptions(**options)
-    self.strategy = strategy
-    self.architecture = architecture
-    self.tensorboard_options = TensorboardOptions(**tensorboard) if tensorboard else None
-    self.package = PackageOptions(**package)
-    self.image = "{repo}/{name}:latest".format(
-          repo=self.package.repository,
-          name=self.package.name
-      )
+    def __init__(self, package, tensorboard=None, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):
+        self.strategy = strategy
+        self.architecture = architecture
+        self.tensorboard_options = TensorboardOptions(
+            **tensorboard) if tensorboard else None
+        self.package = PackageOptions(**package)
+        self.image = "{repo}/{name}:latest".format(
+            repo=self.package.repository,
+            name=self.package.name
+        )
 
-    self.builder = DockerBuilder()
-    self.backend = get_backend(backend)
-    self.backend.init_training(self.architecture, self.strategy, self.tensorboard_options)
-  
-  def __call__(self, func):
-    def wrapped():
-      if is_in_docker_container():
-        return self.exec_user_code(func)
+        self.builder = DockerBuilder()
+        self.backend = self.architecture.get_associated_backend()
+        self.strategy.set_architecture(self.architecture)
 
-      exec_file = sys.argv[0]
-      slash_ix = exec_file.find('/')
-      if slash_ix != -1:
-        exec_file = exec_file[slash_ix:]
+    def __call__(self, func):
+        def wrapped():
+            if is_in_docker_container():
+                return self.strategy.exec_user_func(func)
 
-      self.builder.write_dockerfile(self.package, exec_file)
-      self.builder.build(self.image)
+            exec_file = sys.argv[0]
+            slash_ix = exec_file.find('/')
+            if slash_ix != -1:
+                exec_file = exec_file[slash_ix:]
 
-      if self.package.publish:
-        self.builder.publish(self.image)
+            
+            ast = self.compile_ast()
 
-      def signal_handler(signal, frame):
-        self.backend.cancel(self.package.name)
-        sys.exit(0)
-      signal.signal(signal.SIGINT, signal_handler)
+            self.builder.write_dockerfile(self.package, exec_file)
+            self.builder.build(self.image)
 
-      # TODO: pass args
-      self.backend.run_training(self.image, self.package.name)
-      print("Training(s) launched.")
+            if self.package.publish:
+                self.builder.publish(self.image)
 
-      return self.backend.logs(self.package.name)
-    return wrapped
+            def signal_handler(signal, frame):
+                mp.cancel(self.package.name)
+                sys.exit(0)
+            signal.signal(signal.SIGINT, signal_handler)
 
-  def exec_user_code(self, func):
-      return func(**self.strategy.get_params())
+            mp.run(ast)
+            print("Training(s) launched.")
 
+            return mp.logs(self.package.name)
+        return wrapped
 
-
+    def compile_ast(self):
+        svc = {
+            "name": self.package.name,
+            "guid": 1234567
+        }
+        svc, volumes, volume_mounts = self.backend.add_tensorboard(
+            svc, self.package.name, self.tensorboard_options)
+        svc = self.strategy.add_training(
+            svc, self.image, self.package.name, volumes, volume_mounts)
+        return svc
