@@ -23,12 +23,6 @@ def my_training_function(learning_rate):
   ...
 ```
 
-### Backends
-
-Currently, MetaML supports two backends:
-* `Native`: This is the default backend. Your trainings will be deployed using only Kubernete's `Job` object. This works with any Kubernetes cluster, but this backend only support 'embarassingly parallel' trainings.
-* `Kubeflow`: This requires having [Kubeflow](https://github.com/kubeflow/kubeflow) pre-installed in your Kubernetes cluster. Trainings will be deployed using the `TfJob` custom object instead, allowing for distributed training. **The Kubeflow backend only supports TensorFlow at the moment**
-
 ### `@Train` decorator
 
 The `Train` decorator takes 4 arguments:
