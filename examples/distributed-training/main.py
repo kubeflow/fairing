@@ -36,7 +36,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 import metaml.backend
 from metaml.train import Train
-from metaml.architectures import DistributedTraining
+from metaml.architectures.kubeflow.distributed import DistributedTraining
 
 #logging.basicConfig(level=logging.INFO)
 
@@ -65,7 +65,6 @@ parser.add_argument(
 FLAGS, unparsed = parser.parse_known_args()
 
 @Train(
-    backend = metaml.backend.Kubeflow,
     package={'name': 'mp-dist-mnist', 'repository': 'wbuchwalter', 'publish': True},
     architecture=DistributedTraining(ps_count=1, worker_count=3),
     tensorboard={
