@@ -34,7 +34,6 @@ import logging
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-import metaml.backend
 from metaml.train import Train
 from metaml.architectures.kubeflow.distributed import DistributedTraining
 
