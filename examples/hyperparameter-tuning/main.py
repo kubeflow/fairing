@@ -22,185 +22,85 @@ import random
 import logging
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
-import tensorflow as tf
 import numpy as np
-
+import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
 from metaml.train import Train
 from metaml.strategies.hp import HyperparameterTuning
 
-#logging.basicConfig(level=logging.INFO)
+INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
+MAX_STEPS = 2000
+# HACK: Ideally we would want to have a unique subpath for each instance of the job, but since we can't
+# we are instead appending HOSTNAME to the logdir
+LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
+                       'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
+MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-# Basic model parameters as external flags.
-FLAGS = None
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    '--max_steps',
-    type=int,
-    default=2000,
-    help='Number of steps to run trainer.'
-)
-parser.add_argument(
-    '--batch_size',
-    type=int,
-    default=100,
-    help='Batch size.  Must divide evenly into the dataset sizes.'
-)
-parser.add_argument(
-    '--input_data_dir',
-    type=str,
-    default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                          'tensorflow/mnist/input_data'),
-    help='Directory to put the input data.'
-)
-
- # HACK: Ideally we would want to have a unique subpath for each instance of the job, but since we can't
- # we are instead appending HOSTNAME to the logdir
-parser.add_argument(
-    '--log_dir',
-    type=str,
-    default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                          'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', '')),
-    help='Directory to put the log data.'
-)
-FLAGS, unparsed = parser.parse_known_args()
-
-def placeholder_inputs(batch_size):
-  images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size,
-                                                         mnist.IMAGE_PIXELS))
-  labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
-  return images_placeholder, labels_placeholder
-
-
-def fill_feed_dict(data_set, images_pl, labels_pl):
-  images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
-                                                 False)
-  feed_dict = {
-      images_pl: images_feed,
-      labels_pl: labels_feed,
-  }
-  return feed_dict
-
-
-def do_eval(sess,
-            eval_correct,
-            images_placeholder,
-            labels_placeholder,
-            data_set):
-  # And run one epoch of eval.
-  true_count = 0  # Counts the number of correct predictions.
-  steps_per_epoch = data_set.num_examples // FLAGS.batch_size
-  num_examples = steps_per_epoch * FLAGS.batch_size
-  for step in xrange(steps_per_epoch):
-    feed_dict = fill_feed_dict(data_set,
-                               images_placeholder,
-                               labels_placeholder)
-    true_count += sess.run(eval_correct, feed_dict=feed_dict)
-  precision = float(true_count) / num_examples
-  print('Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' %
-        (num_examples, true_count, precision))
-
+# logging.basicConfig(level=logging.DEBUG)
 
 def gen_hyperparameters():
-  return {
-    'learning_rate': random.normalvariate(0.5, 0.5),
-    'hidden1': np.random.choice([64, 128, 256], 1)[0],
-    'hidden2': np.random.choice([16, 32, 64], 1)[0],
-  }
+    return {
+        'learning_rate': random.normalvariate(0.5, 0.45),
+        'batch_size':  np.random.choice([10, 50, 100], 1)[0],
+        'hidden1': np.random.choice([64, 128, 256], 1)[0],
+        'hidden2': np.random.choice([16, 32, 64], 1)[0],
+    }
+
 
 @Train(
-    package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-hp-tuning', 'repository': 'wbuchwalter', 'publish': True},
     strategy=HyperparameterTuning(gen_hyperparameters, runs=3),
     tensorboard={
-      'log_dir': FLAGS.log_dir,
-      'pvc_name': 'azurefile',
-      'public': True
+        'log_dir': LOG_DIR,
+        'pvc_name': 'azurefile',
+        'public': True
     }
 )
-def run_training(learning_rate, hidden1, hidden2):
-  """Train MNIST for a number of steps."""
-  print("Training with LR: {} and layer sizes: {}, {}".format(learning_rate, hidden1, hidden2))
+def run_training(learning_rate, batch_size, hidden1, hidden2):
+    print('Starting training with learning_rate: {}, batch_size: {}, layer1: {}, layer2: {}.'.format(
+        learning_rate, batch_size, hidden1, hidden2))
 
-  data_sets = input_data.read_data_sets(FLAGS.input_data_dir)
+    data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
+    with tf.Graph().as_default():
+        images_placeholder = tf.placeholder(
+            tf.float32, shape=(batch_size, mnist.IMAGE_PIXELS))
+        labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
-  with tf.Graph().as_default():
-    images_placeholder, labels_placeholder = placeholder_inputs(
-        FLAGS.batch_size)
+        logits = mnist.inference(images_placeholder,
+                                 hidden1,
+                                 hidden2)
 
-    logits = mnist.inference(images_placeholder,
-                             hidden1,
-                             hidden2)
+        loss = mnist.loss(logits, labels_placeholder)
+        train_op = mnist.training(loss, learning_rate)
+        eval_correct = mnist.evaluation(logits, labels_placeholder)
+        summary = tf.summary.merge_all()
+        # Todo: init should happen only once
+        init = tf.global_variables_initializer()
+        saver = tf.train.Saver()
+        sess = tf.Session()
+        summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
+        sess.run(init)
 
-    loss = mnist.loss(logits, labels_placeholder)
-    train_op = mnist.training(loss, learning_rate)
-    eval_correct = mnist.evaluation(logits, labels_placeholder)
-    summary = tf.summary.merge_all()
-    init = tf.global_variables_initializer()
-    saver = tf.train.Saver()
-    sess = tf.Session()
-    summary_writer = tf.summary.FileWriter(FLAGS.log_dir, sess.graph)
-    sess.run(init)
+        data_set = data_sets.train
+        # Start the training loop.
+        for step in xrange(MAX_STEPS):
+            images_feed, labels_feed = data_set.next_batch(batch_size, False)
+            feed_dict = {
+                images_placeholder: images_feed,
+                labels_placeholder: labels_feed,
+            }
 
-    # Start the training loop.
-    for step in xrange(FLAGS.max_steps):
-      start_time = time.time()
-
-      feed_dict = fill_feed_dict(data_sets.train,
-                                 images_placeholder,
-                                 labels_placeholder)
-
-      _, loss_value = sess.run([train_op, loss],
-                               feed_dict=feed_dict)
-
-      duration = time.time() - start_time
-
-      # Write the summaries and print an overview fairly often.
-      if step % 100 == 0:
-        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
-        summary_str = sess.run(summary, feed_dict=feed_dict)
-        summary_writer.add_summary(summary_str, step)
-        summary_writer.flush()
-
-      # Save a checkpoint and evaluate the model periodically.
-      if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-        checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
-        saver.save(sess, checkpoint_file, global_step=step)
-        # Evaluate against the training set.
-        print('Training Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                data_sets.train)
-        # Evaluate against the validation set.
-        print('Validation Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                data_sets.validation)
-        # Evaluate against the test set.
-        print('Test Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                data_sets.test)
+            _, loss_value = sess.run([train_op, loss],
+                                     feed_dict=feed_dict)
+            if step % 100 == 0:
+                print("At step {}, loss = {}".format(step, loss_value))
 
 
 def main(_):
-  run_training()
-
-  # if BACKEND == metaml.backend.Kubeflow:
-  #   # Kubeflow delete pods as soon as they are completed, since it expects
-  #   # that cluster logging is enabled. But this is not practical for demos,
-  #   # So we sleep once the training is done to allow users to look at the pod's log
-  #   import time
-  #   time.sleep(1800)
+    run_training()
 
 
 if __name__ == '__main__':
-  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
-  
+    tf.app.run(main=main, argv=[sys.argv[0]])

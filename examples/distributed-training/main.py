@@ -39,35 +39,17 @@ from metaml.architectures.kubeflow.distributed import DistributedTraining
 
 #logging.basicConfig(level=logging.INFO)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--fake_data', nargs='?', const=True, type=bool,
-                    default=False,
-                    help='If true, uses fake data for unit testing.')
-parser.add_argument('--max_steps', type=int, default=1000,
-                    help='Number of steps to run trainer.')
-parser.add_argument('--learning_rate', type=float, default=0.001,
-                    help='Initial learning rate')
-parser.add_argument('--dropout', type=float, default=0.9,
-                    help='Keep probability for training dropout.')
-parser.add_argument(
-    '--data_dir',
-    type=str,
-    default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                          'tensorflow/input_data'),
-    help='Directory for storing input data')
-parser.add_argument(
-    '--logdir',
-    type=str,
-    default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                          'tensorflow/logs'),
-    help='Summaries log directory')
-FLAGS, unparsed = parser.parse_known_args()
+MAX_STEPS = 1000
+LEARNING_RATE = 0.001
+DROPOUT = 0.9
+DATA_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/input_data')
+LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
 @Train(
-    package={'name': 'mp-dist-mnist', 'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-distributed-mnist', 'repository': 'wbuchwalter', 'publish': True},
     architecture=DistributedTraining(ps_count=1, worker_count=3),
     tensorboard={
-      'log_dir': FLAGS.logdir,
+      'log_dir': LOG_DIR,
       'pvc_name': 'azurefile',
       'public': True
     }
@@ -91,13 +73,7 @@ def train():
   is_chief = (job_name == 'master')
 
   # Import data
-  mnist = input_data.read_data_sets(FLAGS.data_dir,
-                                    one_hot=True,
-                                    fake_data=FLAGS.fake_data)
-
-  
-  # Create a multilayer model.
-
+  mnist = input_data.read_data_sets(DATA_DIR, one_hot=True)
 
   # Between-graph replication
   with tf.device(tf.train.replica_device_setter(
@@ -193,7 +169,7 @@ def train():
     tf.summary.scalar('cross_entropy', cross_entropy)
 
     with tf.name_scope('train'):
-      train_step = tf.train.AdamOptimizer(FLAGS.learning_rate).minimize(
+      train_step = tf.train.AdamOptimizer(LEARNING_RATE).minimize(
           cross_entropy)
 
     with tf.name_scope('accuracy'):
@@ -211,9 +187,9 @@ def train():
 
   def feed_dict(train):
     """Make a TensorFlow feed_dict: maps data onto Tensor placeholders."""
-    if train or FLAGS.fake_data:
-      xs, ys = mnist.train.next_batch(100, fake_data=FLAGS.fake_data)
-      k = FLAGS.dropout
+    if train:
+      xs, ys = mnist.train.next_batch(100, fake_data=False)
+      k = DROPOUT
     else:
       xs, ys = mnist.test.images, mnist.test.labels
       k = 1.0
@@ -224,16 +200,16 @@ def train():
   sv = tf.train.Supervisor(is_chief=is_chief,
 						global_step=global_step,
 						init_op=init_op,
-						logdir=FLAGS.logdir)
+						logdir=LOG_DIR)
 
   with sv.prepare_or_wait_for_session(server.target) as sess:  
-    train_writer = tf.summary.FileWriter(FLAGS.logdir + '/train', sess.graph)
-    test_writer = tf.summary.FileWriter(FLAGS.logdir + '/test')
+    train_writer = tf.summary.FileWriter(LOG_DIR + '/train', sess.graph)
+    test_writer = tf.summary.FileWriter(LOG_DIR + '/test')
     # Train the model, and also write summaries.
     # Every 10th step, measure test-set accuracy, and write test summaries
     # All other steps, run train_step on training data, & add training summaries
 
-    for i in range(FLAGS.max_steps):
+    for i in range(MAX_STEPS):
       if i % 10 == 0:  # Record summaries and test-set accuracy
         summary, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
         test_writer.add_summary(summary, i)
@@ -261,4 +237,4 @@ def main(_):
 
 
 if __name__ == '__main__':
-  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+  tf.app.run(main=main, argv=[sys.argv[0]])

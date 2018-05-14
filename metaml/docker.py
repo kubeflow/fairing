@@ -48,7 +48,7 @@ CMD python /app/{exec_file}
 
 
     def build(self, img, path='.'):
-        print('Building docker image...')
+        print('Building docker image {}...'.format(img))
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
 
@@ -60,17 +60,15 @@ CMD python /app/{exec_file}
 
         for line in bld:
             self._process_stream(line)
-        print('Done building docker image.')
 
     def publish(self, img):
-        print('Publishing image...')
+        print('Publishing image {}...'.format(img))
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
 
         # TODO: do we need to set tag?
         for line in self.docker_client.push(img, stream=True):
             self._process_stream(line)
-        print('Done publishing')
 
     def _process_stream(self, line):
         raw = line.decode('utf-8').strip()
