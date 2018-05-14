@@ -1,9 +1,10 @@
 :warning:  **This project is an experiment** :warning:
 
-# MetaMLs
+# MetaML
 
-Easily train and serve ML models on Kubernetes, directly from your python code.
-This projects uses [Metaparticle](https://github.com/wbuchwalter/metaparticle-ast) behind the scene.
+Easily train and serve ML models on Kubernetes, directly from your python code.  
+
+This projects uses [Metaparticle](http://metaparticle.io/) behind the scene.
 
 ## Overview
 
