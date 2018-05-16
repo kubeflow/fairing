@@ -96,6 +96,9 @@ def run_training(learning_rate, batch_size, hidden1, hidden2):
                                      feed_dict=feed_dict)
             if step % 100 == 0:
                 print("At step {}, loss = {}".format(step, loss_value))
+                summary_str = sess.run(summary, feed_dict=feed_dict)
+                summary_writer.add_summary(summary_str, step)
+                summary_writer.flush()
 
 
 def main(_):
