@@ -10,8 +10,9 @@ class BasicTrainingStrategy(object):
   def get_params(self):
     return {}
   
-  def exec_user_func(self, user_func):
-    user_func()
+  def exec_user_code(self, user_object):
+    user_object.build()
+    user_object.train()
   
   def set_architecture(self, arch):
     self.arch = arch

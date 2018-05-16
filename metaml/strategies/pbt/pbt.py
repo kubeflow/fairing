@@ -93,9 +93,9 @@ class PopulationBasedTraining(BasicTrainingStrategy):
         
 
         # Metaparticle seem to only support one serving endpoint?
-        svc["serve"] = {
-            "name": redis_hostname
-        }
+        # svc["serve"] = {
+        #     "name": redis_hostname
+        # }
         # if not 'serve' in svc:
         #     svc["serve"] = r_endpoint
         # else:
@@ -115,20 +115,20 @@ class PopulationBasedTraining(BasicTrainingStrategy):
 
         self.graph = tf.Graph()
         self.session = tf.Session(graph=self.graph)
-        self.training_loop(self.get_params(), True)
+        self.training_loop(self.get_params())
 
-    def training_loop(self, hp, first):
+    def training_loop(self, hp):
         self.current_hp_values = hp
-        self.user_func(self.session, self.graph, first, self.steps_per_exploit, self.reporter, **hp)
+        self.user_func(self.session, self.graph, self.steps_per_exploit, self.reporter, **hp)
 
-    def reporter(self, loss_metric, sess):
+    def reporter(self, loss_metric):
         self.step_count += self.steps_per_exploit
         saver = tf.train.Saver()
-        saver.save(sess, self.model_dir)
+        saver.save(self.session, self.model_dir)
         self.commit_performance_info(loss_metric)
-        self.iterate(sess)
+        self.iterate()
     
-    def iterate(self, sess):
+    def iterate(self):
         if self.curr_exploit_count >= self.exploit_count:
             logger.error("TRAINING FINISHED")
             # Training is finished
@@ -139,23 +139,22 @@ class PopulationBasedTraining(BasicTrainingStrategy):
         logger.error("SCOREBOARD")
         logger.error(scoreboard)
         new_model_path, copied_hp = self.exploiter.exploit(self.hostname, scoreboard)
-        # session graph model ???Ww
         run_hp = self.current_hp_values
-        first = False
+        model_path = self.model_dir
         if new_model_path:
+            model_path = new_model_path
             # Explore
             if type(self.explorer) is Resample:
                 run_hp = self.get_params()
             else:
                 run_hp = self.explorer.explore(copied_hp)
 
-            self.graph = tf.Graph()
-            self.session = tf.Session(graph=self.graph)
-            saver = tf.train.Saver()
-            saver.restore(sess, new_model_path)
-            first = True
+        # self.graph = tf.Graph()
+        # self.session = tf.Session(graph=self.graph)
+        saver = tf.train.Saver()
+        saver.restore(self.session, model_path)
         self.curr_exploit_count += 1
-        self.training_loop(run_hp, first)
+        self.training_loop(run_hp)
 
     def get_scoreboard(self):
         keys = self.redis.keys()

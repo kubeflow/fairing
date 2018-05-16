@@ -71,90 +71,70 @@ def gen_hyperparameters():
     }
 
 
-# saver = tf.train.Saver()
 data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
 
-images_placeholder = None
-labels_placeholder = None
-train_op = None
-loss = None
-summary = None
-summary_writer = None
-saver = None
-
-i = 0
-@Train(
-    package={'name': 'metaml-pbt',
-             'repository': 'wbuchwalter', 'publish': True},
-    strategy=PopulationBasedTraining(
-        hyperparameters=gen_hyperparameters,
-        model_dir=MODEL_DIR,
-        population_size=6,
-        exploit_count=3,
-        steps_per_exploit=5000,
-        pvc_name='azurefile2'
-    ),
-    tensorboard={
-        'log_dir': LOG_DIR,
-        'pvc_name': 'azurefile',
-        'public': True
-    }
-)
-def run_training(sess, graph, first, max_steps, reporter, learning_rate):
-    global images_placeholder
-    global labels_placeholder
-    global train_op
-    global loss
-    global summary
-    global summary_writer
-    global i
-    # global saver
-    with graph.as_default():
-        if first:
-            hidden1 = 128
-            hidden2 = 32
-            # with tf.Graph().as_default():
-            images_placeholder, labels_placeholder = placeholder_inputs(
-                BATCH_SIZE)
-
-            logits = mnist.inference(images_placeholder,
-                                     hidden1,
-                                     hidden2)
-
-            loss = mnist.loss(logits, labels_placeholder)
-            train_op = mnist.training(loss, learning_rate)
-            # eval_correct = mnist.evaluation(logits, labels_placeholder)
-            summary = tf.summary.merge_all()
-            # Todo: init should happen only once
-            init = tf.global_variables_initializer()
-            # sess = tf.Session()
-            summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
-            sess.run(init)
-            # saver = tf.train.Saver()
-
-        # Start the training loop.
-        for step in xrange(max_steps):
-            # start_time = time.time()
-
-            feed_dict = fill_feed_dict(data_sets.train,
-                                       images_placeholder,
-                                       labels_placeholder)
-
-            _, loss_value = sess.run([train_op, loss],
-                                     feed_dict=feed_dict)
-            if step % 100 == 0:
-                true_step = step + i*max_steps
-                logger.error('Step %d: loss = %.2f' %
-                      (true_step, loss_value))
-                summary_str = sess.run(summary, feed_dict=feed_dict)
-                summary_writer.add_summary(summary_str, true_step)
-                summary_writer.flush()
-        i += 1 
-        reporter(loss_value, sess)
 
 
 def main(_):
-    run_training()
+    graph = tf.Graph()
+    with graph.as_default():
+        hidden1 = 128
+        hidden2 = 32
+        # with tf.Graph().as_default():
+        images_placeholder, labels_placeholder = placeholder_inputs(
+            BATCH_SIZE)
+
+        logits = mnist.inference(images_placeholder,
+                                    hidden1,
+                                    hidden2)
+
+        loss = mnist.loss(logits, labels_placeholder)
+        train_op = mnist.training(loss, learning_rate)
+        # eval_correct = mnist.evaluation(logits, labels_placeholder)
+        summary = tf.summary.merge_all()
+        # Todo: init should happen only once
+        init = tf.global_variables_initializer()
+        # sess = tf.Session()
+        summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
+        sess.run(init)
+    i = 0
+    @Train(
+        package={'name': 'metaml-pbt',
+                'repository': 'wbuchwalter', 'publish': True},
+        strategy=PopulationBasedTraining(
+            hyperparameters=gen_hyperparameters,
+            model_dir=MODEL_DIR,
+            population_size=6,
+            exploit_count=3,
+            steps_per_exploit=5000,
+            pvc_name='azurefile2',
+            graph=graph
+        ),
+        tensorboard={
+            'log_dir': LOG_DIR,
+            'pvc_name': 'azurefile',
+            'public': True
+        }
+    )
+    def run_training(sess, graph, max_steps, reporter, learning_rate):
+        with graph.as_default():
+            for step in xrange(max_steps):
+
+                feed_dict = fill_feed_dict(data_sets.train,
+                                        images_placeholder,
+                                        labels_placeholder)
+
+                _, loss_value = sess.run([train_op, loss],
+                                        feed_dict=feed_dict)
+                if step % 100 == 0:
+                    true_step = step + i*max_steps
+                    logger.error('Step %d: loss = %.2f' %
+                        (true_step, loss_value))
+                    summary_str = sess.run(summary, feed_dict=feed_dict)
+                    summary_writer.add_summary(summary_str, true_step)
+                    summary_writer.flush()
+            i += 1 
+            reporter(loss_value)
 
 
 if __name__ == '__main__':

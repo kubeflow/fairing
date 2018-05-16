@@ -41,51 +41,45 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-
 @Train(package={'name': 'metaml-mnist', 'repository': 'wbuchwalter', 'publish': True})
-def run_training():
-    data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
-    with tf.Graph().as_default():
-        images_placeholder = tf.placeholder(
+class MyTraining(object):
+    def build(self):
+        self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
+        self.images_placeholder = tf.placeholder(
             tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
-        labels_placeholder = tf.placeholder(tf.int32, shape=(BATCH_SIZE))
+        self.labels_placeholder = tf.placeholder(tf.int32, shape=(BATCH_SIZE))
 
-        logits = mnist.inference(images_placeholder,
+        logits = mnist.inference(self.images_placeholder,
                                  HIDDEN_1,
                                  HIDDEN_2)
 
-        loss = mnist.loss(logits, labels_placeholder)
-        train_op = mnist.training(loss, LEARNING_RATE)
-        eval_correct = mnist.evaluation(logits, labels_placeholder)
-        summary = tf.summary.merge_all()
-        # Todo: init should happen only once
+        self.loss = mnist.loss(logits, self.labels_placeholder)
+        self.train_op = mnist.training(self.loss, LEARNING_RATE)
+        self.summary = tf.summary.merge_all()
         init = tf.global_variables_initializer()
         saver = tf.train.Saver()
-        sess = tf.Session()
-        summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
-        sess.run(init)
+        self.sess = tf.Session()
+        self.summary_writer = tf.summary.FileWriter(LOG_DIR, self.sess.graph)
+        self.sess.run(init)
 
-        data_set = data_sets.train
-        # Start the training loop.
+    def train(self):
+        data_set = self.data_sets.train
         for step in xrange(MAX_STEPS):
             images_feed, labels_feed = data_set.next_batch(BATCH_SIZE, False)
             feed_dict = {
-                images_placeholder: images_feed,
-                labels_placeholder: labels_feed,
+                self.images_placeholder: images_feed,
+                self.labels_placeholder: labels_feed,
             }
 
-            _, loss_value = sess.run([train_op, loss],
+            _, loss_value = self.sess.run([self.train_op, self.loss],
                                      feed_dict=feed_dict)
             if step % 100 == 0:
                 print("At step {}, loss = {}".format(step, loss_value))
-                summary_str = sess.run(summary, feed_dict=feed_dict)
-                summary_writer.add_summary(summary_str, step)
-                summary_writer.flush()
-
-
-def main(_):
-    run_training()
+                summary_str = self.sess.run(self.summary, feed_dict=feed_dict)
+                self.summary_writer.add_summary(summary_str, step)
+                self.summary_writer.flush()
 
 
 if __name__ == '__main__':
-    tf.app.run(main=main, argv=[sys.argv[0]])
+    training = MyTraining()
+    training()
