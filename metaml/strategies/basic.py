@@ -5,7 +5,7 @@ class BasicTrainingStrategy(object):
     self.backend = None
 
   def add_training(self, svc, img, name, volumes, volume_mounts):
-   return self.arch.add_jobs(svc, self.runs, img, name, volumes, volume_mounts)
+   return self.arch.add_jobs(svc, self.runs, img, name, volumes, volume_mounts), None
 
   def get_params(self):
     return {}

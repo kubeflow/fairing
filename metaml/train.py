@@ -42,9 +42,9 @@ class Train(object):
                 exec_file = exec_file[slash_ix:]
 
             
-            ast = self.compile_ast()
+            ast, env = self.compile_ast()
 
-            self.builder.write_dockerfile(self.package, exec_file)
+            self.builder.write_dockerfile(self.package, exec_file, env)
             self.builder.build(self.image)
 
             if self.package.publish:
@@ -66,8 +66,13 @@ class Train(object):
             "name": self.package.name,
             "guid": 1234567
         }
-        svc, volumes, volume_mounts = self.backend.add_tensorboard(
-            svc, self.package.name, self.tensorboard_options)
-        svc = self.strategy.add_training(
+        
+        volumes = None
+        volume_mounts = None
+        if self.tensorboard_options:
+            svc, volumes, volume_mounts = self.backend.add_tensorboard(
+                svc, self.package.name, self.tensorboard_options)
+        
+        svc, env = self.strategy.add_training(
             svc, self.image, self.package.name, volumes, volume_mounts)
-        return svc
+        return svc, env

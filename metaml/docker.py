@@ -32,19 +32,22 @@ class DockerBuilder:
     def __init__(self):
         self.docker_client = None
     
-    def write_dockerfile(self, package, exec_file):
+    def write_dockerfile(self, package, exec_file, env):
         if hasattr(package, 'dockerfile') and package.dockerfile is not None:
             shutil.copy(package.dockerfile, 'Dockerfile')
             return
+        env = env if env else []
+        env_str = ""
+        for e in env:
+            env_str += "ENV {} {} \n".format(e['name'], e['value'])
 
         with open('Dockerfile', 'w+t') as f:
-            f.write("""FROM wbuchwalter/metaml
-
+            f.write("""FROM wbuchwalter/metaml:pbt
 COPY ./ /app/
 RUN pip install --no-cache -r /app/requirements.txt
-
+{env_str}
 CMD python /app/{exec_file}
-""".format(version=package.py_version, exec_file=exec_file))
+""".format(version=package.py_version, exec_file=exec_file, env_str=env_str))
 
 
     def build(self, img, path='.'):

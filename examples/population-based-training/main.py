@@ -30,7 +30,7 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 import metaml.backend
 from metaml.train import Train
-from metaml.strategies.pbt import PopulationBasedTraining, Truncation
+from metaml.strategies.pbt import PopulationBasedTraining
 
 # logging.basicConfig(level=logging.INFO)
 
@@ -42,7 +42,8 @@ BATCH_SIZE = 100
 # we are instead appending HOSTNAME to the logdir
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
-MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
+MODEL_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
+                       'tensorflow/mnist/models/fully_connected_feed/', os.getenv('HOSTNAME', ''), 'model.ckpt')
 
 
 def placeholder_inputs(batch_size):
@@ -64,22 +65,29 @@ def fill_feed_dict(data_set, images_pl, labels_pl):
 
 def gen_hyperparameters():
     return {
-        'learning_rate': random.normalvariate(0.5, 0.5)
+        'learning_rate': random.uniform(0.001, 1)
     }
 
 
 # saver = tf.train.Saver()
+data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
+
+first_run = True
+
+images_placeholder = None
+labels_placeholder = None
+train_op = None
+loss = None
 
 @Train(
-    backend=metaml.backend.Kubeflow,
-    package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-pbt', 'repository': 'wbuchwalter', 'publish': True},
     strategy=PopulationBasedTraining(
         hyperparameters=gen_hyperparameters,
         model_dir=MODEL_DIR,
         population_size=3,
-        exploit_count=5,
-        steps_per_exploit=200,
-        # saver=saver
+        exploit_count=15,
+        steps_per_exploit=5000,
+        pvc_name= 'azurefile2'
     ),
     tensorboard={
         'log_dir': LOG_DIR,
@@ -87,40 +95,47 @@ def gen_hyperparameters():
         'public': True
     }
 )
-def run_training(max_steps, reporter, learning_rate):
-    data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
-    hidden1 = 128
-    hidden2 = 32
-    with tf.Graph().as_default():
-        images_placeholder, labels_placeholder = placeholder_inputs(
-            BATCH_SIZE)
+def run_training(sess, graph, max_steps, reporter, learning_rate):
+    global images_placeholder
+    global labels_placeholder
+    global train_op
+    global loss
+    global first_run
+    with graph.as_default():
+        if first_run:
+            hidden1 = 128
+            hidden2 = 32
+            # with tf.Graph().as_default():
+            images_placeholder, labels_placeholder = placeholder_inputs(
+                BATCH_SIZE)
 
-        logits = mnist.inference(images_placeholder,
-                                 hidden1,
-                                 hidden2)
+            logits = mnist.inference(images_placeholder,
+                                        hidden1,
+                                        hidden2)
 
-        loss = mnist.loss(logits, labels_placeholder)
-        train_op = mnist.training(loss, learning_rate)
-        eval_correct = mnist.evaluation(logits, labels_placeholder)
-        summary = tf.summary.merge_all()
-        # Todo: init should happen only once
-        init = tf.global_variables_initializer()
-        saver = tf.train.Saver()
-        sess = tf.Session()
-        summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
-        sess.run(init)
+            loss = mnist.loss(logits, labels_placeholder)
+            train_op = mnist.training(loss, learning_rate)
+            eval_correct = mnist.evaluation(logits, labels_placeholder)
+            summary = tf.summary.merge_all()
+            # Todo: init should happen only once
+            init = tf.global_variables_initializer()
+            saver = tf.train.Saver()
+            # sess = tf.Session()
+            summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
+            sess.run(init)
+            first_run = False
 
         # Start the training loop.
         for step in xrange(max_steps):
             start_time = time.time()
 
             feed_dict = fill_feed_dict(data_sets.train,
-                                       images_placeholder,
-                                       labels_placeholder)
+                                        images_placeholder,
+                                        labels_placeholder)
 
             _, loss_value = sess.run([train_op, loss],
-                                     feed_dict=feed_dict)
-        reporter(loss_value, saver)
+                                        feed_dict=feed_dict)
+        reporter(loss_value, saver, sess)
 
 
 def main(_):
