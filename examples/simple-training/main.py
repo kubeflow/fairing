@@ -46,7 +46,8 @@ MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 def run_training():
     data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
     with tf.Graph().as_default():
-        images_placeholder = tf.placeholder(tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
+        images_placeholder = tf.placeholder(
+            tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
         labels_placeholder = tf.placeholder(tf.int32, shape=(BATCH_SIZE))
 
         logits = mnist.inference(images_placeholder,
@@ -76,7 +77,10 @@ def run_training():
             _, loss_value = sess.run([train_op, loss],
                                      feed_dict=feed_dict)
             if step % 100 == 0:
-              print("At step {}, loss = {}".format(step, loss_value))
+                print("At step {}, loss = {}".format(step, loss_value))
+                summary_str = sess.run(summary, feed_dict=feed_dict)
+                summary_writer.add_summary(summary_str, step)
+                summary_writer.flush()
 
 
 def main(_):

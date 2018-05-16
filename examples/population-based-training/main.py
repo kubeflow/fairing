@@ -33,6 +33,8 @@ from metaml.train import Train
 from metaml.strategies.pbt import PopulationBasedTraining
 
 # logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('metaml')
+
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -43,7 +45,7 @@ BATCH_SIZE = 100
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
-                       'tensorflow/mnist/models/fully_connected_feed/', os.getenv('HOSTNAME', ''), 'model.ckpt')
+                         'tensorflow/mnist/models/fully_connected_feed/', os.getenv('HOSTNAME', ''), 'model.ckpt')
 
 
 def placeholder_inputs(batch_size):
@@ -65,29 +67,32 @@ def fill_feed_dict(data_set, images_pl, labels_pl):
 
 def gen_hyperparameters():
     return {
-        'learning_rate': random.uniform(0.001, 1)
+        'learning_rate': np.random.choice([0.1, 100], 1)[0],
     }
 
 
 # saver = tf.train.Saver()
 data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
 
-first_run = True
-
 images_placeholder = None
 labels_placeholder = None
 train_op = None
 loss = None
+summary = None
+summary_writer = None
+saver = None
 
+i = 0
 @Train(
-    package={'name': 'metaml-pbt', 'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-pbt',
+             'repository': 'wbuchwalter', 'publish': True},
     strategy=PopulationBasedTraining(
         hyperparameters=gen_hyperparameters,
         model_dir=MODEL_DIR,
-        population_size=3,
-        exploit_count=15,
+        population_size=6,
+        exploit_count=3,
         steps_per_exploit=5000,
-        pvc_name= 'azurefile2'
+        pvc_name='azurefile2'
     ),
     tensorboard={
         'log_dir': LOG_DIR,
@@ -95,14 +100,17 @@ loss = None
         'public': True
     }
 )
-def run_training(sess, graph, max_steps, reporter, learning_rate):
+def run_training(sess, graph, first, max_steps, reporter, learning_rate):
     global images_placeholder
     global labels_placeholder
     global train_op
     global loss
-    global first_run
+    global summary
+    global summary_writer
+    global i
+    # global saver
     with graph.as_default():
-        if first_run:
+        if first:
             hidden1 = 128
             hidden2 = 32
             # with tf.Graph().as_default():
@@ -110,32 +118,39 @@ def run_training(sess, graph, max_steps, reporter, learning_rate):
                 BATCH_SIZE)
 
             logits = mnist.inference(images_placeholder,
-                                        hidden1,
-                                        hidden2)
+                                     hidden1,
+                                     hidden2)
 
             loss = mnist.loss(logits, labels_placeholder)
             train_op = mnist.training(loss, learning_rate)
-            eval_correct = mnist.evaluation(logits, labels_placeholder)
+            # eval_correct = mnist.evaluation(logits, labels_placeholder)
             summary = tf.summary.merge_all()
             # Todo: init should happen only once
             init = tf.global_variables_initializer()
-            saver = tf.train.Saver()
             # sess = tf.Session()
             summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
             sess.run(init)
-            first_run = False
+            # saver = tf.train.Saver()
 
         # Start the training loop.
         for step in xrange(max_steps):
-            start_time = time.time()
+            # start_time = time.time()
 
             feed_dict = fill_feed_dict(data_sets.train,
-                                        images_placeholder,
-                                        labels_placeholder)
+                                       images_placeholder,
+                                       labels_placeholder)
 
             _, loss_value = sess.run([train_op, loss],
-                                        feed_dict=feed_dict)
-        reporter(loss_value, saver, sess)
+                                     feed_dict=feed_dict)
+            if step % 100 == 0:
+                true_step = step + i*max_steps
+                logger.error('Step %d: loss = %.2f' %
+                      (true_step, loss_value))
+                summary_str = sess.run(summary, feed_dict=feed_dict)
+                summary_writer.add_summary(summary_str, true_step)
+                summary_writer.flush()
+        i += 1 
+        reporter(loss_value, sess)
 
 
 def main(_):

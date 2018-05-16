@@ -115,19 +115,20 @@ class PopulationBasedTraining(BasicTrainingStrategy):
 
         self.graph = tf.Graph()
         self.session = tf.Session(graph=self.graph)
-        self.training_loop(self.get_params())
+        self.training_loop(self.get_params(), True)
 
-    def training_loop(self, hp):
+    def training_loop(self, hp, first):
         self.current_hp_values = hp
-        self.user_func(self.session, self.graph, self.steps_per_exploit, self.reporter, **hp)
+        self.user_func(self.session, self.graph, first, self.steps_per_exploit, self.reporter, **hp)
 
-    def reporter(self, metric, saver, sess):
+    def reporter(self, loss_metric, sess):
         self.step_count += self.steps_per_exploit
+        saver = tf.train.Saver()
         saver.save(sess, self.model_dir)
-        self.commit_performance_info(metric)
-        self.iterate(saver, sess)
+        self.commit_performance_info(loss_metric)
+        self.iterate(sess)
     
-    def iterate(self, saver, sess):
+    def iterate(self, sess):
         if self.curr_exploit_count >= self.exploit_count:
             logger.error("TRAINING FINISHED")
             # Training is finished
@@ -140,20 +141,21 @@ class PopulationBasedTraining(BasicTrainingStrategy):
         new_model_path, copied_hp = self.exploiter.exploit(self.hostname, scoreboard)
         # session graph model ???Ww
         run_hp = self.current_hp_values
+        first = False
         if new_model_path:
             # Explore
             if type(self.explorer) is Resample:
                 run_hp = self.get_params()
             else:
                 run_hp = self.explorer.explore(copied_hp)
-            print('model was worst performinng, copying from path: {}'.format(new_model_path))
-            print("_______________________")
-            logger.error('model path: {}'.format(new_model_path))
-            logger.error("_______________________")
 
+            self.graph = tf.Graph()
+            self.session = tf.Session(graph=self.graph)
+            saver = tf.train.Saver()
             saver.restore(sess, new_model_path)
+            first = True
         self.curr_exploit_count += 1
-        self.training_loop(run_hp)
+        self.training_loop(run_hp, first)
 
     def get_scoreboard(self):
         keys = self.redis.keys()
