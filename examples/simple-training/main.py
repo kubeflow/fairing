@@ -42,8 +42,8 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
 @Train(package={'name': 'metaml-mnist', 'repository': 'wbuchwalter', 'publish': True})
-class MyTraining(object):
-    def build(self):
+class MyModel(object):
+    def train(self):
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
         self.images_placeholder = tf.placeholder(
             tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
@@ -62,7 +62,6 @@ class MyTraining(object):
         self.summary_writer = tf.summary.FileWriter(LOG_DIR, self.sess.graph)
         self.sess.run(init)
 
-    def train(self):
         data_set = self.data_sets.train
         for step in xrange(MAX_STEPS):
             images_feed, labels_feed = data_set.next_batch(BATCH_SIZE, False)
@@ -81,5 +80,5 @@ class MyTraining(object):
 
 
 if __name__ == '__main__':
-    training = MyTraining()
-    training()
+    model = MyModel()
+    model()

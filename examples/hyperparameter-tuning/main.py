@@ -51,7 +51,7 @@ MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
         'public': True
     }
 )
-class MyTraining(object):
+class MyModel(object):
     def hyperparameters(self):
         return {
             'learning_rate': random.normalvariate(0.5, 0.45),
@@ -105,5 +105,5 @@ class MyTraining(object):
                 self.summary_writer.flush()
 
 if __name__ == '__main__':
-    training = MyTraining()
-    training()
+    model = MyModel()
+    model()

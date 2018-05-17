@@ -57,7 +57,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
         'public': True
     }
 )
-class MyTraining(object):
+class MyModel(object):
 
     def build(self):
         tf_config_json = os.environ.get("TF_CONFIG", "{}")
@@ -244,5 +244,5 @@ class MyTraining(object):
 
 
 if __name__ == '__main__':
-    training = MyTraining()
-    training()
+    model = MyModel()
+    model()

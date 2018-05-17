@@ -57,7 +57,7 @@ MODEL_DIR = os.path.join(LOG_DIR, os.getenv('TEST_TMPDIR', '/tmp'),
         'public': True
     }
 )
-class MyTraining(object):
+class MyModel(object):
     def __init__(self):
         self.global_step = 0
 
@@ -122,5 +122,5 @@ class MyTraining(object):
 
 
 if __name__ == '__main__':
-    training = MyTraining()
-    training()
+    model = MyModel()
+    model()
