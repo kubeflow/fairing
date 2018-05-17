@@ -29,6 +29,7 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 from metaml.train import Train
 from metaml.strategies.pbt import PopulationBasedTraining
+from metaml.strategies.pbt.explore import Perturb
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -44,15 +45,16 @@ MODEL_DIR = os.path.join(LOG_DIR, os.getenv('TEST_TMPDIR', '/tmp'),
 @Train(
     package={'name': 'metaml-pbt', 'repository': '<your-repository>', 'publish': True},
     strategy=PopulationBasedTraining(
-        population_size=3,
+        population_size=10,
         exploit_count=4,
         steps_per_exploit=5000,
-        pvc_name='<pvc1-name>',
+        explorer=Perturb(),
+        pvc_name='<pvc2-name>',
         model_path = MODEL_DIR
     ),
     tensorboard={
         'log_dir': LOG_DIR,
-        'pvc_name': '<pvc2-name>',
+        'pvc_name': '<pvc-name>',
         'public': True
     }
 )
@@ -62,7 +64,7 @@ class MyModel(object):
 
     def hyperparameters(self):
         return {
-            'learning_rate': np.random.choice([0.01, 0.1, 0.5, 1], 1)[0].item(),
+            'learning_rate': np.random.choice([0.01, 0.1, 1, 10, 100], 1)[0].item(),
             'batch_size':  50,
             'hidden1': 128,
             'hidden2': 32,
@@ -91,6 +93,7 @@ class MyModel(object):
           self.sess.run(init)
 
     def train(self, steps, reporter, hp):
+        print('training with lr: {}'.format(hp['learning_rate']))
         data_set = self.data_sets.train
         for step in xrange(steps):
             self.global_step += 1
