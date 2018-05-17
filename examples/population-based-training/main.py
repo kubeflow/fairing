@@ -48,7 +48,6 @@ MODEL_DIR = os.path.join(LOG_DIR, os.getenv('TEST_TMPDIR', '/tmp'),
         population_size=10,
         exploit_count=4,
         steps_per_exploit=5000,
-        explorer=Perturb(),
         pvc_name='<pvc2-name>',
         model_path = MODEL_DIR
     ),

@@ -10,7 +10,7 @@ import time
 
 from ..basic import BasicTrainingStrategy
 from .exploit import Truncation
-from .explore import Resample
+from .explore import Resample, Perturb
 from metaml.docker import is_in_docker_container
 
 #TODO: can we make this class framework agnostic?
@@ -27,7 +27,7 @@ class PopulationBasedTraining(BasicTrainingStrategy):
                  steps_per_exploit,
                  pvc_name,
                  exploiter=Truncation(),
-                 explorer=Resample(),
+                 explorer=Perturb(),
                  ):
 
         self.model_path = model_path
