@@ -1,6 +1,6 @@
 from metaml.serve import Serve
 
-@Serve(package={'name': 'simple-serve', 'repository': 'wbuchwalter', 'publish': True})
+@Serve(package={'name': 'simple-serve', 'repository': '<your-repository-name>', 'publish': True})
 def func():
   return "hello world"
 

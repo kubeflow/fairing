@@ -48,12 +48,11 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
 
 @Train(
-    package={'name': 'metaml-distributed-mnist',
-             'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-distributed-mnist', 'repository': '<your-repository-name>', 'publish': True},
     architecture=DistributedTraining(ps_count=1, worker_count=3),
     tensorboard={
         'log_dir': LOG_DIR,
-        'pvc_name': 'azurefile',
+        'pvc_name': '<pvc-name>',
         'public': True
     }
 )

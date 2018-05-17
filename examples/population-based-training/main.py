@@ -42,18 +42,17 @@ MODEL_DIR = os.path.join(LOG_DIR, os.getenv('TEST_TMPDIR', '/tmp'),
 # logging.basicConfig(level=logging.DEBUG)
 
 @Train(
-    package={'name': 'metaml-pbt',
-             'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-pbt', 'repository': '<your-repository>', 'publish': True},
     strategy=PopulationBasedTraining(
-        population_size=10,
-        exploit_count=6,
+        population_size=3,
+        exploit_count=4,
         steps_per_exploit=5000,
-        pvc_name='azurefile2',
+        pvc_name='<pvc1-name>',
         model_path = MODEL_DIR
     ),
     tensorboard={
         'log_dir': LOG_DIR,
-        'pvc_name': 'azurefile',
+        'pvc_name': '<pvc2-name>',
         'public': True
     }
 )

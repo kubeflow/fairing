@@ -42,12 +42,11 @@ MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
 
 @Train(
-    package={'name': 'metaml-hp-tuning',
-             'repository': 'wbuchwalter', 'publish': True},
+    package={'name': 'metaml-hp-tuning', 'repository': '<your-repository>', 'publish': True},
     strategy=HyperparameterTuning(runs=3),
     tensorboard={
         'log_dir': LOG_DIR,
-        'pvc_name': 'azurefile',
+        'pvc_name': '<pvc-name>',
         'public': True
     }
 )
