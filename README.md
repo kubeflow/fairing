@@ -120,7 +120,7 @@ Complete example: [examples/simple-training/main.py](./examples/simple-training/
 
 #### Distributed Training
 
-**This architecture is currently only supported with `Kubeflow`. So you need to have Kubeflow deployed in your Kubernetes cluster**
+> Note: This architecture is currently only supported with [Kubeflow](https://github.com/kubeflow/kubeflow). So you need to have Kubeflow deployed in your Kubernetes cluster 
 
 
 ```python
@@ -163,7 +163,7 @@ class MyModel(object):
 
 ## Serving
 
-**This decorator is not yet implemented.**
+:warning: **This decorator is not yet implemented.** :warning:
 
 The `@Serve` decorator allows you to mark the function that should be used for serving.
 This function will automatically be encapsulated in a web server and deployed on Kubernetes.
@@ -193,9 +193,9 @@ class MyModel(object):
 
 ## Installing
 
-**This projects requires python 3**
+**Note**: This projects requires python 3
 
-### `metaparticle-ast`
+**metaparticle-ast**
 
 This project uses a fork of `metaparticle-ast` for now, that need to be installed from source as well:
 
@@ -210,7 +210,7 @@ rm -rf $GOPATH/src/github.com/kubeflow/tf-operator/vendor
 go install ./cmd/compiler/mp-compiler.go
 ```
 
-### MetaML
+**MetaML**
 
 ```bash
 git clone https://github.com/wbuchwalter/metaml
