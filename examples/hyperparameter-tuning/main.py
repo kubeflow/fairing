@@ -40,70 +40,70 @@ MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
 # logging.basicConfig(level=logging.DEBUG)
 
-def gen_hyperparameters():
-    return {
-        'learning_rate': random.normalvariate(0.5, 0.45),
-        'batch_size':  np.random.choice([10, 50, 100], 1)[0],
-        'hidden1': np.random.choice([64, 128, 256], 1)[0],
-        'hidden2': np.random.choice([16, 32, 64], 1)[0],
-    }
-
 
 @Train(
-    package={'name': 'metaml-hp-tuning', 'repository': 'wbuchwalter', 'publish': True},
-    strategy=HyperparameterTuning(gen_hyperparameters, runs=3),
+    package={'name': 'metaml-hp-tuning',
+             'repository': 'wbuchwalter', 'publish': True},
+    strategy=HyperparameterTuning(runs=3),
     tensorboard={
         'log_dir': LOG_DIR,
         'pvc_name': 'azurefile',
         'public': True
     }
 )
-def run_training(learning_rate, batch_size, hidden1, hidden2):
-    print('Starting training with learning_rate: {}, batch_size: {}, layer1: {}, layer2: {}.'.format(
-        learning_rate, batch_size, hidden1, hidden2))
+class MyModel(object):
+    def hyperparameters(self):
+        return {
+            'learning_rate': random.normalvariate(0.5, 0.45),
+            'batch_size':  np.random.choice([10, 50, 100], 1)[0],
+            'hidden1': np.random.choice([64, 128, 256], 1)[0],
+            'hidden2': np.random.choice([16, 32, 64], 1)[0],
+        }
 
-    data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
-    with tf.Graph().as_default():
-        images_placeholder = tf.placeholder(
-            tf.float32, shape=(batch_size, mnist.IMAGE_PIXELS))
-        labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
+    def build(self, hp):
+        self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
+        self.images_placeholder = tf.placeholder(
+            tf.float32, shape=(hp['batch_size'], mnist.IMAGE_PIXELS))
+        self.labels_placeholder = tf.placeholder(
+            tf.int32, shape=(hp['batch_size']))
 
-        logits = mnist.inference(images_placeholder,
-                                 hidden1,
-                                 hidden2)
+        logits = mnist.inference(self.images_placeholder,
+                                 hp['hidden1'],
+                                 hp['hidden2'])
 
-        loss = mnist.loss(logits, labels_placeholder)
-        train_op = mnist.training(loss, learning_rate)
-        eval_correct = mnist.evaluation(logits, labels_placeholder)
-        summary = tf.summary.merge_all()
-        # Todo: init should happen only once
+        self.loss = mnist.loss(logits, self.labels_placeholder)
+        self.train_op = mnist.training(self.loss, hp['learning_rate'])
+        self.summary = tf.summary.merge_all()
         init = tf.global_variables_initializer()
         saver = tf.train.Saver()
-        sess = tf.Session()
-        summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
-        sess.run(init)
+        self.sess = tf.Session()
+        self.summary_writer = tf.summary.FileWriter(LOG_DIR, self.sess.graph)
+        self.sess.run(init)
 
-        data_set = data_sets.train
-        # Start the training loop.
+    def train(self, hp):
+        print('Starting training with learning_rate: {}, batch_size: {}, layer1: {}, layer2: {}.'.format(
+            hp['learning_rate'],
+            hp['batch_size'],
+            hp['hidden1'],
+            hp['hidden2']
+        ))
+        data_set = self.data_sets.train
         for step in xrange(MAX_STEPS):
-            images_feed, labels_feed = data_set.next_batch(batch_size, False)
+            images_feed, labels_feed = data_set.next_batch(
+                hp['batch_size'], False)
             feed_dict = {
-                images_placeholder: images_feed,
-                labels_placeholder: labels_feed,
+                self.images_placeholder: images_feed,
+                self.labels_placeholder: labels_feed,
             }
 
-            _, loss_value = sess.run([train_op, loss],
-                                     feed_dict=feed_dict)
+            _, loss_value = self.sess.run([self.train_op, self.loss],
+                                          feed_dict=feed_dict)
             if step % 100 == 0:
                 print("At step {}, loss = {}".format(step, loss_value))
-                summary_str = sess.run(summary, feed_dict=feed_dict)
-                summary_writer.add_summary(summary_str, step)
-                summary_writer.flush()
-
-
-def main(_):
-    run_training()
-
+                summary_str = self.sess.run(self.summary, feed_dict=feed_dict)
+                self.summary_writer.add_summary(summary_str, step)
+                self.summary_writer.flush()
 
 if __name__ == '__main__':
-    tf.app.run(main=main, argv=[sys.argv[0]])
+    model = MyModel()
+    model()

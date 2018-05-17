@@ -6,24 +6,10 @@ Easily train and serve ML models on Kubernetes, directly from your python code.
 
 This projects uses [Metaparticle](http://metaparticle.io/) behind the scene.
 
-## Overview
-
 MetaML allows you to express how you want your model to be trained and served using native python decorators.  
 
-```python
-@Train(
-    package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True},
-    strategy=HyperparameterTuning({'learning_rate': random.normalvariate(0.5, 0.5)}, parallelism=3),
-    tensorboard={
-      'log_dir': FLAGS.log_dir,
-    }
-)
-def my_training_function(learning_rate):
-  # some training logic
-  ...
-```
 
-### `@Train` decorator
+## Training
 
 The `Train` decorator takes 4 arguments:
 
@@ -35,87 +21,124 @@ The `Train` decorator takes 4 arguments:
   * `pvc_name`: Name of an existing `PermanentVolumeClaim` that should be mounted.
   * `public`: If set to `True` then a public IP will be created for TensorBoard (provided your Kubernetes cluster supports this). Otherwise only a private IP will be created.
 
-#### Training Strategies
+### Training Strategies
 
-##### `BasicTrainingStrategy`
-
-This is the default value for `strategy`. A single training run will be deployed. 
+#### Basic Training
 
 ```python
 from metaml.train import Train
 
-# Note: we are note specifiying any strategy since this is the default value
-@Train(package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True})
-def train_func():
-  # some training logic
-  ...
+@Train(package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True})
+class MyModel(object):
+    def train(self):
+      # Training logic goes here
+
 ```
+No `strategy` is specified here, since the default `strategy` is `basicTrainingStrategy`.
 
 Complete example: [examples/simple-training/main.py](./examples/simple-training/main.py)
 
 
-##### `HyperparameterTuning`
+#### Hyperparameters Tuning
 Allows you to run multiple trainings in parallel, each one with different values for your hyperparameters.
 
-The `HyperparameterTuning` class takes 2 arguments:
-* `hyperparameters`: This can either be a function returning a dictionnary or directly a dictionnanry.
-* `runs`: Number of trainings that should be deployed
+Your class should define a `hyperparameters` method that returns an dictionary of hyperparameters and their values.
+This dictionary will be passed automatically passed to your `train` method.
 
 ```python
 from metaml.train import Train
 from metaml.strategies.hp import HyperparameterTuning
 
-def gen_hp():
-  return {'learning_rate': random.normalvariate(0.5, 0.5)}
-
 @Train(
-    package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True},
-    strategy=HyperparameterTuning(hyperparameters=gen_hp, runs=6),
+    package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
+    strategy=HyperparameterTuning(runs=6),
 )
-def my_training_function(learning_rate):
-  # some training logic
-  ...
+class MyModel(object):
+    def hyperparameters(self):
+      return {
+        'learning_rate': random.normalvariate(0.5, 0.45)
+      }
+
+    def train(self, hp):
+      # Training logic goes here
 ```
 
 Complete example: [examples/hyperparameter-tuning/main.py](./examples/hyperparameter-tuning/main.py)
 
+#### Population Based Training
 
-#### Training Architectures
+```python
+from metaml.train import Train
+from metaml.strategies.pbt import PopulationBasedTraining
 
-###### `BasicArchitecture`
+@Train(
+    package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
+    strategy=PopulationBasedTraining(
+        population_size=10,
+        exploit_count=6,
+        steps_per_exploit=5000,
+        pvc_name='<pvc-name>',
+        model_path = MODEL_PATH
+    )
+)
+class MyModel(object):
+    def hyperparameters(self):
+      # returns the dictionary of hyperparameters
+    
+    def build(self, hp):
+      # build the model
+    
+    def train(self, hp):
+      # training logic
+    
+    def save(self):
+      # save the model at MODEL_PATH
+    
+    def restore(self, model_path):
+      # restore the model from MODEL_PATH
+```
+
+Complete example: [examples/population-based-training/main.py](./examples/population-based-training/main.py)
+
+
+### Training Architectures
+
+#### Basic Architure
 
 This is the default `architecture`, each training run will be a single container acting in isolation.
+No `architecure` is specified since this is the default value.
 
 ```python
 # Note: we are note specifiying any architecture since this is the default value
-@Train(package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True})
-def train_func():
-  # some training logic
-  ...
+@Train(package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True})
+class MyModel(object):
+    ...
 ```
 
 Complete example: [examples/simple-training/main.py](./examples/simple-training/main.py)
 
 
-##### `DistributedTraining`
+#### Distributed Training
 
-**This architecture is currently only supported with `Kubeflow`. So you need to have Kubeflow deployed in your Kubernetes cluster**
+> Note: This architecture is currently only supported with [Kubeflow](https://github.com/kubeflow/kubeflow). So you need to have Kubeflow deployed in your Kubernetes cluster 
 
-This will start a [Distributed Training](https://www.tensorflow.org/deploy/distributed). 
-Specify the number of desired parameter servers with `ps_count` and the number of workers with `worker_count`.
-Another instance of type master will always be created.
 
 ```python
 from metaml.train import Train
 from metaml.architectures.kubeflow.distributed import DistributedTraining
+
 @Train(
-    package={'name': 'some_image_name', 'repository': 'some_docker_repo', 'publish': True},
+    package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
     architecture=DistributedTraining(ps_count=2, worker_count=5),
 )
-def train_func():
-  # some training logic
-  ...
+class MyModel(object):
+    ...
 ```
+
+This will start a [Distributed Training](https://www.tensorflow.org/deploy/distributed). 
+
+Specify the number of desired parameter servers with `ps_count` and the number of workers with `worker_count`.
+Another instance of type master will always be created.
 
 See [https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config](https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config) to understand how you need to modify your model to support distributed training with Kubeflow.
 
@@ -127,18 +150,20 @@ You can easily attach a TensorBoard instance to monitor your training:
 
 ```python
 @Train(
-    package={'name': 'mp-mnist', 'repository': 'wbuchwalter', 'publish': True},
+    package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
     tensorboard={
-      'log_dir': FLAGS.log_dir,
-      'pvc_name': 'azurefile',
+      'log_dir': LOG_DIR,
+      'pvc_name': '<pvc-name>',
       'public': True # Request a public IP
     }
 )
+class MyModel(object):
+    ...
 ```
 
-### `@Serve` decorator
+## Serving
 
-**This decorator is not yet fully implemented.**
+:warning: **This decorator is not yet implemented.** :warning:
 
 The `@Serve` decorator allows you to mark the function that should be used for serving.
 This function will automatically be encapsulated in a web server and deployed on Kubernetes.
@@ -147,10 +172,16 @@ This function will automatically be encapsulated in a web server and deployed on
 from metaml.serve import Serve
 
 @Serve(package={'name': 'simple-serve', 'repository': 'wbuchwalter', 'publish': True})
-def func():
-  return "hello world"
+class MyModel(object):
+    
+    def build(self):
+      # build the model
+    
+    def restore(self, model_path):
+      # restore the model from MODEL_PATH
 
-func()
+    def serve(self, request):
+      # return prediction
 ```
 
 ##### Arguments
@@ -162,9 +193,9 @@ func()
 
 ## Installing
 
-**This projects requires python 3**
+**Note**: This projects requires python 3
 
-#### `metaparticle-ast`
+**metaparticle-ast**
 
 This project uses a fork of `metaparticle-ast` for now, that need to be installed from source as well:
 
@@ -179,7 +210,7 @@ rm -rf $GOPATH/src/github.com/kubeflow/tf-operator/vendor
 go install ./cmd/compiler/mp-compiler.go
 ```
 
-#### MetaML
+**MetaML**
 
 ```bash
 git clone https://github.com/wbuchwalter/metaml

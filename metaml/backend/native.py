@@ -23,13 +23,11 @@ class NativeBackend(Backend):
             {
                 "name": "{}-tensorboard".format(name),
                 "replicas": 1,
-                "containers": [
-                    {
+                "containers": [{
                         "image": "tensorflow/tensorflow",
                         "command": ["tensorboard", "--host", "0.0.0.0", "--logdir", tb_options.log_dir],
                         "volumeMounts": volumeMounts
-                    }
-                ],
+                    }],
                 "ports": [{
                     'number': 6006,
                     'protocol': 'TCP'
