@@ -6,6 +6,7 @@ import os
 import json
 import math
 import numpy as np
+import time
 
 from ..basic import BasicTrainingStrategy
 from .exploit import Truncation
@@ -20,9 +21,7 @@ logger = logging.getLogger('metaml')
 
 class PopulationBasedTraining(BasicTrainingStrategy):
     def __init__(self,
-                 hyperparameters,
-                 #  saver,           # used to restore model
-                 model_dir,
+                 model_path,
                  population_size,
                  exploit_count,
                  steps_per_exploit,
@@ -31,8 +30,7 @@ class PopulationBasedTraining(BasicTrainingStrategy):
                  explorer=Resample(),
                  ):
 
-        self.hyperparameters = hyperparameters
-        self.model_dir = model_dir
+        self.model_path = model_path
         self.population_size = population_size
         #How many instances should be deployed
         self.runs = population_size
@@ -46,15 +44,9 @@ class PopulationBasedTraining(BasicTrainingStrategy):
         self.current_hp_values = None
         self.hostname = None
         self.user_func = None
-        self.saver = None
         self.redis = None
         self.step_count = 0
         self.curr_exploit_count = 0
-
-    def get_params(self):
-      if isinstance(self.hyperparameters, types.FunctionType):
-        return self.hyperparameters()
-      return self.hyperparameters
 
     def add_training(self, svc, img, name, volumes, volume_mounts):
         volumes = volumes if volumes else []
@@ -62,7 +54,7 @@ class PopulationBasedTraining(BasicTrainingStrategy):
 
         volume_mounts.append({
             "name": "checkpoint",
-            "mountPath": os.path.dirname(self.model_dir)
+            "mountPath": os.path.dirname(self.model_path)
         })
         volumes.append({
             "name": "checkpoint",
@@ -92,72 +84,79 @@ class PopulationBasedTraining(BasicTrainingStrategy):
             svc["services"].append(r_svc)
         
 
-        # Metaparticle seem to only support one serving endpoint?
-        # svc["serve"] = {
-        #     "name": redis_hostname
-        # }
+        #Metaparticle seem to only support one serving endpoint?
+        svc["serve"] = {
+            "name": redis_hostname
+        }
         # if not 'serve' in svc:
         #     svc["serve"] = r_endpoint
         # else:
         #     svc["serve"].append(r_endpoint)
         return svc, {'name': 'REDIS_HOSTNAME', 'value': redis_hostname}
 
-    # def start_training(self):
+    def get_params(self):
+        hp = None
+        hp_func = getattr(self.user_object, "hyperparameters", None)
+        if callable(hp_func):
+            hp = hp_func()
+        return hp
+
+    def exec_user_code(self, user_object):
+        self.user_object = user_object
+        self.initialize_training()
+
+        params = self.get_params()
+        self.user_object.build(params)
+        self.training_loop(params)
+
+    def training_loop(self, hp):
+        self.current_hp_values = hp
+        self.user_object.train(self.steps_per_exploit, self.reporter, hp)
+
     def initialize_training(self):
         self.hostname = os.environ.get('HOSTNAME')
         redis_hostname = os.environ.get('REDIS_HOSTNAME')      
         self.redis = redis.StrictRedis(host=redis_hostname)
 
-    def exec_user_func(self, user_func):
-        
-        self.user_func = user_func
-        self.initialize_training()
-
-        self.graph = tf.Graph()
-        self.session = tf.Session(graph=self.graph)
-        self.training_loop(self.get_params())
-
-    def training_loop(self, hp):
-        self.current_hp_values = hp
-        self.user_func(self.session, self.graph, self.steps_per_exploit, self.reporter, **hp)
-
     def reporter(self, loss_metric):
         self.step_count += self.steps_per_exploit
-        saver = tf.train.Saver()
-        saver.save(self.session, self.model_dir)
+        self.user_object.save()
         self.commit_performance_info(loss_metric)
         self.iterate()
     
     def iterate(self):
         if self.curr_exploit_count >= self.exploit_count:
-            logger.error("TRAINING FINISHED")
             # Training is finished
             return
 
         # Exploit
         scoreboard = self.get_scoreboard()
-        logger.error("SCOREBOARD")
-        logger.error(scoreboard)
         new_model_path, copied_hp = self.exploiter.exploit(self.hostname, scoreboard)
         run_hp = self.current_hp_values
-        model_path = self.model_dir
+
         if new_model_path:
-            model_path = new_model_path
             # Explore
             if type(self.explorer) is Resample:
                 run_hp = self.get_params()
             else:
                 run_hp = self.explorer.explore(copied_hp)
+            self.user_object.build(run_hp)
+            self.user_object.restore(new_model_path)
 
-        # self.graph = tf.Graph()
-        # self.session = tf.Session(graph=self.graph)
-        saver = tf.train.Saver()
-        saver.restore(self.session, model_path)
         self.curr_exploit_count += 1
         self.training_loop(run_hp)
 
     def get_scoreboard(self):
         keys = self.redis.keys()
+        while len(keys) < self.population_size:
+            logger.error("Population size is {}, but only found {} scores. Will retry in 10 seconds".format(
+                self.population_size,
+                len(keys)
+            ))
+            time.sleep(10)
+            keys = self.redis.keys()
+            
+            
         scoreboard = []
         for key in keys:
             v = self.redis.get(key).decode('utf8')
@@ -173,6 +172,6 @@ class PopulationBasedTraining(BasicTrainingStrategy):
             "metric": metric,
             "step": self.step_count,
             "hp": json.dumps(self.current_hp_values),
-            "model_path": self.model_dir,
+            "model_path": self.model_path,
         }
         self.redis.set(self.hostname, json.dumps(info))
