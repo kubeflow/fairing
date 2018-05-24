@@ -12,7 +12,7 @@ class BasicTrainingStrategy(object):
   
   def exec_user_code(self, user_object):
 
-    if 'build' in dir(user_object) and callable(getattr(user_object, ' build')):
+    if 'build' in dir(user_object) and callable(getattr(user_object, 'build')):
       user_object.build()
     user_object.train()
   
