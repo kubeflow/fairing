@@ -39,16 +39,11 @@ class Serve(object):
         def wrapped():
             if is_in_docker_container():
                 return self.serve(func)
-
-            exec_file = sys.argv[0]
-            slash_ix = exec_file.find('/')
-            if slash_ix != -1:
-                exec_file = exec_file[slash_ix:]
-
+          
             ast = self.backend.compile_serving_ast(
                 self.image, self.package.name, self.port, self.replicas)
 
-            self.builder.write_dockerfile(self.package, exec_file)
+            self.builder.write_dockerfile(self.package)
             self.builder.build(self.image)
 
             if self.package.publish:

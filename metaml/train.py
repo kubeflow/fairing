@@ -33,29 +33,6 @@ class Train(object):
         )
         self.builder = DockerBuilder()
 
-        exec_file = sys.argv[0]
-        slash_ix = exec_file.find('/')
-        if slash_ix != -1:
-            exec_file = exec_file[slash_ix:]
-
-        ast, env = self.compile_ast()
-
-        self.builder.write_dockerfile(self.package, exec_file, env)
-        self.builder.build(self.image)
-
-        if self.package.publish:
-            self.builder.publish(self.image)
-
-        def signal_handler(signal, frame):
-            mp.cancel(self.package.name)
-            sys.exit(0)
-        signal.signal(signal.SIGINT, signal_handler)
-
-        mp.run(ast)
-        print("Training(s) launched.")
-
-        mp.logs(self.package.name)
-    
     def compile_ast(self):
         svc = {
             "name": self.package.name,
@@ -74,8 +51,38 @@ class Train(object):
 
     def __call__(self, cls):
         class UserClass(cls):
-            def __call__(other):
-                if is_in_docker_container():
-                    self.strategy.exec_user_code(other)
+            # def __call__(other):
+            #     if is_in_docker_container():
+            #         self.strategy.exec_user_code(other)
+            
+            def __getattribute__(other,s):
+                if s == 'train' and not is_in_docker_container():
+                    return super(UserClass, other).__getattribute__('_launch_training')
+
+                other.strategy.exec_user_code(other)
+                return super(UserClass, other).__getattribute__('__fake_attribute')
+            
+            def _fake_attribute(other):
+                print('fake_attribute')
+                return
+
+            def _launch_training(other):
+                ast, env = self.compile_ast()
+
+                self.builder.write_dockerfile(self.package, env)
+                self.builder.build(self.image)
+
+                if self.package.publish:
+                    self.builder.publish(self.image)
+
+                def signal_handler(signal, frame):
+                    mp.cancel(self.package.name)
+                    sys.exit(0)
+                signal.signal(signal.SIGINT, signal_handler)
+
+                mp.run(ast)
+                print("Training(s) launched.")
+
+                mp.logs(self.package.name)
                 
         return UserClass

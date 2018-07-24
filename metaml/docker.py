@@ -2,8 +2,11 @@ import shutil
 import os
 import json
 import logging
+import sys
 
 from docker import APIClient
+from metaml.notebook import get_notebook_name
+
 logger = logging.getLogger('metaml')
 
 def is_in_docker_container():
@@ -27,12 +30,30 @@ def is_in_docker_container():
   except IOError:
       return False
 
+def is_in_notebook():
+    return os.environ.get('_') != ''
+
+def get_exec_file_name():
+    exec_file = sys.argv[0]
+    slash_ix = exec_file.find('/')
+    if slash_ix != -1:
+        exec_file = exec_file[slash_ix:]
+    return exec_file
+
 
 class DockerBuilder:
     def __init__(self):
         self.docker_client = None
     
-    def write_dockerfile(self, package, exec_file, env):
+    def write_dockerfile(self, package, env):
+        executor = 'python'
+        extra_install_steps = ''
+        exec_file = get_exec_file_name()
+        if is_in_notebook():
+            nb_name = get_notebook_name()
+            extra_install_steps = """RUN pip install jupyter nbconvert
+RUN jupyter nbconvert --to script /app/{}""".format(nb_name)
+            exec_file = nb_name.replace('.ipynb', '.py')
         if hasattr(package, 'dockerfile') and package.dockerfile is not None:
             shutil.copy(package.dockerfile, 'Dockerfile')
             return
@@ -45,9 +66,10 @@ class DockerBuilder:
             f.write("""FROM wbuchwalter/metaml
 COPY ./ /app/
 RUN pip install --no-cache -r /app/requirements.txt
+{extra_install_steps}
 {env_str}
 CMD python /app/{exec_file}
-""".format(version=package.py_version, exec_file=exec_file, env_str=env_str))
+""".format(version=package.py_version, exec_file=exec_file, env_str=env_str, extra_install_steps=extra_install_steps, executor=executor))
 
 
     def build(self, img, path='.'):
