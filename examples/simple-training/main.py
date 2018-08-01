@@ -26,7 +26,7 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-from metaml.train import Train
+from fairing.train import Train
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -41,7 +41,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-@Train(package={'name': 'metaml-mnist', 'repository': '<your-repository-name>', 'publish': True})
+@Train(package={'name': 'fairing-mnist', 'repository': '<your-repository-name>', 'publish': True})
 class MyModel(object):
     def train(self):
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)

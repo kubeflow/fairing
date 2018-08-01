@@ -1,4 +1,4 @@
-from metaml.backend.kubeflow import KubeflowBackend
+from fairing.backend.kubeflow import KubeflowBackend
 
 
 class BasicArchitecture():

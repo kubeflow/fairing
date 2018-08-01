@@ -2,7 +2,7 @@ import setuptools
 import json
 
 setuptools.setup(
-    name='metaml',
+    name='fairing',
     version='0.1',
     packages=setuptools.find_packages(),
     package_data={},

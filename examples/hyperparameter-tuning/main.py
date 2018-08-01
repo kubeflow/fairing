@@ -27,8 +27,8 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-from metaml.train import Train
-from metaml.strategies.hp import HyperparameterTuning
+from fairing.train import Train
+from fairing.strategies.hp import HyperparameterTuning
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -42,7 +42,7 @@ MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
 
 @Train(
-    package={'name': 'metaml-hp-tuning', 'repository': '<your-repository>', 'publish': True},
+    package={'name': 'fairing-hp-tuning', 'repository': '<your-repository>', 'publish': True},
     strategy=HyperparameterTuning(runs=3),
     tensorboard={
         'log_dir': LOG_DIR,

@@ -11,13 +11,13 @@ import time
 from ..basic import BasicTrainingStrategy
 from .exploit import Truncation
 from .explore import Resample, Perturb
-from metaml.docker import is_in_docker_container
+from fairing.docker import is_in_docker_container
 
 #TODO: can we make this class framework agnostic?
 if is_in_docker_container():
     import tensorflow as tf
 
-logger = logging.getLogger('metaml')
+logger = logging.getLogger('fairing')
 
 class PopulationBasedTraining(BasicTrainingStrategy):
     def __init__(self,

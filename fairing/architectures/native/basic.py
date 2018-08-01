@@ -1,5 +1,5 @@
-from metaml.architectures.architecture import TrainingArchitecture
-from metaml.backend.native import NativeBackend
+from fairing.architectures.architecture import TrainingArchitecture
+from fairing.backend.native import NativeBackend
 
 
 class BasicArchitecture(TrainingArchitecture):

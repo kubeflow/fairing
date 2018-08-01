@@ -1,8 +1,8 @@
 import json
 import os
 import subprocess
-from metaml.backend.backend import Backend
-from metaml.strategies.hp import HyperparameterTuning
+from fairing.backend.backend import Backend
+from fairing.strategies.hp import HyperparameterTuning
 
 
 class NativeBackend(Backend):
@@ -50,7 +50,7 @@ class NativeBackend(Backend):
 
         svc["services"] = [
             {
-                "name": "{}-metaml-serving".format(name),
+                "name": "{}-fairing-serving".format(name),
                 "replicas": replicas,
                 "containers": [
                     {
@@ -66,7 +66,7 @@ class NativeBackend(Backend):
         ]
 
         svc["serve"] = {
-            "name": "{}-metaml-serving".format(name),
+            "name": "{}-fairing-serving".format(name),
             "public": True
         }
         return svc

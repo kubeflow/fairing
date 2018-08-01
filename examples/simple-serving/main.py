@@ -1,4 +1,4 @@
-from metaml.serve import Serve
+from fairing.serve import Serve
 
 @Serve(package={'name': 'simple-serve', 'repository': '<your-repository-name>', 'publish': True})
 def func():

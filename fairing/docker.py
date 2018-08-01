@@ -4,7 +4,7 @@ import json
 import logging
 
 from docker import APIClient
-logger = logging.getLogger('metaml')
+logger = logging.getLogger('fairing')
 
 def is_in_docker_container():
   mp_in_container = os.getenv('METAPARTICLE_IN_CONTAINER', None)
@@ -42,7 +42,7 @@ class DockerBuilder:
             env_str += "ENV {} {} \n".format(e['name'], e['value'])
 
         with open('Dockerfile', 'w+t') as f:
-            f.write("""FROM wbuchwalter/metaml
+            f.write("""FROM wbuchwalter/fairing
 COPY ./ /app/
 RUN pip install --no-cache -r /app/requirements.txt
 {env_str}
