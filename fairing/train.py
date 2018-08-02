@@ -4,14 +4,14 @@ import types
 import logging
 import shutil
 
-# from metaml.backend import get_backend, Native
-from metaml.docker import is_in_docker_container, DockerBuilder
-from metaml.options import TensorboardOptions, PackageOptions
-from metaml.architectures.native.basic import BasicArchitecture
-from metaml.strategies.basic import BasicTrainingStrategy
-import metaml.metaparticle as mp
+# from fairing.backend import get_backend, Native
+from fairing.docker import is_in_docker_container, DockerBuilder
+from fairing.options import TensorboardOptions, PackageOptions
+from fairing.architectures.native.basic import BasicArchitecture
+from fairing.strategies.basic import BasicTrainingStrategy
+import fairing.metaparticle as mp
 
-logger = logging.getLogger('metaml')
+logger = logging.getLogger('fairing')
 
 class Train(object):
     def __init__(self, package, tensorboard=None, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):

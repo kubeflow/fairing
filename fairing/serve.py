@@ -4,12 +4,12 @@ import shutil
 import http.server
 import logging
 
-from metaml.backend import NativeBackend
-from metaml.docker import is_in_docker_container, DockerBuilder
-from metaml.options import PackageOptions
-import metaml.metaparticle as mp
+from fairing.backend import NativeBackend
+from fairing.docker import is_in_docker_container, DockerBuilder
+from fairing.options import PackageOptions
+import fairing.metaparticle as mp
 
-logger = logging.getLogger('metaml')
+logger = logging.getLogger('fairing')
 
 user_function = None
 serving_route = None

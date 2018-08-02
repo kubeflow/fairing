@@ -34,8 +34,8 @@ import logging
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-from metaml.train import Train
-from metaml.architectures.kubeflow.distributed import DistributedTraining
+from fairing.train import Train
+from fairing.architectures.kubeflow.distributed import DistributedTraining
 
 # logging.basicConfig(level=logging.INFO)
 
@@ -48,7 +48,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
 
 @Train(
-    package={'name': 'metaml-distributed-mnist', 'repository': '<your-repository-name>', 'publish': True},
+    package={'name': 'fairing-distributed-mnist', 'repository': '<your-repository-name>', 'publish': True},
     architecture=DistributedTraining(ps_count=1, worker_count=3),
     tensorboard={
         'log_dir': LOG_DIR,

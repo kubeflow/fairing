@@ -5,9 +5,9 @@ import logging
 import sys
 
 from docker import APIClient
-from metaml.notebook import get_notebook_name
+from fairing.notebook import get_notebook_name
 
-logger = logging.getLogger('metaml')
+logger = logging.getLogger('fairing')
 
 def is_in_docker_container():
   mp_in_container = os.getenv('METAPARTICLE_IN_CONTAINER', None)
@@ -63,7 +63,7 @@ RUN jupyter nbconvert --to script /app/{}""".format(nb_name)
             env_str += "ENV {} {} \n".format(e['name'], e['value'])
 
         with open('Dockerfile', 'w+t') as f:
-            f.write("""FROM wbuchwalter/metaml
+            f.write("""FROM library/python:3.6
 COPY ./ /app/
 RUN pip install --no-cache -r /app/requirements.txt
 {extra_install_steps}

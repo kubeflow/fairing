@@ -1,12 +1,12 @@
 :warning:  **This project is an experiment** :warning:
 
-# MetaML
+# Fairing
 
 Easily train and serve ML models on Kubernetes, directly from your python code.  
 
 This projects uses [Metaparticle](http://metaparticle.io/) behind the scene.
 
-MetaML allows you to express how you want your model to be trained and served using native python decorators.  
+fairing allows you to express how you want your model to be trained and served using native python decorators.  
 
 
 ## Training
@@ -26,7 +26,7 @@ The `Train` decorator takes 4 arguments:
 #### Basic Training
 
 ```python
-from metaml.train import Train
+from fairing.train import Train
 
 @Train(package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True})
 class MyModel(object):
@@ -46,8 +46,8 @@ Your class should define a `hyperparameters` method that returns an dictionary o
 This dictionary will be passed automatically passed to your `train` method.
 
 ```python
-from metaml.train import Train
-from metaml.strategies.hp import HyperparameterTuning
+from fairing.train import Train
+from fairing.strategies.hp import HyperparameterTuning
 
 @Train(
     package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
@@ -68,8 +68,8 @@ Complete example: [examples/hyperparameter-tuning/main.py](./examples/hyperparam
 #### Population Based Training
 
 ```python
-from metaml.train import Train
-from metaml.strategies.pbt import PopulationBasedTraining
+from fairing.train import Train
+from fairing.strategies.pbt import PopulationBasedTraining
 
 @Train(
     package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
@@ -124,8 +124,8 @@ Complete example: [examples/simple-training/main.py](./examples/simple-training/
 
 
 ```python
-from metaml.train import Train
-from metaml.architectures.kubeflow.distributed import DistributedTraining
+from fairing.train import Train
+from fairing.architectures.kubeflow.distributed import DistributedTraining
 
 @Train(
     package={'name': '<your-image-name>', 'repository': '<your-repo-name>', 'publish': True},
@@ -169,7 +169,7 @@ The `@Serve` decorator allows you to mark the function that should be used for s
 This function will automatically be encapsulated in a web server and deployed on Kubernetes.
 
 ```python
-from metaml.serve import Serve
+from fairing.serve import Serve
 
 @Serve(package={'name': 'simple-serve', 'repository': 'wbuchwalter', 'publish': True})
 class MyModel(object):
@@ -210,10 +210,10 @@ rm -rf $GOPATH/src/github.com/kubeflow/tf-operator/vendor
 go install ./cmd/compiler/mp-compiler.go
 ```
 
-**MetaML**
+**fairing**
 
 ```bash
-git clone https://github.com/wbuchwalter/metaml
-cd metaml
+git clone https://github.com/wbuchwalter/fairing
+cd fairing
 python setup.py install
 ```
