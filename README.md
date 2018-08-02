@@ -1,5 +1,3 @@
-:warning:  **This project is an experiment** :warning:
-
 # Fairing
 
 Easily train and serve ML models on Kubernetes, directly from your python code.  
@@ -213,7 +211,5 @@ go install ./cmd/compiler/mp-compiler.go
 **fairing**
 
 ```bash
-git clone https://github.com/wbuchwalter/fairing
-cd fairing
-python setup.py install
+pip install fairing
 ```
