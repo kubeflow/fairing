@@ -1,6 +1,6 @@
 :warning:  **This project is an experiment** :warning:
 
-# fairing
+# Fairing
 
 Easily train and serve ML models on Kubernetes, directly from your python code.  
 

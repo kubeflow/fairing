@@ -42,7 +42,7 @@ class DockerBuilder:
             env_str += "ENV {} {} \n".format(e['name'], e['value'])
 
         with open('Dockerfile', 'w+t') as f:
-            f.write("""FROM wbuchwalter/fairing
+            f.write("""FROM library/python:3.6
 COPY ./ /app/
 RUN pip install --no-cache -r /app/requirements.txt
 {env_str}
