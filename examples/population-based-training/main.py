@@ -27,9 +27,9 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-from metaml.train import Train
-from metaml.strategies.pbt import PopulationBasedTraining
-from metaml.strategies.pbt.explore import Perturb
+from fairing.train import Train
+from fairing.strategies.pbt import PopulationBasedTraining
+from fairing.strategies.pbt.explore import Perturb
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -43,7 +43,7 @@ MODEL_DIR = os.path.join(LOG_DIR, os.getenv('TEST_TMPDIR', '/tmp'),
 # logging.basicConfig(level=logging.DEBUG)
 
 @Train(
-    package={'name': 'metaml-pbt', 'repository': '<your-repository>', 'publish': True},
+    package={'name': 'fairing-pbt', 'repository': '<your-repository>', 'publish': True},
     strategy=PopulationBasedTraining(
         population_size=10,
         exploit_count=4,

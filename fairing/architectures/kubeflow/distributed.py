@@ -1,5 +1,5 @@
-from metaml.architectures.kubeflow.basic import BasicArchitecture
-from metaml.backend.kubeflow import KubeflowBackend
+from fairing.architectures.kubeflow.basic import BasicArchitecture
+from fairing.backend.kubeflow import KubeflowBackend
 
 
 class DistributedTraining(BasicArchitecture):

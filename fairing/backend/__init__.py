@@ -1,5 +1,5 @@
-from metaml.backend.kubeflow import KubeflowBackend
-from metaml.backend.native import NativeBackend
+from fairing.backend.kubeflow import KubeflowBackend
+from fairing.backend.native import NativeBackend
 
 Kubeflow = 'kubeflow'
 Native = 'native'

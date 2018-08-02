@@ -1,5 +1,5 @@
 import types
-from metaml.strategies.basic import BasicTrainingStrategy
+from fairing.strategies.basic import BasicTrainingStrategy
 
 
 class HyperparameterTuning(BasicTrainingStrategy):

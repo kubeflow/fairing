@@ -1,7 +1,7 @@
 import random
 import logging
 
-logger = logging.getLogger('metaml')
+logger = logging.getLogger('fairing')
 
 class ExploreStrategy(object):
     def explore(self, hp_dict):
