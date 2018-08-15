@@ -81,4 +81,4 @@ class MyModel(object):
 
 if __name__ == '__main__':
     model = MyModel()
-    model()
+    model.train()

@@ -9,29 +9,33 @@ from fairing.docker import is_in_docker_container, DockerBuilder
 from fairing.options import TensorboardOptions, PackageOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
-import fairing.metaparticle as mp
+from fairing.metaparticle import MetaparticleClient
 
 logger = logging.getLogger('fairing')
 
-class Train(object):
-    def __init__(self, package, tensorboard=None, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):
+
+class Trainer(object):
+    def __init__(self,
+                 package,
+                 tensorboard=None,
+                 architecture=BasicArchitecture(),
+                 strategy=BasicTrainingStrategy(),
+                 builder=DockerBuilder()):
         self.strategy = strategy
         self.architecture = architecture
         self.tensorboard_options = TensorboardOptions(
             **tensorboard) if tensorboard else None
-
+        self.package = PackageOptions(**package)
         self.backend = self.architecture.get_associated_backend()
         self.strategy.set_architecture(self.architecture)
+        self.image = self.get_image()
+        self.builder = builder
 
-        if is_in_docker_container():
-            return
-        
-        self.package = PackageOptions(**package)
-        self.image = "{repo}/{name}:latest".format(
+    def get_image(self):
+        return "{repo}/{name}:latest".format(
             repo=self.package.repository,
             name=self.package.name
         )
-        self.builder = DockerBuilder()
 
     def compile_ast(self):
         svc = {
@@ -48,41 +52,57 @@ class Train(object):
         svc, env = self.strategy.add_training(
             svc, self.image, self.package.name, volumes, volume_mounts)
         return svc, env
+    
+    def get_metaparticle_client(self):
+        return MetaparticleClient()
+
+    def deploy_training(self):
+        ast, env = self.compile_ast()
+
+        self.builder.write_dockerfile(self.package, env)
+        self.builder.build(self.image)
+
+        if self.package.publish:
+            self.builder.publish(self.image)
+        
+        mp = self.get_metaparticle_client()
+
+        def signal_handler(signal, frame):
+            mp.cancel(self.package.name)
+            sys.exit(0)
+        signal.signal(signal.SIGINT, signal_handler)
+        mp.run(ast)
+        
+        print("Training(s) launched.")
+
+        mp.logs(self.package.name)
+
+    def start_training(self, user_class):
+        self.strategy.exec_user_code(user_class)
+
+# @Train decorator
+class Train(object):
+    def __init__(self, package, tensorboard=None, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):
+        self.trainer = Trainer(package, tensorboard, architecture, strategy)
 
     def __call__(self, cls):
         class UserClass(cls):
-            # def __call__(other):
-            #     if is_in_docker_container():
-            #         self.strategy.exec_user_code(other)
+
+            def __getattribute__(other, attribute_name):
+                if attribute_name != 'train':
+                    return super(UserClass, other).__getattribute__(attribute_name)
+
+                if attribute_name == 'train' and not is_in_docker_container():
+                    return super(UserClass, other).__getattribute__('_deploy_training')
+
+                self.trainer.start_training(other)
+                return super(UserClass, other).__getattribute__('_noop_attribute')
             
-            def __getattribute__(other,s):
-                if s == 'train' and not is_in_docker_container():
-                    return super(UserClass, other).__getattribute__('_launch_training')
+            def _noop_attribute(other):
+                pass
 
-                other.strategy.exec_user_code(other)
-                return super(UserClass, other).__getattribute__('__fake_attribute')
-            
-            def _fake_attribute(other):
-                print('fake_attribute')
-                return
+            def _deploy_training(other):
+                self.trainer.deploy_training()
 
-            def _launch_training(other):
-                ast, env = self.compile_ast()
 
-                self.builder.write_dockerfile(self.package, env)
-                self.builder.build(self.image)
-
-                if self.package.publish:
-                    self.builder.publish(self.image)
-
-                def signal_handler(signal, frame):
-                    mp.cancel(self.package.name)
-                    sys.exit(0)
-                signal.signal(signal.SIGINT, signal_handler)
-
-                mp.run(ast)
-                print("Training(s) launched.")
-
-                mp.logs(self.package.name)
-                
         return UserClass
