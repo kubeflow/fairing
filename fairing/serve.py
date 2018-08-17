@@ -5,7 +5,8 @@ import http.server
 import logging
 
 from fairing.backend import NativeBackend
-from fairing.docker import is_in_docker_container, DockerBuilder
+from fairing.docker import DockerBuilder
+from fairing.utils import is_runtime_phase
 from fairing.options import PackageOptions
 import fairing.metaparticle as mp
 
@@ -37,7 +38,7 @@ class Serve(object):
 
     def __call__(self, func):
         def wrapped():
-            if is_in_docker_container():
+            if is_runtime_phase():
                 return self.serve(func)
           
             ast = self.backend.compile_serving_ast(

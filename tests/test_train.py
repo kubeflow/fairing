@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
+
 from fairing.train import Trainer, Train
 from fairing.backend import NativeBackend
 from fairing.strategies.basic import BasicTrainingStrategy
@@ -89,10 +90,10 @@ def test_deploy_training(trainer, package_options, mock_builder, monkeypatch, mo
   mock_builder.build.assert_called_once()
   mock_builder.publish.assert_called_once()
 
-@pytest.mark.parametrize("is_in_container", [True, False])
-def test_train(is_in_container, mock_trainer, package_options, monkeypatch):
+@pytest.mark.parametrize("is_runtime_phase", [True, False])
+def test_train(is_runtime_phase, mock_trainer, package_options, monkeypatch):
   monkeypatch.setattr('fairing.train.Trainer', mock_trainer)
-  monkeypatch.setattr('fairing.train.is_in_docker_container', lambda: is_in_container)
+  monkeypatch.setattr('fairing.train.is_runtime_phase', lambda: is_runtime_phase)
   
   mock_inst = mock_trainer()
 
@@ -109,9 +110,12 @@ def test_train(is_in_container, mock_trainer, package_options, monkeypatch):
   # a metaparticle container.
   # Once running in a metaparticle container, train() should instead route to
   # the actual user code (through start_training)
-  if is_in_container:
+  if is_runtime_phase:
     mock_inst.start_training.assert_called_once()
   else:
     mock_inst.deploy_training.assert_called_once()
 
 
+def test_type():
+  # rename other to something like user_inst
+  assert 1 == 2

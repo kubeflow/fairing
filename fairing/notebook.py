@@ -19,3 +19,10 @@ def get_notebook_name():
         for nn in json.loads(response.text):
             if nn['kernel']['id'] == kernel_id:
                 return nn['notebook']['path']
+
+def is_in_notebook():
+    try:
+        ipykernel.get_connection_info()
+    except RuntimeError:
+        return False
+    return True
