@@ -21,6 +21,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
+            pip install jupyter # CircleCI fails otherwise for some reason, even though it's already in setup.py
             python setup.py install
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
