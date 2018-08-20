@@ -22,5 +22,12 @@ setuptools.setup(
         'notebook==5.6.0',
         'jupyter==1.0.0',
         'numpy==1.15.0'
-    ]
+    ],
+    extras_require={
+        'dev': [
+            'pytest',
+            'pytest-pep8',
+            'pytest-cov'
+        ]
+    }
 )
