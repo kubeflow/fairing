@@ -114,8 +114,3 @@ def test_train(is_runtime_phase, mock_trainer, package_options, monkeypatch):
     mock_inst.start_training.assert_called_once()
   else:
     mock_inst.deploy_training.assert_called_once()
-
-
-def test_type():
-  # rename other to something like user_inst
-  assert 1 == 2
