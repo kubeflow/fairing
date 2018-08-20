@@ -2,22 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       - image: circleci/python:3.6.1
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
     working_directory: ~/repo
-
-    steps: # a collection of executable commands
-      - checkout # special step to check out source code to the working directory
+    steps:
+      - checkout
       - restore_cache: # restores saved dependency cache if the Branch key template or setup.py files have not changed since the previous run
           key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
-      - run: # install and activate virtual environment with pip
+      - run:
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -26,11 +17,9 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
           paths:
             - "venv"
-      - run: # run tests
+      - run: 
           command: |
             . venv/bin/activate
-            pytest --junit-xml test-reports/test.xml
-      - store_artifacts: # special step to store test reports as artifacts
-          path: test-reports/
-          destination: tr1
-      # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples    
+            pytest --junit-xml test-results/test.xml
+      - store_test_results: 
+          path: test-results/
