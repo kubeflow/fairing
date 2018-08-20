@@ -11,10 +11,10 @@ import time
 from ..basic import BasicTrainingStrategy
 from .exploit import Truncation
 from .explore import Resample, Perturb
-from fairing.docker import is_in_docker_container
+from fairing.utils import is_runtime_phase
 
 #TODO: can we make this class framework agnostic?
-if is_in_docker_container():
+if is_runtime_phase():
     import tensorflow as tf
 
 logger = logging.getLogger('fairing')

@@ -18,6 +18,8 @@ setuptools.setup(
     ),
     install_requires=[
         'docker==3.4.1',
-        'redis==2.10.6'
+        'redis==2.10.6',
+        'ipykernel==4.8.2',
+        'notebook==5.6.0'
     ]
 )

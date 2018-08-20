@@ -3,7 +3,6 @@ from fairing.backend.native import NativeBackend
 
 
 class BasicArchitecture(TrainingArchitecture):
-    pass
 
     def add_jobs(self, svc, count, img, name, volumes, volume_mounts):
         svc['jobs'] = [{
