@@ -26,6 +26,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            python version
             python3 setup.py install
 
       # - save_cache:
@@ -46,4 +47,3 @@ jobs:
       - store_artifacts:
           path: test-reports
           destination: test-reports
-          
