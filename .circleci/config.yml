@@ -21,7 +21,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip3 install -r requirements.txt
+            python setup.py install
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
