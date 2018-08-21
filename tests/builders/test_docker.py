@@ -1,7 +1,10 @@
 import pytest
+import tempfile
 
-from fairing.docker import get_exec_file_name, DockerBuilder
+from fairing.options import PackageOptions
+from fairing.builders.docker import get_exec_file_name, DockerBuilder
 from fairing.utils import is_runtime_phase
+
 
 @pytest.fixture
 def docker_builder():
@@ -18,7 +21,6 @@ def test_get_exec_file_name(monkeypatch, file_name, expected_name):
     monkeypatch.setattr('sys.argv', [file_name, "--some-arguments"])
     assert get_exec_file_name() == expected_name
 
-
 def test_generate_dockerfile_content(docker_builder, monkeypatch):
     # Monkeypatch execfile
     monkeypatch.setattr('sys.argv', ['/test/bin'])
@@ -27,6 +29,7 @@ def test_generate_dockerfile_content(docker_builder, monkeypatch):
            {'name': 'TEST_ENV2', 'value': 'test_val2'}]
     exp = ("FROM library/python:3.6\n"
            "ENV FAIRING_RUNTIME 1\n"
+           "RUN pip install fairing\n"
            "COPY ./ /app/\n"
            "RUN pip install --no-cache -r /app/requirements.txt\n"
            "ENV TEST_ENV test_val1\n"
@@ -38,14 +41,14 @@ def test_generate_dockerfile_content(docker_builder, monkeypatch):
 
 def test_generate_dockerfile_content_notebook(docker_builder, monkeypatch):
     # Simulate Notebook environment
-    monkeypatch.setattr('fairing.docker.is_in_notebook', lambda: True)
-    monkeypatch.setattr('fairing.docker.get_notebook_name', lambda: 'test-notebook')
-
+    monkeypatch.setattr('fairing.builders.docker.is_in_notebook', lambda: True)
+    monkeypatch.setattr('fairing.builders.docker.get_notebook_name', lambda: 'test-notebook')
 
     env = [{'name': 'TEST_ENV', 'value': 'test_val1'},
            {'name': 'TEST_ENV2', 'value': 'test_val2'}]
     exp = ("FROM library/python:3.6\n"
            "ENV FAIRING_RUNTIME 1\n"
+           "RUN pip install fairing\n"
            "COPY ./ /app/\n"
            "RUN pip install --no-cache -r /app/requirements.txt\n"
            "RUN pip install jupyter nbconvert\n"

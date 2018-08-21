@@ -1,5 +1,14 @@
 import os
 
+
+def get_image(package_options):
+    print('here')
+    print(package_options)
+    return "{repo}/{name}:latest".format(
+        repo=package_options.repository,
+        name=package_options.name
+    )
+
 def is_runtime_phase():
     """ Returns wether the code is currently in the runtime or building phase"""
     return os.getenv('FAIRING_RUNTIME', None) != None 

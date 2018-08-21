@@ -5,8 +5,8 @@ import logging
 import shutil
 
 # from fairing.backend import get_backend, Native
-from fairing.docker import DockerBuilder
-from fairing.utils import is_runtime_phase
+from fairing.builders import get_container_builder
+from fairing.utils import is_runtime_phase, get_image
 from fairing.options import TensorboardOptions, PackageOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
@@ -21,7 +21,7 @@ class Trainer(object):
                  tensorboard=None,
                  architecture=BasicArchitecture(),
                  strategy=BasicTrainingStrategy(),
-                 builder=DockerBuilder()):
+                 builder=None):
         self.strategy = strategy
         self.architecture = architecture
         self.tensorboard_options = TensorboardOptions(
@@ -29,14 +29,8 @@ class Trainer(object):
         self.package = PackageOptions(**package)
         self.backend = self.architecture.get_associated_backend()
         self.strategy.set_architecture(self.architecture)
-        self.image = self.get_image()
-        self.builder = builder
-
-    def get_image(self):
-        return "{repo}/{name}:latest".format(
-            repo=self.package.repository,
-            name=self.package.name
-        )
+        self.image = get_image(self.package)
+        self.builder = get_container_builder(builder)
 
     def compile_ast(self):
         svc = {
@@ -60,11 +54,7 @@ class Trainer(object):
     def deploy_training(self):
         ast, env = self.compile_ast()
 
-        self.builder.write_dockerfile(self.package, env)
-        self.builder.build(self.image)
-
-        if self.package.publish:
-            self.builder.publish(self.image)
+        self.builder.execute(self.package, env)
         
         mp = self.get_metaparticle_client()
 

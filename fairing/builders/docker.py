@@ -5,7 +5,10 @@ import logging
 import sys
 
 from docker import APIClient
+
 from fairing.notebook import get_notebook_name, is_in_notebook
+from fairing.builders.container_image_builder import ContainerImageBuilder
+from fairing.utils import get_image
 
 logger = logging.getLogger('fairing')
 
@@ -18,10 +21,17 @@ def get_exec_file_name():
     return exec_file
 
 
-class DockerBuilder:
+class DockerBuilder(ContainerImageBuilder):
     def __init__(self):
         self.docker_client = None
-    
+  
+    def execute(self, package_options, env):
+        image = get_image(package_options)
+        self.write_dockerfile(package_options, env)
+        self.build(image)
+        if package_options.publish:
+            self.publish(image)
+        
     def get_base_image(self):
         if os.environ.get('FAIRING_DEV', None) != None:
             try:
@@ -33,6 +43,15 @@ class DockerBuilder:
                                 "or set FAIRING_DEV to false.")
             return '{uname}/fairing:latest'.format(uname=uname)
         return 'library/python:3.6'
+
+    def write_dockerfile(self, package, env, dockerfile_path='Dockerfile'):
+        if hasattr(package, 'dockerfile') and package.dockerfile is not None:
+            shutil.copy(package.dockerfile, 'Dockerfile')
+            return       
+        
+        content = self.generate_dockerfile_content(env)
+        with open(dockerfile_path, 'w+t') as f:
+            f.write(content)
 
     def generate_dockerfile_content(self, env):
         # executor = 'python'
@@ -53,6 +72,7 @@ class DockerBuilder:
 
         return ("FROM {base_image}\n"
                 "ENV FAIRING_RUNTIME 1\n"
+                "RUN pip install fairing\n"
                 "COPY ./ /app/\n"
                 "RUN pip install --no-cache -r /app/requirements.txt\n"
                 "{extra_install_steps}"
@@ -63,14 +83,6 @@ class DockerBuilder:
                     env_str=env_str,
                     extra_install_steps=extra_install_steps)
 
-    def write_dockerfile(self, package, env):
-        if hasattr(package, 'dockerfile') and package.dockerfile is not None:
-            shutil.copy(package.dockerfile, 'Dockerfile')
-            return       
-
-        content = self.generate_dockerfile_content(env)
-        with open('Dockerfile', 'w+t') as f:
-            f.write(content)
 
     def build(self, img, path='.'):
         print('Building docker image {}...'.format(img))
