@@ -33,7 +33,7 @@ class Trainer(object):
         self.builder = get_container_builder(builder)
 
     def compile_ast(self):
-        svc = {
+        ast = {
             "name": self.package.name,
             "guid": 1234567
         }
@@ -41,13 +41,13 @@ class Trainer(object):
         volumes = None
         volume_mounts = None
         if self.tensorboard_options:
-            svc, volumes, volume_mounts = self.backend.add_tensorboard(
-                svc, self.package.name, self.tensorboard_options)
+            ast, volumes, volume_mounts = self.backend.add_tensorboard(
+                ast, self.package.name, self.tensorboard_options)
 
-        svc, env = self.strategy.add_training(
-            svc, self.image, self.package.name, volumes, volume_mounts)
-        return svc, env
-    
+        ast, env = self.strategy.add_training(
+            ast, self.image, self.package.name, volumes, volume_mounts)
+        return ast, env
+     
     def get_metaparticle_client(self):
         return MetaparticleClient()
 

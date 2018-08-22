@@ -20,10 +20,9 @@ def get_container_builder(builder_str=None):
     return get_builder(builder)
 
 def get_default_container_builder():
-    # TODO: check if we are running in kubernetes or not
+    # TODO: check if we are running in kubernetes or not.
     # on kubernetes default should be knative
     return get_builder(Builders.DOCKER)
-
 
 def get_builder(builder):
     if builder == Builders.DOCKER:
