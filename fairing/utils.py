@@ -1,9 +1,7 @@
 import os
 
-
 def get_image(package_options):
-    print('here')
-    print(package_options)
+    # TODO: If no image is specified generate a new one, i.e: user/fairing-build
     return "{repo}/{name}:latest".format(
         repo=package_options.repository,
         name=package_options.name
@@ -13,21 +11,9 @@ def is_runtime_phase():
     """ Returns wether the code is currently in the runtime or building phase"""
     return os.getenv('FAIRING_RUNTIME', None) != None 
     
-    # elif mp_in_container in ['false', '0']:
-    #     return False
+def is_running_in_k8s():
+    return os.path.isdir('/var/run/secrets/kubernetes.io/')
 
-    # We should probably just stick with the environment variable
-    # as the user may be running fairing in a container already
-#   try:
-#       with open('/proc/1/cgroup', 'r+t') as f:
-#           lines = f.read().splitlines()
-#           last_line = lines[-1]
-#           if 'docker' in last_line:
-#               return True
-#           elif 'kubepods' in last_line:
-#               return True
-#           else:
-#               return False
-
-#   except IOError:
-#       return False
+def get_current_k8s_namespace():
+    with open('/var/run/secrets/kubernets.io/serviceaccount/namespace', 'r') as f:
+        return f.readline()

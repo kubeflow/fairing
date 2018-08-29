@@ -1,0 +1,1 @@
+from fairing.builders.knative.knative import KnativeBuilder

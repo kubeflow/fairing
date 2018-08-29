@@ -47,7 +47,7 @@ class Trainer(object):
         ast, env = self.strategy.add_training(
             ast, self.image, self.package.name, volumes, volume_mounts)
         return ast, env
-     
+
     def get_metaparticle_client(self):
         return MetaparticleClient()
 
@@ -55,7 +55,7 @@ class Trainer(object):
         ast, env = self.compile_ast()
 
         self.builder.execute(self.package, env)
-        
+
         mp = self.get_metaparticle_client()
 
         def signal_handler(signal, frame):
@@ -63,7 +63,7 @@ class Trainer(object):
             sys.exit(0)
         signal.signal(signal.SIGINT, signal_handler)
         mp.run(ast)
-        
+
         print("Training(s) launched.")
 
         mp.logs(self.package.name)
@@ -72,9 +72,16 @@ class Trainer(object):
         self.strategy.exec_user_code(user_class)
 
 # @Train decorator
+
+
 class Train(object):
-    def __init__(self, package, tensorboard=None, architecture=BasicArchitecture(), strategy=BasicTrainingStrategy()):
-        self.trainer = Trainer(package, tensorboard, architecture, strategy)
+    def __init__(self,
+                 package,
+                 tensorboard=None,
+                 architecture=BasicArchitecture(),
+                 strategy=BasicTrainingStrategy(),
+                 builder=None):
+        self.trainer = Trainer(package, tensorboard, architecture, strategy, builder)
 
     def __call__(self, cls):
         class UserClass(cls):
@@ -88,24 +95,21 @@ class Train(object):
                 # code to go from local to remote execution.
                 # That way, by simply commenting or uncommenting the Train decorator
                 # Model.train() will execute either on the local setup or in kubernetes
-                
+
                 if attribute_name != 'train' or user_class.is_training_initialized:
                     return super(UserClass, user_class).__getattribute__(attribute_name)
 
                 if attribute_name == 'train' and not is_runtime_phase():
                     return super(UserClass, user_class).__getattribute__('_deploy_training')
 
-                print(type(self))
-                print(type(user_class))
                 user_class.is_training_initialized = True
                 self.trainer.start_training(user_class)
                 return super(UserClass, user_class).__getattribute__('_noop_attribute')
-            
+
             def _noop_attribute(user_class):
                 pass
 
             def _deploy_training(user_class):
                 self.trainer.deploy_training()
-
 
         return UserClass
