@@ -11,7 +11,7 @@ class TensorboardOptions(namedtuple('Tensorboard', 'log_dir, pvc_name, public'))
 class PackageOptions(namedtuple('Package', 'repository name tag builder publish py_version dockerfile')):
     required_options = ['repository']
 
-    def __new__(cls, repository, name=None, tag=None, builder='docker', publish=False, py_version=3, dockerfile=None):
+    def __new__(cls, repository, name=None, tag=None, builder='docker', publish=True, py_version=3, dockerfile=None):
         if not name:
             name = 'fairing-build'
             tag = get_unique_tag()
