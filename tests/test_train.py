@@ -6,7 +6,7 @@ from fairing.backend import NativeBackend
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.builders.container_image_builder import ContainerImageBuilder
 from fairing.metaparticle import MetaparticleClient
-from fairing.utils import get_image
+from fairing.utils import get_image_full
 from fairing.options import PackageOptions
 
 REPO_NAME = 'testrepo'
@@ -61,7 +61,7 @@ def test_compile_ast(trainer, package_options):
   job = svc['jobs'][0]
 
   assert len(job['containers']) == 1
-  assert job['containers'][0]['image'] == get_image(PackageOptions(**package_options))
+  assert job['containers'][0]['image'] == get_image_full(PackageOptions(**package_options))
 
 def test_start_training(trainer, package_options,  mock_strategy):
   # Start training should call exec_user_code method from the chosen strategy
@@ -96,7 +96,7 @@ def test_train(is_runtime_phase, mock_trainer, package_options, monkeypatch):
   @Train(package=package_options)
   class TestModel(object):
     def train(self):
-      print('hey')
+      print('test')
 
   model = TestModel()
   model.train()

@@ -6,7 +6,7 @@ import shutil
 
 # from fairing.backend import get_backend, Native
 from fairing.builders import get_container_builder
-from fairing.utils import is_runtime_phase, get_image
+from fairing.utils import is_runtime_phase, get_image_full
 from fairing.options import TensorboardOptions, PackageOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
@@ -29,7 +29,7 @@ class Trainer(object):
         self.package = PackageOptions(**package)
         self.backend = self.architecture.get_associated_backend()
         self.strategy.set_architecture(self.architecture)
-        self.image = get_image(self.package)
+        self.image = get_image_full(self.package)
         self.builder = get_container_builder(builder)
 
     def compile_ast(self):
@@ -70,9 +70,6 @@ class Trainer(object):
 
     def start_training(self, user_class):
         self.strategy.exec_user_code(user_class)
-
-# @Train decorator
-
 
 class Train(object):
     def __init__(self,

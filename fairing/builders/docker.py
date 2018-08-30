@@ -8,7 +8,7 @@ from docker import APIClient
 
 from fairing.builders.dockerfile import DockerFile
 from fairing.builders.container_image_builder import ContainerImageBuilder
-from fairing.utils import get_image
+from fairing.utils import get_image_full
 
 logger = logging.getLogger('fairing')
 
@@ -18,7 +18,7 @@ class DockerBuilder(ContainerImageBuilder):
         self.dockerfile = DockerFile()
   
     def execute(self, package_options, env):
-        image = get_image(package_options)
+        image = get_image_full(package_options)
         self.dockerfile.write(package_options, env)
         self.build(image)
         if package_options.publish:

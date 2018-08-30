@@ -1,5 +1,4 @@
 import logging
-import uuid
 
 import kubernetes.config
 
@@ -7,7 +6,7 @@ from fairing.builders.dockerfile import DockerFile
 from fairing.builders.container_image_builder import ContainerImageBuilder
 from fairing.builders.knative.models.build_template import BuildTemplate, BuildTemplateSpec, BuildTemplateSpecParameter, BuildTemplateSpecStep
 from fairing.builders.knative.models.build import Build, BuildSpec, BuildSpecArgument, BuildSpecTemplate
-from fairing.utils import get_image, is_running_in_k8s, get_current_k8s_namespace
+from fairing.utils import get_image, get_image_full, is_running_in_k8s, get_current_k8s_namespace
 
 logger = logging.getLogger('fairing')
 
@@ -16,30 +15,23 @@ class KnativeBuilder(ContainerImageBuilder):
     def __init__(self):
         self.dockerfile = DockerFile()
         self.namespace = self.get_current_namespace()
-        self._build_id = self.get_unique_id()
-
-    def get_unique_id(self):
-        id = uuid.uuid4()
-        return str(id).split('-')[0]
+        self._build_id = None
 
     def execute(self, package_options, env):
         image = get_image(package_options)
+        self._build_id = package_options.tag        
         self.dockerfile.write(package_options, env)
-        self.build_and_push(image)
+        self.build_and_push(image, package_options.tag)
 
-    def build_and_push(self, img):
-        print('Building docker image {}...'.format(img))
-
+    def build_and_push(self, img, tag):
+        print('Building docker image {image}:{tag}...'.format(image=img, tag=tag))
         self.authenticate()
 
         build_template = self.generate_build_template_resource()
         build_template.maybe_create()
 
         build = self.generate_build_resource(img)
-        build.create()
-
-        self.wait_for_build_completion()
-
+        build.create_sync()
         #TODO: clean build?
 
     def authenticate(self):
@@ -85,16 +77,11 @@ class KnativeBuilder(ContainerImageBuilder):
         metadata = kubernetes.client.V1ObjectMeta(
             name='fairing-build-{}'.format(self._build_id),
             namespace=self.namespace)
-
-        args = [BuildSpecArgument(name='IMAGE', value='docker.io/wbuchwalter/fairing-builds'),
-                BuildSpecArgument(name='TAG', value='test'),
+        
+        args = [BuildSpecArgument(name='IMAGE', value=image),
+                BuildSpecArgument(name='TAG', value=self._build_id),
                 BuildSpecArgument(name='DOCKERFILE', value='/src/Dockerfile')]
 
         template = BuildSpecTemplate(name='fairing-build', arguments=args)
         spec = BuildSpec(sa_name='fairing-build', template=template)
         return Build(metadata=metadata, spec=spec)
-
-    def wait_for_build_completion(self):
-        # Check for build.status.condition.reason
-        raise NotImplementedError()
-

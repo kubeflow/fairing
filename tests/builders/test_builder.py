@@ -1,6 +1,6 @@
 import pytest
 
-from fairing.builders import get_container_builder, DockerBuilder, KnativeBuilder
+from fairing.builders import get_container_builder,  KnativeBuilder, DockerBuilder
 
 def test_default_get_container_builder():
     assert type(get_container_builder()) == DockerBuilder
