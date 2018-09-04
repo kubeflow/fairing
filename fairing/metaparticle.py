@@ -33,7 +33,7 @@ def update_metaparticle():
     # re = "https:\/\/[a-z\.\/-]*tag\/v[0-9].[0-9].[0-9]"
     # print(requests.get("{repo}/releases/latest".format(repo=repo), headers=headers).text)
     print('Downloading Metaparticle compiler...')
-    base_url = "https://github.com/wbuchwalter/metaparticle-ast/releases/download/v0.5.0"
+    base_url = "https://github.com/wbuchwalter/metaparticle-ast/releases/download/v0.5.1"
     plat = platform.system().lower()
     ext = 'zip' if plat == 'windows' else 'tar.gz'
     full_url = "{base_url}/mp-compiler-{plat}-amd64.{ext}".format(
