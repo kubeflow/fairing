@@ -1,4 +1,7 @@
 import logging
+import os
+import shutil
+from pkg_resources import resource_filename
 
 import kubernetes.config
 
@@ -21,7 +24,16 @@ class KnativeBuilder(ContainerImageBuilder):
         image = get_image(package_options)
         self._build_id = package_options.tag        
         self.dockerfile.write(package_options, env)
+        self.copy_src_to_mount_point()
         self.build_and_push(image, package_options.tag)
+
+    def copy_src_to_mount_point(self):
+        context_dir = os.getcwd()
+        dst = os.path.join(self.get_mount_point(), self._build_id)
+        shutil.copytree(context_dir, dst)
+
+    def get_mount_point(self):
+        return os.path.join(os.environ['HOME'], '.fairing/build-contexts/')
 
     def build_and_push(self, img, tag):
         print('Building docker image {image}:{tag}...'.format(image=img, tag=tag))
@@ -62,7 +74,8 @@ class KnativeBuilder(ContainerImageBuilder):
         steps = [BuildTemplateSpecStep(name='build-and-push',
                                        image='gcr.io/kaniko-project/executor',
                                        args=['--dockerfile=${DOCKERFILE}',
-                                             '--destination=${IMAGE}:${TAG}'],
+                                             '--destination=${IMAGE}:${TAG}',
+                                             '--context=${CONTEXT}'],
                                        volume_mounts=[volume_mount])]
 
         pvc = kubernetes.client.V1PersistentVolumeClaimVolumeSource(
@@ -78,9 +91,12 @@ class KnativeBuilder(ContainerImageBuilder):
             name='fairing-build-{}'.format(self._build_id),
             namespace=self.namespace)
         
+        mount_path = '/src/{build_id}'.format(build_id=self._build_id)
+
         args = [BuildSpecArgument(name='IMAGE', value=image),
                 BuildSpecArgument(name='TAG', value=self._build_id),
-                BuildSpecArgument(name='DOCKERFILE', value='/src/Dockerfile')]
+                BuildSpecArgument(name='DOCKERFILE', value=os.path.join(mount_path, 'Dockerfile')),
+                BuildSpecArgument(name='CONTEXT', value=mount_path)]
 
         template = BuildSpecTemplate(name='fairing-build', arguments=args)
         spec = BuildSpec(sa_name='fairing-build', template=template)
