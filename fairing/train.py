@@ -76,7 +76,7 @@ class Trainer(object):
         self.full_image_name = get_image_full(
             self.repository, self.image_name, self.image_tag)
 
-    def deploy_training(self):
+    def deploy_training(self, stream_logs=True):
         self.fill_image_name_and_tag()
         ast, env = self.compile_ast()
 
@@ -97,8 +97,9 @@ class Trainer(object):
         mp.run(ast)
 
         logger.warn("Training(s) launched.")
-        
-        self.backend.stream_logs(self.image_name, self.image_tag)
+
+        if stream_logs:
+            self.backend.stream_logs(self.image_name, self.image_tag)
 
     def start_training(self, user_class):
         self.strategy.exec_user_code(user_class)

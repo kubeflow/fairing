@@ -37,8 +37,7 @@ def mock_trainer():
 def mock_builder():
     return Mock(spec=ContainerImageBuilder)
 
-
-def test_compile_ast(trainer, ):
+def test_compile_ast(trainer):
     trainer.fill_image_name_and_tag()
     svc, env = trainer.compile_ast()
     assert env == None
@@ -67,14 +66,14 @@ def test_start_training(mock_strategy):
     mock_strategy.exec_user_code.assert_called_with(fake_user_object)
 
 
-def test_deploy_training(mock_builder, monkeypatch, mock_mp_client):
+def test_deploy_training(mock_builder, mock_mp_client, monkeypatch):
     monkeypatch.setattr(
-        'fairing.train.Trainer.get_metaparticle_client', mock_mp_client)
+        'fairing.train.MetaparticleClient', mock_mp_client)
     monkeypatch.setattr(
         'fairing.train.get_container_builder', lambda x: mock_builder)
         
     trainer = Trainer(repository=REPO_NAME)
-    trainer.deploy_training()
+    trainer.deploy_training(stream_logs=False)
 
     # Deploy should first generate a Dockerfile, build and finally push the image
     mock_builder.execute.assert_called_once()
