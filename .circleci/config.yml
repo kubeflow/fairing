@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache: # restores saved dependency cache if the Branch key template or setup.py files have not changed since the previous run
+          key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
+      - run:
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -e .[dev]
+      - save_cache: # special step to save dependency cache
+          key: deps1-{{ .Branch }}-{{ checksum "setup.py" }}
+          paths:
+            - "venv"
+      - run: 
+          command: |
+            . venv/bin/activate
+            pytest --junit-xml test-results/test.xml
+      - store_test_results: 
+          path: test-results/
