@@ -15,11 +15,10 @@ from fairing.utils import get_unique_tag
 
 logger = logging.getLogger('fairing')
 
-
 class Trainer(object):
     def __init__(self,
                  repository,
-                 image_name='fairing-build',
+                 image_name='fairing-job',
                  image_tag=None,
                  publish=True,
                  dockerfile=None,
@@ -50,8 +49,10 @@ class Trainer(object):
 
     def compile_ast(self):
         ast = {
-            "name": self.image_name,
-            "guid": 1234567
+            "name": "{name}-{tag}".format(name=self.image_name, tag=self.image_tag),
+            # Metaparticle does not generate a default GUID,
+            # and we don't care about it's actual value
+            "guid": 123456
         }
 
         volumes = None
@@ -59,22 +60,23 @@ class Trainer(object):
         if self.tensorboard_options:
             ast, volumes, volume_mounts = self.backend.add_tensorboard(
                 ast, self.image_name, self.tensorboard_options)
-
+        
         ast, env = self.strategy.add_training(
-            ast, self.full_image_name, self.image_name, volumes, volume_mounts)
+            ast, self.full_image_name, self.image_name, self.uuid, volumes, volume_mounts)
         return ast, env
 
     def get_metaparticle_client(self):
         return MetaparticleClient()
 
-    def deploy_training(self):
-
+    def fill_image_name_and_tag(self):
         if self.image_tag is None:
             self.image_tag = get_unique_tag()
         
         self.full_image_name = get_image_full(
             self.repository, self.image_name, self.image_tag)
 
+    def deploy_training(self):
+        self.fill_image_name_and_tag()
         ast, env = self.compile_ast()
 
         self.builder.execute(self.repository,
@@ -104,7 +106,7 @@ class Trainer(object):
 class Train(object):
     def __init__(self,
                  repository,
-                 image_name='fairing-build',
+                 image_name='fairing-job',
                  image_tag=None,
                  publish=True,
                  dockerfile=None,
