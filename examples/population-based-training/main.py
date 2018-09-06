@@ -43,7 +43,8 @@ MODEL_DIR = os.path.join(LOG_DIR, os.getenv('TEST_TMPDIR', '/tmp'),
 # logging.basicConfig(level=logging.DEBUG)
 
 @Train(
-    package={'name': 'fairing-pbt', 'repository': '<your-repository>', 'publish': True},
+    repository='<your-repository-name>',
+    image_name='fairing-pbt',
     strategy=PopulationBasedTraining(
         population_size=10,
         exploit_count=4,

@@ -18,4 +18,5 @@ push_image:
 push: dev push_image
 
 test: 
+	pip install .
 	pytest -v

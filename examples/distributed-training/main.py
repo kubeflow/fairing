@@ -48,7 +48,8 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
 
 @Train(
-    package={'name': 'fairing-distributed-mnist', 'repository': '<your-repository-name>', 'publish': True},
+    repository='<your-repository-name>',
+    image_name='fairing-distributed-mnist',
     architecture=DistributedTraining(ps_count=1, worker_count=3),
     tensorboard={
         'log_dir': LOG_DIR,
