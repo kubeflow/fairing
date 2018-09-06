@@ -46,15 +46,16 @@ class Trainer(object):
 
         self.full_image_name = None
 
-
-    def compile_ast(self):
-        ast = {
+    def get_base_ast(self):
+        return {
             "name": "{name}-{tag}".format(name=self.image_name, tag=self.image_tag),
             # Metaparticle does not generate a default GUID,
             # and we don't care about it's actual value
             "guid": 123456
         }
-
+    
+    def compile_ast(self):
+        ast = self.get_base_ast()
         volumes = None
         volume_mounts = None
         if self.tensorboard_options:
@@ -96,8 +97,8 @@ class Trainer(object):
         mp.run(ast)
 
         logger.warn("Training(s) launched.")
-
-        mp.logs(self.image_name)
+        
+        self.backend.stream_logs(self.image_name, self.image_tag)
 
     def start_training(self, user_class):
         self.strategy.exec_user_code(user_class)
