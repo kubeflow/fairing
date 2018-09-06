@@ -17,18 +17,18 @@ class DockerBuilder(ContainerImageBuilder):
         self.docker_client = None
         self.dockerfile = DockerFile()
   
-    def execute(self, package_options, env):
-        image = get_image_full(package_options)
-        self.dockerfile.write(package_options, env)
-        self.build(image)
-        if package_options.publish:
-            self.publish(image)
+    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env):
+        full_image_name = get_image_full(repository, image_name, image_tag)
+        self.dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
+        self.build(full_image_name)
+        if publish:
+            self.publish(full_image_name)
 
     def build(self, img, path='.'):
         print('Building docker image {}...'.format(img))
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
-
+        
         bld = self.docker_client.build(
             path=path,
             tag=img,

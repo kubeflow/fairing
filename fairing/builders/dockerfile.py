@@ -23,7 +23,7 @@ class DockerFile(object):
 
         return "CMD python /app/{exec_file}".format(exec_file=exec_file)
 
-    def get_base_image(self):
+    def get_default_base_image(self):
         if os.environ.get('FAIRING_DEV', None) != None:
             try:
                 uname = os.environ['FAIRING_DEV_DOCKER_USERNAME']
@@ -35,8 +35,11 @@ class DockerFile(object):
             return '{uname}/fairing:latest'.format(uname=uname)
         return 'library/python:3.6'
 
-    def generate_dockerfile(self, env):
-        all_steps = ['FROM {}'.format(self.get_base_image())] + \
+    def generate_dockerfile(self, base_image, env):
+        if base_image is None:
+            base_image = self.get_default_base_image()
+        
+        all_steps = ['FROM {base}'.format(base=base_image)] + \
                     self.get_mandatory_steps() + \
                     self.get_env_steps(env) + \
                     [self.get_command()]
@@ -48,7 +51,7 @@ class DockerFile(object):
             "ENV FAIRING_RUNTIME 1",
             "RUN pip install fairing",
             "COPY ./ /app/",
-            "RUN pip install --no-cache -r /app/requirements.txt"
+            "RUN if [ -e /app/requirements.txt ]; then pip install --no-cache -r /app/requirements.txt; fi"
         ]
 
         if is_in_notebook():
@@ -64,12 +67,12 @@ class DockerFile(object):
             return ["ENV {} {}".format(e['name'], e['value']) for e in env]
         return []
     
-    def write(self, package, env, destination='Dockerfile'):
-        if hasattr(package, 'dockerfile') and package.dockerfile is not None:
-            shutil.copy(package.dockerfile, destination)
+    def write(self, env, destination='Dockerfile', dockerfile=None, base_image=None):
+        if dockerfile is not None:
+            shutil.copy(dockerfile, destination)
             return       
         
-        content =  self.generate_dockerfile(env)
+        content =  self.generate_dockerfile(base_image, env)
         with open(destination, 'w+t') as f:
             f.write(content)
 

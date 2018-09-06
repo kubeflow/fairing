@@ -7,18 +7,18 @@ def dockerfile():
     return DockerFile()
 
 def test_get_base_image(dockerfile, monkeypatch):
-    assert dockerfile.get_base_image().startswith("library/python:")
+    assert dockerfile.get_default_base_image().startswith("library/python:")
 
     monkeypatch.setenv('FAIRING_DEV', 1)
     monkeypatch.setenv('FAIRING_DEV_DOCKER_USERNAME', 'wbuchwalter')
-    assert dockerfile.get_base_image() == "wbuchwalter/fairing:latest"
+    assert dockerfile.get_default_base_image() == "wbuchwalter/fairing:latest"
 
     monkeypatch.setenv('FAIRING_DEV', 1)
     monkeypatch.delenv('FAIRING_DEV_DOCKER_USERNAME', False)
     # Defining FAIRING_DEV but not FAIRING_DEV_DOCKER_USERNAME
     # should result in an exception
     with pytest.raises(KeyError):
-        dockerfile.get_base_image()
+        dockerfile.get_default_base_image()
 
 
 # def test_build_dockerfile(dockerfile):

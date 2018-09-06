@@ -1,17 +1,16 @@
 import os
 import uuid
 
-def get_image_full(package_options):
+def get_image_full(repository, name, tag):
     return "{base}:{tag}".format(
-        base=get_image(package_options),
-        tag=package_options.tag
+        base=get_image(repository, name),
+        tag=tag
     )
 
-def get_image(package_options):
-    # TODO: If no image is specified generate a new one, i.e: user/fairing-build
+def get_image(repository, name):
     return "{repo}/{name}".format(
-        repo=package_options.repository,
-        name=package_options.name
+        repo=repository,
+        name=name
     )
 
 def is_runtime_phase():

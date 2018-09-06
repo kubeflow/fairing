@@ -20,12 +20,12 @@ class KnativeBuilder(ContainerImageBuilder):
         self.namespace = self.get_current_namespace()
         self._build_id = None
 
-    def execute(self, package_options, env):
-        image = get_image(package_options)
-        self._build_id = package_options.tag        
-        self.dockerfile.write(package_options, env)
+    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env):
+        image = get_image(repository, image_name)
+        self._build_id = image_tag        
+        self.dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
         self.copy_src_to_mount_point()
-        self.build_and_push(image, package_options.tag)
+        self.build_and_push(image, image_tag)
 
     def copy_src_to_mount_point(self):
         context_dir = os.getcwd()

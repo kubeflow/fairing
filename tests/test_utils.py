@@ -1,16 +1,10 @@
 import pytest
 
 from fairing.utils import is_runtime_phase, get_image_full, get_image
-from fairing.options import PackageOptions
 
 REPO_NAME = 'testrepo'
 IMAGE_NAME = 'fairing-test'
 IMAGE_TAG = 'some-tag'
-
-@pytest.fixture
-def package_options():
-    return {'name': IMAGE_NAME, 'tag': IMAGE_TAG, 'repository': REPO_NAME, 'publish': True}
-
 
 @pytest.mark.parametrize("runtime_phase", [True, False])
 def test_is_runtime_phase(runtime_phase, monkeypatch):
@@ -18,13 +12,10 @@ def test_is_runtime_phase(runtime_phase, monkeypatch):
         monkeypatch.setenv("FAIRING_RUNTIME", True)
     assert is_runtime_phase() == runtime_phase
 
-
-def test_get_image_full(package_options):
-    img = get_image_full(PackageOptions(**package_options))
-    tag = 'test'
+def test_get_image_full():
+    img = get_image_full(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
     assert img == '{}/{}:{}'.format(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
 
-
-def test_get_image(package_options):
-    img = get_image(PackageOptions(**package_options))
+def test_get_image():
+    img = get_image(REPO_NAME, IMAGE_NAME)
     assert img == '{}/{}'.format(REPO_NAME, IMAGE_NAME)

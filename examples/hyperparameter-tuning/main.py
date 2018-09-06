@@ -42,7 +42,8 @@ MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
 
 @Train(
-    package={'name': 'fairing-hp-tuning', 'repository': '<your-repository>', 'publish': True},
+    repository='<your-repository-name>',
+    image_name='fairing-hp-tuning',
     strategy=HyperparameterTuning(runs=3),
     tensorboard={
         'log_dir': LOG_DIR,

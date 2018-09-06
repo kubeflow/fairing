@@ -7,34 +7,51 @@ import shutil
 # from fairing.backend import get_backend, Native
 from fairing.builders import get_container_builder
 from fairing.utils import is_runtime_phase, get_image_full
-from fairing.options import TensorboardOptions, PackageOptions
+from fairing.options import TensorboardOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.metaparticle import MetaparticleClient
+from fairing.utils import get_unique_tag
 
 logger = logging.getLogger('fairing')
 
 
 class Trainer(object):
     def __init__(self,
-                 package,
+                 repository,
+                 image_name='fairing-build',
+                 image_tag=None,
+                 publish=True,
+                 dockerfile=None,
+                 base_image=None,
                  tensorboard=None,
                  architecture=BasicArchitecture(),
                  strategy=BasicTrainingStrategy(),
                  builder=None):
+
+        self.repository = repository
+        self.image_name = image_name
+        self.image_tag = image_tag
+
+        if image_tag is None:
+            self.image_tag = get_unique_tag()
+
+        self.publish = publish
+        self.base_image = base_image
+        self.dockerfile = dockerfile
+
         self.strategy = strategy
         self.architecture = architecture
-        self.tensorboard_options = TensorboardOptions(
-            **tensorboard) if tensorboard else None
-        self.package = PackageOptions(**package)
+        self.tensorboard_options = TensorboardOptions(**tensorboard) if tensorboard else None
         self.backend = self.architecture.get_associated_backend()
         self.strategy.set_architecture(self.architecture)
-        self.image = get_image_full(self.package)
+        self.full_image_name = get_image_full(
+            self.repository, self.image_name, self.image_tag)
         self.builder = get_container_builder(builder)
 
     def compile_ast(self):
         ast = {
-            "name": self.package.name,
+            "name": self.image_name,
             "guid": 1234567
         }
 
@@ -42,10 +59,10 @@ class Trainer(object):
         volume_mounts = None
         if self.tensorboard_options:
             ast, volumes, volume_mounts = self.backend.add_tensorboard(
-                ast, self.package.name, self.tensorboard_options)
+                ast, self.image_name, self.tensorboard_options)
 
         ast, env = self.strategy.add_training(
-            ast, self.image, self.package.name, volumes, volume_mounts)
+            ast, self.full_image_name, self.image_name, volumes, volume_mounts)
         return ast, env
 
     def get_metaparticle_client(self):
@@ -54,31 +71,53 @@ class Trainer(object):
     def deploy_training(self):
         ast, env = self.compile_ast()
 
-        self.builder.execute(self.package, env)
+        self.builder.execute(self.repository,
+                             self.image_name,
+                             self.image_tag,
+                             self.base_image,
+                             self.dockerfile,
+                             self.publish,
+                             env)
 
         mp = self.get_metaparticle_client()
 
         def signal_handler(signal, frame):
-            mp.cancel(self.package.name)
+            mp.cancel(self.image_name)
             sys.exit(0)
         signal.signal(signal.SIGINT, signal_handler)
         mp.run(ast)
 
         print("Training(s) launched.")
 
-        mp.logs(self.package.name)
+        mp.logs(self.image_name)
 
     def start_training(self, user_class):
         self.strategy.exec_user_code(user_class)
 
+
 class Train(object):
     def __init__(self,
-                 package,
+                 repository,
+                 image_name='fairing-build',
+                 image_tag=None,
+                 publish=True,
+                 dockerfile=None,
+                 base_image=None,
                  tensorboard=None,
                  architecture=BasicArchitecture(),
                  strategy=BasicTrainingStrategy(),
                  builder=None):
-        self.trainer = Trainer(package, tensorboard, architecture, strategy, builder)
+
+        self.trainer = Trainer(repository=repository,
+                               image_name=image_name,
+                               image_tag=image_tag,
+                               publish=publish,
+                               dockerfile=dockerfile,
+                               base_image=base_image,
+                               tensorboard=tensorboard,
+                               architecture=architecture,
+                               strategy=strategy,
+                               builder=builder)
 
     def __call__(self, cls):
         class UserClass(cls):
