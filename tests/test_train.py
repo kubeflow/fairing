@@ -91,7 +91,7 @@ def test_train(is_runtime_phase, mock_trainer, monkeypatch):
     @Train(repository=REPO_NAME)
     class TestModel(object):
         def train(self):
-            print('test')
+            pass
 
     model = TestModel()
     model.train()

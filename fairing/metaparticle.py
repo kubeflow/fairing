@@ -31,8 +31,9 @@ def update_metaparticle():
 
     # repo = "https://github.com/wbuchwalter/metaparticle-ast"
     # re = "https:\/\/[a-z\.\/-]*tag\/v[0-9].[0-9].[0-9]"
-    # print(requests.get("{repo}/releases/latest".format(repo=repo), headers=headers).text)
-    print('Downloading Metaparticle compiler...')
+    # requests.get("{repo}/releases/latest".format(repo=repo), headers=headers)
+
+    logger.warn('Downloading Metaparticle compiler...')
     base_url = "https://github.com/wbuchwalter/metaparticle-ast/releases/download/v0.5.1"
     plat = platform.system().lower()
     ext = 'zip' if plat == 'windows' else 'tar.gz'
@@ -56,8 +57,7 @@ def update_metaparticle():
         archive.extractall(tmp_dir)
         archive.close()
         
-        logger.debug('Installing compiler at %s' %  get_mp_bin_path())
-        print('Installing compiler at %s' %  get_mp_bin_path())
+        logger.warn('Installing compiler at %s' %  get_mp_bin_path())
 
         dir_path = os.path.dirname(get_mp_bin_path())
         if not os.path.exists(dir_path):
@@ -71,6 +71,7 @@ def update_metaparticle():
                                      stat.S_IWRITE |
                                      stat.S_IXOTH |
                                      stat.S_IROTH)
+    logger.warn('Metaparticle compiler succesfully installed.')
 
 def ensure_metaparticle_present():
     install_path = get_mp_bin_path()

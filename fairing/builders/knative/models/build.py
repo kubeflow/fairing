@@ -80,7 +80,7 @@ class Build(object):
                                                            body=self.to_dict(),
                                                            pretty=True)
         except ApiException as e:
-            print(
+            logger.error(
                 "Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
 
     def create_sync(self):
@@ -98,20 +98,20 @@ class Build(object):
                                                                 self._plural,
                                                                 self._metadata.name)
             except ApiException as e:
-                print(
+                logger.error(
                     "Exception when calling CustomObjectsApi->get_namespaced_custom_object: %s\n" % e)
 
             success = self.check_build_succeeded(bld)
             if success:
-                print('Build finished successfully.')
+                logger.error('Build finished successfully.')
                 break
             elif success == False:
-                print('Build failed, fetching logs...')
-                print(self.fetch_build_logs())
+                logger.error('Build failed, fetching logs...')
+                logger.error(self.fetch_build_logs())
                 sys.exit(1)
 
             if (datetime.datetime.now() - check_start).seconds > timeout:
-                print('Timeout while waiting for build to finish.')
+                logger.error('Timeout while waiting for build to finish.')
                 break
 
             time.sleep(3)
@@ -131,7 +131,7 @@ class Build(object):
                                                         include_uninitialized=True,
                                                         label_selector=self.get_build_pod_labels_selector())
         except ApiException as e:
-            print("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
+            logger.error("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
 
         if len(pod_list.items) > 1:
             raise RuntimeError("Failed fetching logs. Found more than one pod matching labels {labels}"
@@ -160,7 +160,7 @@ class Build(object):
             logs = self._api_v1.read_namespaced_pod_log(pod.metadata.name, pod.metadata.namespace, container=container.name, pretty=True)
             return logs
         except ApiException as e:
-            print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+            logger.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
 
     @staticmethod
     def check_build_succeeded(build_object):

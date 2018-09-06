@@ -95,7 +95,7 @@ class Trainer(object):
         signal.signal(signal.SIGINT, signal_handler)
         mp.run(ast)
 
-        print("Training(s) launched.")
+        logger.warn("Training(s) launched.")
 
         mp.logs(self.image_name)
 
