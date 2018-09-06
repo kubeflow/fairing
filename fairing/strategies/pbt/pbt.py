@@ -48,7 +48,7 @@ class PopulationBasedTraining(BasicTrainingStrategy):
         self.step_count = 0
         self.curr_exploit_count = 0
 
-    def add_training(self, svc, img, name, volumes, volume_mounts):
+    def add_training(self, svc, repository, image_name, image_tag, volumes, volume_mounts):
         volumes = volumes if volumes else []
         volume_mounts = volume_mounts if volume_mounts else []
 
@@ -61,8 +61,9 @@ class PopulationBasedTraining(BasicTrainingStrategy):
             "persistentVolumeClaim": self.pvc_name
         })
 
-        svc, redis_env = self.add_redis(svc, name)
-        svc = self.arch.add_jobs(svc, self.runs, img, name, volumes, volume_mounts)
+        # use image name as identifier for redis
+        svc, redis_env = self.add_redis(svc, image_name)
+        svc = self.arch.add_jobs(svc, self.runs, repository, image_name, image_tag, volumes, volume_mounts)
         return svc, [redis_env]
 
     def add_redis(self, svc, name):

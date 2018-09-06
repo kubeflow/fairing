@@ -62,7 +62,7 @@ class Trainer(object):
                 ast, self.image_name, self.tensorboard_options)
         
         ast, env = self.strategy.add_training(
-            ast, self.full_image_name, self.image_name, self.uuid, volumes, volume_mounts)
+            ast, self.repository, self.image_name, self.image_tag, volumes, volume_mounts)
         return ast, env
 
     def get_metaparticle_client(self):

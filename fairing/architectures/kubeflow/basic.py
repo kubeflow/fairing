@@ -1,18 +1,19 @@
 from fairing.backend.kubeflow import KubeflowBackend
-
+from fairing.utils import get_image_full
 
 class BasicArchitecture():
-    def add_jobs(self, svc, count, img, name, volumes, volume_mounts):
+    def add_jobs(self, svc, count, repository, image_name, image_tag, volumes, volume_mounts):
+        full_image_name = get_image_full(repository, image_name, image_tag)
         tfjobs = []
         for ix in range(count):
             tfjobs.append({
-                "name": "{}-{}".format(name, ix),
+                "name": "{}-{}-{}".format(image_name, image_tag, ix),
                 "replicaSpecs": [{
                     "replicaType": "MASTER",
                     "replicas": 1,
                     "containers": [
                         {
-                            "image": img,
+                            "image": full_image_name,
                             "volumeMounts": volume_mounts
                         }
                     ],

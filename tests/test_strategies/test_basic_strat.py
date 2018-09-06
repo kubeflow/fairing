@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.architectures.native.basic import BasicArchitecture
-
+from fairing.utils import get_image_full
 
 class DummyUserModel(object):
     def train():
@@ -33,9 +33,10 @@ def test_exec_user_code(strategy, mock_user_object):
 
 def test_add_training(strategy):
     svc = {}
-    img_name = 'test/test:1.0'
-    name = 'test'
-    _, env = strategy.add_training(svc, img_name, name, [], [])
+    repo = 'test'
+    image_name = 'testimage'
+    image_tag = '1.0'
+    _, env = strategy.add_training(svc, repo, image_name, image_tag, [], [])
     # there shouldn't be any env variable set by default
     assert env == None
 
