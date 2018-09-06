@@ -3,7 +3,7 @@ import os
 import subprocess
 from fairing.backend.backend import Backend
 from fairing.strategies.hp import HyperparameterTuning
-
+from fairing.metaparticle import MetaparticleClient
 
 class NativeBackend(Backend):
 
@@ -70,3 +70,7 @@ class NativeBackend(Backend):
             "public": True
         }
         return svc
+    
+    def stream_logs(self, image_name, image_tag):
+        mp_client = MetaparticleClient()
+        mp_client.logs("{name}-{tag}".format(name=image_name, tag=image_tag))
