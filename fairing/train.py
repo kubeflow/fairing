@@ -32,10 +32,7 @@ class Trainer(object):
         self.repository = repository
         self.image_name = image_name
         self.image_tag = image_tag
-
-        if image_tag is None:
-            self.image_tag = get_unique_tag()
-
+        
         self.publish = publish
         self.base_image = base_image
         self.dockerfile = dockerfile
@@ -45,9 +42,11 @@ class Trainer(object):
         self.tensorboard_options = TensorboardOptions(**tensorboard) if tensorboard else None
         self.backend = self.architecture.get_associated_backend()
         self.strategy.set_architecture(self.architecture)
-        self.full_image_name = get_image_full(
-            self.repository, self.image_name, self.image_tag)
+
         self.builder = get_container_builder(builder)
+
+        self.full_image_name = None
+
 
     def compile_ast(self):
         ast = {
@@ -69,6 +68,13 @@ class Trainer(object):
         return MetaparticleClient()
 
     def deploy_training(self):
+
+        if self.image_tag is None:
+            self.image_tag = get_unique_tag()
+        
+        self.full_image_name = get_image_full(
+            self.repository, self.image_name, self.image_tag)
+
         ast, env = self.compile_ast()
 
         self.builder.execute(self.repository,

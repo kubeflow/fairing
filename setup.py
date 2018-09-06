@@ -3,7 +3,7 @@ import json
 
 setuptools.setup(
     name='fairing',
-    version='0.0.2.dev1',
+    version='0.0.2',
     author="William Buchwalter",
     description="Easily train and serve ML models on Kubernetes, directly from your python code.",
     url="https://github.com/wbuchwalter/fairing",
