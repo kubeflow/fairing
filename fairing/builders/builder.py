@@ -2,7 +2,7 @@ from enum import Enum
 
 from fairing.builders.docker import DockerBuilder
 from fairing.builders.knative import KnativeBuilder
-
+from fairing.utils import is_running_in_k8s
 
 class Builders(Enum):
     DOCKER = 1
@@ -20,9 +20,10 @@ def get_container_builder(builder_str=None):
     return get_builder(builder)
 
 def get_default_container_builder():
-    # TODO: check if we are running in kubernetes or not.
-    # on kubernetes default should be knative
+    if is_running_in_k8s():
+        return get_builder(Builders.KNATIVE)
     return get_builder(Builders.DOCKER)
+
 
 def get_builder(builder):
     if builder == Builders.DOCKER:
