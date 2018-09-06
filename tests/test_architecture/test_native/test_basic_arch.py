@@ -1,7 +1,7 @@
 import pytest
 
 from fairing.architectures.native.basic import BasicArchitecture
-
+from fairing.utils import get_image_full
 @pytest.fixture
 def architecture():
     return BasicArchitecture()
@@ -9,13 +9,16 @@ def architecture():
 @pytest.mark.parametrize("job_count", [1, 10, 100])
 def test_add_training(architecture, job_count):
     svc = {}
-    img_name = 'test/test:1.0'
-    name = 'test'
+
+    repo = 'test'
+    image_name = 'testimage'
+    image_tag = '1.0'
+    full_image_name = get_image_full(repo, image_name, image_tag)
     exp = {'jobs': [{
-            'name': name,
+            'name': image_name,
             'parallelism': job_count,
             'completion': job_count,
-            'containers': [{'image': img_name, 'volumeMounts': []}],
+            'containers': [{'image': full_image_name, 'volumeMounts': []}],
             'volumes': []
             }]}
-    assert exp == architecture.add_jobs(svc, job_count, img_name, name, [], [])
+    assert exp == architecture.add_jobs(svc, job_count, repo, image_name, image_tag, [], [])

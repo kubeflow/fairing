@@ -36,7 +36,7 @@ class KnativeBuilder(ContainerImageBuilder):
         return os.path.join(os.environ['HOME'], '.fairing/build-contexts/')
 
     def build_and_push(self, img, tag):
-        print('Building docker image {image}:{tag}...'.format(image=img, tag=tag))
+        logger.warn('Building docker image {image}:{tag}...'.format(image=img, tag=tag))
         self.authenticate()
 
         build_template = self.generate_build_template_resource()

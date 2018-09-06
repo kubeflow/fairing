@@ -39,6 +39,7 @@ def mock_builder():
 
 
 def test_compile_ast(trainer, ):
+    trainer.fill_image_name_and_tag()
     svc, env = trainer.compile_ast()
     assert env == None
     assert len(svc['jobs']) == 1
@@ -46,8 +47,7 @@ def test_compile_ast(trainer, ):
     job = svc['jobs'][0]
 
     assert len(job['containers']) == 1
-    assert job['containers'][0]['image'] == get_image_full(
-        REPO_NAME, IMAGE_NAME, IMAGE_TAG)
+    assert job['containers'][0]['image'] == get_image_full(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
 
 
 def test_start_training(mock_strategy):
@@ -91,7 +91,7 @@ def test_train(is_runtime_phase, mock_trainer, monkeypatch):
     @Train(repository=REPO_NAME)
     class TestModel(object):
         def train(self):
-            print('test')
+            pass
 
     model = TestModel()
     model.train()

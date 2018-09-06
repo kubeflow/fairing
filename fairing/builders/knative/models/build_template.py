@@ -100,7 +100,7 @@ class BuildTemplate(object):
                 logger.debug('BuildTemplate not found, creating...')
                 self._create()
             else:
-                print(
+                logger.error(
                     "Exception when calling CustomObjectsApi->get_namespaced_custom_object: %s\n" % e)
         logger.debug('Existing BuildTemplate found, skipping creation...')
         # TODO: Check for version of the build template, if version doesn't match with current fairing version, delete deploy a new one?? or add version in name and have multiple build-templates ready
@@ -114,7 +114,7 @@ class BuildTemplate(object):
                                                                body=self.to_dict(),
                                                                pretty=True)
         except ApiException as e:
-            print(
+            logger.error(
                 "Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
 
     def _get_api_instance(self):

@@ -56,7 +56,7 @@ class Serve(object):
             signal.signal(signal.SIGINT, signal_handler)
 
             mp.run(ast)
-            print("Server deployed.")
+            logger.warn("Server deployed.")
 
             return mp.logs(self.package.name)
         return wrapped
@@ -66,7 +66,7 @@ class Serve(object):
         user_function = func
         # TODO: Serve only on url passed to decorator + port
         httpd = http.server.HTTPServer(('', self.port), HTTPHandler)
-        print('Server running on port 8080...')
+        logger.warn('Server running on port 8080...')
         httpd.serve_forever()
 
 

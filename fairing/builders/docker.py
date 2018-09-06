@@ -25,7 +25,7 @@ class DockerBuilder(ContainerImageBuilder):
             self.publish(full_image_name)
 
     def build(self, img, path='.'):
-        print('Building docker image {}...'.format(img))
+        logger.warn('Building docker image {}...'.format(img))
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
         
@@ -39,7 +39,7 @@ class DockerBuilder(ContainerImageBuilder):
             self._process_stream(line)
 
     def publish(self, img):
-        print('Publishing image {}...'.format(img))
+        logger.warn('Publishing image {}...'.format(img))
         if self.docker_client is None:
             self.docker_client = APIClient(version='auto')
 
