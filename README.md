@@ -9,6 +9,7 @@ fairing allows you to express how you want your model to be trained and served u
 
 ## Table of Contents
 
+- [Requirements](#requirements)
 - [Getting `fairing`](#getting-fairing)
 - [Training](#training)
   - [Simple Training](#simple-training)
@@ -20,6 +21,12 @@ fairing allows you to express how you want your model to be trained and served u
   - [From a Jupyter Notebook](#from-a-jupyter-notebook)
 - [Monitoring with TensorBoard](#tensorboard)
 
+## Requirements
+
+If you are going to use `fairing` on your local machine (as opposed to from a Jupyter Notebook deployed inside a Kubernetes cluster for example), you will need 
+to have access to a deployed Kubernetes cluster, and have the `kubeconfig` for this cluster on your machine.
+
+You will also need to have docker installed locally.
 
 ## Getting `fairing`
 

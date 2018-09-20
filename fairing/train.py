@@ -11,7 +11,7 @@ from fairing.options import TensorboardOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.metaparticle import MetaparticleClient
-from fairing.utils import get_unique_tag
+from fairing.utils import get_unique_tag, is_running_in_k8s, get_current_k8s_namespace
 
 logger = logging.getLogger('fairing')
 
@@ -21,6 +21,7 @@ class Trainer(object):
                  image_name='fairing-job',
                  image_tag=None,
                  publish=True,
+                 namespace=None,
                  dockerfile=None,
                  base_image=None,
                  tensorboard=None,
@@ -31,7 +32,9 @@ class Trainer(object):
         self.repository = repository
         self.image_name = image_name
         self.image_tag = image_tag
-        
+
+        # Target namespace where the job(s) will be deployed
+        self.namespace = namespace or self.get_default_target_namespace()
         self.publish = publish
         self.base_image = base_image
         self.dockerfile = dockerfile
@@ -46,8 +49,15 @@ class Trainer(object):
 
         self.full_image_name = None
 
+
+    def get_default_target_namespace(self):
+        if not is_running_in_k8s():
+            return 'default'
+        return get_current_k8s_namespace()
+
     def get_base_ast(self):
         return {
+            "namespace": self.namespace,
             "name": "{name}-{tag}".format(name=self.image_name, tag=self.image_tag),
             # Metaparticle does not generate a default GUID,
             # and we don't care about it's actual value
@@ -111,6 +121,7 @@ class Train(object):
                  image_name='fairing-job',
                  image_tag=None,
                  publish=True,
+                 namespace=None,
                  dockerfile=None,
                  base_image=None,
                  tensorboard=None,
@@ -122,6 +133,7 @@ class Train(object):
                                image_name=image_name,
                                image_tag=image_tag,
                                publish=publish,
+                               namespace=namespace,
                                dockerfile=dockerfile,
                                base_image=base_image,
                                tensorboard=tensorboard,
