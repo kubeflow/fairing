@@ -16,14 +16,14 @@ logger = logging.getLogger('fairing')
 
 class KnativeBuilder(ContainerImageBuilder):
     def __init__(self):
-        self.dockerfile = DockerFile()
         self.namespace = self.get_current_namespace()
         self._build_id = None
 
-    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env):
+    def execute(self, repository, image_name, image_tag, base_image, notebook_path, dockerfile, publish, env):
         image = get_image(repository, image_name)
         self._build_id = image_tag        
-        self.dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
+        dockerfile = DockerFile(notebook_path)
+        dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
         self.copy_src_to_mount_point()
         self.build_and_push(image, image_tag)
 

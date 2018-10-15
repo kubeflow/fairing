@@ -5,7 +5,13 @@ import shutil
 from fairing.notebook_helper import get_notebook_name, is_in_notebook
 
 class DockerFile(object):
-    
+    def __init__(self, notebook_path=None):
+        if is_in_notebook():
+            if notebook_path is not None:
+                self.notebook_name = notebook_path
+            else:
+                self.notebook_name = get_notebook_name()
+
     def get_exec_file_name(self):
         exec_file = sys.argv[0]
         slash_ix = exec_file.find('/')
@@ -16,8 +22,7 @@ class DockerFile(object):
     def get_command(self):
         exec_file = ''
         if is_in_notebook():
-            nb_name = get_notebook_name()
-            exec_file = nb_name.replace('.ipynb', '.py')
+            exec_file = self.notebook_name.replace('.ipynb', '.py')
         else:
           exec_file = self.get_exec_file_name()
 
@@ -54,11 +59,10 @@ class DockerFile(object):
             "RUN if [ -e /app/requirements.txt ]; then pip install --no-cache -r /app/requirements.txt; fi"
         ]
 
-        if is_in_notebook():
-            nb_name = get_notebook_name()
+        if is_in_notebook():            
             steps += [
                 "RUN pip install jupyter nbconvert",
-                "RUN jupyter nbconvert --to script /app/{}".format(nb_name)
+                "RUN jupyter nbconvert --to script /app/{}".format(self.notebook_name)
             ]
         return steps
 

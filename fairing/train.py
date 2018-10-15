@@ -23,6 +23,7 @@ class Trainer(object):
                  publish=True,
                  namespace=None,
                  dockerfile=None,
+                 notebook_path=None,
                  base_image=None,
                  tensorboard=None,
                  architecture=BasicArchitecture(),
@@ -32,6 +33,8 @@ class Trainer(object):
         self.repository = repository
         self.image_name = image_name
         self.image_tag = image_tag
+
+        self.notebook_path = notebook_path
 
         # Target namespace where the job(s) will be deployed
         self.namespace = namespace or self.get_default_target_namespace()
@@ -94,6 +97,7 @@ class Trainer(object):
                              self.image_name,
                              self.image_tag,
                              self.base_image,
+                             self.notebook_path,
                              self.dockerfile,
                              self.publish,
                              env)
@@ -106,7 +110,7 @@ class Trainer(object):
         signal.signal(signal.SIGINT, signal_handler)
         mp.run(ast)
 
-        logger.warn("Training(s) launched.")
+        logger.warning("Training(s) launched.")
 
         if stream_logs:
             self.backend.stream_logs(self.image_name, self.image_tag)
@@ -123,6 +127,7 @@ class Train(object):
                  publish=True,
                  namespace=None,
                  dockerfile=None,
+                 notebook_path=None,
                  base_image=None,
                  tensorboard=None,
                  architecture=BasicArchitecture(),
@@ -135,6 +140,7 @@ class Train(object):
                                publish=publish,
                                namespace=namespace,
                                dockerfile=dockerfile,
+                               notebook_path=None,
                                base_image=base_image,
                                tensorboard=tensorboard,
                                architecture=architecture,

@@ -15,11 +15,11 @@ logger = logging.getLogger('fairing')
 class DockerBuilder(ContainerImageBuilder):
     def __init__(self):
         self.docker_client = None
-        self.dockerfile = DockerFile()
   
-    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env):
+    def execute(self, repository, image_name, image_tag, base_image, notebook_path, dockerfile, publish, env):
         full_image_name = get_image_full(repository, image_name, image_tag)
-        self.dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
+        dockerfile = DockerFile(notebook_path)
+        dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
         self.build(full_image_name)
         if publish:
             self.publish(full_image_name)
