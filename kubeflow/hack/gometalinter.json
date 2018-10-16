@@ -1,0 +1,20 @@
+
+{
+  "Vendor": true,
+  "EnableGC": true,
+  "Debug": false,
+  "Sort": ["linter", "severity", "path"],
+  "Enable": [
+    "deadcode",
+    "gofmt",
+    "goimports",
+    "gosimple",
+    "ineffassign",
+    "interfacer",
+    "unconvert",
+    "vet",
+    "staticcheck"
+  ],
+
+  "LineLength": 200
+}

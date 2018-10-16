@@ -1,0 +1,11 @@
+apiVersion: skaffold/v1alpha5
+kind: Config
+build:
+  artifacts:
+  - image: fairing-notebook
+    sync:
+      "fairing-py/**": "/home/jovyan/work/lib/"
+deploy:
+  kubectl:
+    manifests:
+    - k8s/notebook.yaml
