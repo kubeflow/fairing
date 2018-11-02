@@ -19,21 +19,26 @@ class KnativeBuilder(ContainerImageBuilder):
         self.namespace = self.get_current_namespace()
         self._build_id = None
 
-    def execute(self, repository, image_name, image_tag, base_image, notebook_path, dockerfile, publish, env):
+    def execute(self, repository, image_name, image_tag, base_image, notebook_path, dockerfile_path, publish, env):
         image = get_image(repository, image_name)
         self._build_id = image_tag        
         dockerfile = DockerFile(notebook_path)
-        dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
+        dockerfile.write(env, dockerfile_path=dockerfile_path, base_image=base_image)
         self.copy_src_to_mount_point()
         self.build_and_push(image, image_tag)
 
     def copy_src_to_mount_point(self):
         context_dir = os.getcwd()
+        logger.warn('context_dir:')
+        logger.warn(context_dir)
         dst = os.path.join(self.get_mount_point(), self._build_id)
+        logger.warn('dest:')
+        logger.warn(dst)
         shutil.copytree(context_dir, dst)
 
     def get_mount_point(self):
-        return os.path.join(os.environ['HOME'], '.fairing/build-contexts/')
+        #return os.path.join('/tmp/fairing/build-contexts/')
+        return '/tmp/fairing/build-contexts/'
 
     def build_and_push(self, img, tag):
         logger.warn('Building docker image {image}:{tag}...'.format(image=img, tag=tag))

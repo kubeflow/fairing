@@ -71,9 +71,9 @@ class DockerFile(object):
             return ["ENV {} {}".format(e['name'], e['value']) for e in env]
         return []
     
-    def write(self, env, destination='Dockerfile', dockerfile=None, base_image=None):
-        if dockerfile is not None:
-            shutil.copy(dockerfile, destination)
+    def write(self, env, destination='Dockerfile', dockerfile_path=None, base_image=None):
+        if dockerfile_path is not None:
+            shutil.copy(dockerfile_path, destination)
             return       
         
         content =  self.generate_dockerfile(base_image, env)

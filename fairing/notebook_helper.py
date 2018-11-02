@@ -6,7 +6,7 @@ import requests
 from notebook.notebookapp import list_running_servers
 from urllib.parse import urljoin
 
-def get_notebook_name(notebook_path):
+def get_notebook_name():
     """
     Return the full path of the jupyter notebook.
     This function will not work with JupyterHub because of how authentication works

@@ -16,10 +16,10 @@ class DockerBuilder(ContainerImageBuilder):
     def __init__(self):
         self.docker_client = None
   
-    def execute(self, repository, image_name, image_tag, base_image, notebook_path, dockerfile, publish, env):
+    def execute(self, repository, image_name, image_tag, base_image, notebook_path, dockerfile_path, publish, env):
         full_image_name = get_image_full(repository, image_name, image_tag)
         dockerfile = DockerFile(notebook_path)
-        dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
+        dockerfile.write(env, dockerfile_path=dockerfile_path, base_image=base_image)
         self.build(full_image_name)
         if publish:
             self.publish(full_image_name)

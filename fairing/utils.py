@@ -18,9 +18,11 @@ def is_runtime_phase():
     return os.getenv('FAIRING_RUNTIME', None) != None 
     
 def is_running_in_k8s():
+    # Note: this will return false if automountServiceAccountToken is set to false
     return os.path.isdir('/var/run/secrets/kubernetes.io/')
 
 def get_current_k8s_namespace():
+    # Note: this will fail if automountServiceAccountToken is set to false
     with open('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'r') as f:
         return f.readline()
 

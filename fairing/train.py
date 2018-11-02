@@ -22,7 +22,7 @@ class Trainer(object):
                  image_tag=None,
                  publish=True,
                  namespace=None,
-                 dockerfile=None,
+                 dockerfile_path=None,
                  notebook_path=None,
                  base_image=None,
                  tensorboard=None,
@@ -40,7 +40,7 @@ class Trainer(object):
         self.namespace = namespace or self.get_default_target_namespace()
         self.publish = publish
         self.base_image = base_image
-        self.dockerfile = dockerfile
+        self.dockerfile_path = dockerfile_path
 
         self.strategy = strategy
         self.architecture = architecture
@@ -93,14 +93,14 @@ class Trainer(object):
         self.fill_image_name_and_tag()
         ast, env = self.compile_ast()
 
-        self.builder.execute(self.repository,
-                             self.image_name,
-                             self.image_tag,
-                             self.base_image,
-                             self.notebook_path,
-                             self.dockerfile,
-                             self.publish,
-                             env)
+        self.builder.execute(repository=self.repository,
+                             image_name=self.image_name,
+                             image_tag=self.image_tag,
+                             base_image=self.base_image,
+                             notebook_path=self.notebook_path,
+                             dockerfile_path=self.dockerfile_path,
+                             publish=self.publish,
+                             env=env)
 
         mp = self.get_metaparticle_client()
 
@@ -126,7 +126,7 @@ class Train(object):
                  image_tag=None,
                  publish=True,
                  namespace=None,
-                 dockerfile=None,
+                 dockerfile_path=None,
                  notebook_path=None,
                  base_image=None,
                  tensorboard=None,
@@ -139,8 +139,8 @@ class Train(object):
                                image_tag=image_tag,
                                publish=publish,
                                namespace=namespace,
-                               dockerfile=dockerfile,
-                               notebook_path=None,
+                               dockerfile_path=dockerfile_path,
+                               notebook_path=notebook_path,
                                base_image=base_image,
                                tensorboard=tensorboard,
                                architecture=architecture,

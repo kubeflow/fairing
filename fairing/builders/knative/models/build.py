@@ -72,16 +72,12 @@ class Build(object):
         return result
 
     def create(self):
-        try:
-            self._api_custom.create_namespaced_custom_object(group=self._group,
-                                                           version=self._api_version,
-                                                           namespace=self._metadata.namespace,
-                                                           plural=self._plural,
-                                                           body=self.to_dict(),
-                                                           pretty=True)
-        except ApiException as e:
-            logger.error(
-                "Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
+        self._api_custom.create_namespaced_custom_object(group=self._group,
+                                                        version=self._api_version,
+                                                        namespace=self._metadata.namespace,
+                                                        plural=self._plural,
+                                                        body=self.to_dict(),
+                                                        pretty=True)
 
     def create_sync(self):
         self.create()
@@ -91,19 +87,15 @@ class Build(object):
         timeout = 180
         check_start = datetime.datetime.now()
         while True:
-            try:
-                bld = self._api_custom.get_namespaced_custom_object(self._group,
-                                                                self._api_version,
-                                                                self._metadata.namespace,
-                                                                self._plural,
-                                                                self._metadata.name)
-            except ApiException as e:
-                logger.error(
-                    "Exception when calling CustomObjectsApi->get_namespaced_custom_object: %s\n" % e)
+            bld = self._api_custom.get_namespaced_custom_object(self._group,
+                                                            self._api_version,
+                                                            self._metadata.namespace,
+                                                            self._plural,
+                                                            self._metadata.name)
 
             success = self.check_build_succeeded(bld)
             if success:
-                logger.error('Build finished successfully.')
+                logger.warn('Build finished successfully.')
                 break
             elif success == False:
                 logger.error('Build failed, fetching logs...')
@@ -126,12 +118,9 @@ class Build(object):
 
 
     def fetch_build_logs(self):
-        try:
-            pod_list = self._api_v1.list_namespaced_pod(namespace=self._metadata.namespace,
-                                                        include_uninitialized=True,
-                                                        label_selector=self.get_build_pod_labels_selector())
-        except ApiException as e:
-            logger.error("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
+        pod_list = self._api_v1.list_namespaced_pod(namespace=self._metadata.namespace,
+                                                    include_uninitialized=True,
+                                                    label_selector=self.get_build_pod_labels_selector())
 
         if len(pod_list.items) > 1:
             raise RuntimeError("Failed fetching logs. Found more than one pod matching labels {labels}"
@@ -160,7 +149,7 @@ class Build(object):
             logs = self._api_v1.read_namespaced_pod_log(pod.metadata.name, pod.metadata.namespace, container=container.name, pretty=True)
             return logs
         except ApiException as e:
-            logger.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+            raise logger.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
 
     @staticmethod
     def check_build_succeeded(build_object):
