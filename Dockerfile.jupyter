@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-py3
+FROM tensorflow/tensorflow:1.11.0-py3
 WORKDIR /opt/fairing
 
 # First copy setup.py and do a pip install -e to 

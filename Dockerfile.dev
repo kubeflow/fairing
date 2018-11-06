@@ -8,4 +8,8 @@ COPY setup.py /opt/fairing/
 RUN pip install -e .
 
 COPY ./ /opt/fairing
+<<<<<<< HEAD
 RUN python ./setup.py install
+=======
+RUN python ./setup.py install
+>>>>>>> 70732cf2c5be8c2cb710a16a7575def98274ff3f
