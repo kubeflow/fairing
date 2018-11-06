@@ -72,7 +72,7 @@ class KnativeBuilder(ContainerImageBuilder):
                                              default='/src/Dockerfile')]
         volume_mount = kubernetes.client.V1VolumeMount(name='src', mount_path='/src')
         steps = [BuildTemplateSpecStep(name='build-and-push',
-                                       image='gcr.io/kaniko-project/executor',
+                                       image='gcr.io/kaniko-project/executor:v0.5.0',
                                        args=['--dockerfile=${DOCKERFILE}',
                                              '--destination=${IMAGE}:${TAG}',
                                              '--context=${CONTEXT}'],
