@@ -71,6 +71,12 @@ class NativeBackend(Backend):
         }
         return svc
     
-    def stream_logs(self, image_name, image_tag):
+    def stream_logs(self, image_name, image_tag, namespace):
         mp_client = MetaparticleClient()
         mp_client.logs("{name}-{tag}".format(name=image_name, tag=image_tag))
+
+    def cleanup(self, image_name, image_tag, namespace):
+        pass
+
+    def get_client(self):
+        return MetaparticleClient()

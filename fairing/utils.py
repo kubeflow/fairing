@@ -15,7 +15,7 @@ def get_image(repository, name):
 
 def is_runtime_phase():
     """ Returns wether the code is currently in the runtime or building phase"""
-    return os.getenv('FAIRING_RUNTIME', None) != None 
+    return os.getenv('FAIRING_RUNTIME', None) is not None
     
 def is_running_in_k8s():
     return os.path.isdir('/var/run/secrets/kubernetes.io/')

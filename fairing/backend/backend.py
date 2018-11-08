@@ -10,5 +10,11 @@ class Backend:
     def compile_serving_ast(self, img, name, port, replicas):
         raise NotImplementedError()
 
-    def stream_logs(self, image_name, image_tag):
+    def stream_logs(self, image_name, image_tag, namespace):
+        raise NotImplementedError()
+
+    def cleanup(self, image_name, image_tag, namespace):
+        raise NotImplementedError()
+
+    def get_client(self):
         raise NotImplementedError()

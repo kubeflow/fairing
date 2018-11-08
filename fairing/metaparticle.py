@@ -10,8 +10,7 @@ import zipfile
 import tarfile
 import shutil
 import logging
-
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 def get_mp_bin_path():
     plat = platform.system()
@@ -56,7 +55,7 @@ def update_metaparticle():
             archive = tarfile.open(archive_path)
         archive.extractall(tmp_dir)
         archive.close()
-        
+
         logger.warn('Installing compiler at %s' %  get_mp_bin_path())
 
         dir_path = os.path.dirname(get_mp_bin_path())
@@ -80,10 +79,11 @@ def ensure_metaparticle_present():
     update_metaparticle()
 
 
-ensure_metaparticle_present()
-
-
 class MetaparticleClient(object):
+
+    def __init__(self):
+        # Ensure at construction, not at import time
+        ensure_metaparticle_present()
 
     def run(self, svc):
         if not os.path.exists('.metaparticle'):

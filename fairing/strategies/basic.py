@@ -1,4 +1,10 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class BasicTrainingStrategy(object):
+
   def __init__(self):
     self.runs = 1
     self.arch = None
@@ -10,10 +16,11 @@ class BasicTrainingStrategy(object):
   def get_params(self):
     return {}
   
-  def exec_user_code(self, user_object):
-    if 'build' in dir(user_object) and callable(getattr(user_object, 'build')):
-      user_object.build()
-    user_object.train()
+  def exec_user_code(self, curr_class, user_class, attribute_name):
+    logger.debug("curr_class %s user_class %s", curr_class, user_class)
+    if 'build' in dir(user_class) and callable(getattr(user_class, 'build')):
+      user_class.build()
+    return super(curr_class, user_class).__getattribute__(attribute_name)
   
   def set_architecture(self, arch):
     self.arch = arch

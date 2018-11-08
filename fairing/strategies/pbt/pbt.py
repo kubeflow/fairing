@@ -102,7 +102,7 @@ class PopulationBasedTraining(BasicTrainingStrategy):
             hp = hp_func()
         return hp
 
-    def exec_user_code(self, user_object):
+    def exec_user_code(self, curr_class, user_object, attribute_name):
         self.user_object = user_object
         self.initialize_training()
 

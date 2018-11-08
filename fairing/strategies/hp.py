@@ -12,7 +12,7 @@ class HyperparameterTuning(BasicTrainingStrategy):
     #     return self.hyperparameters()
     #   return self.hyperparameters
 
-    def exec_user_code(self, user_object):
+    def exec_user_code(self, curr_class, user_object, attribute_name):
         hp = None
 
         # hyperparameters method is not mandatory

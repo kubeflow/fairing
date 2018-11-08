@@ -1,26 +1,25 @@
 import signal
 import sys
-import types
+import os
 import logging
-import shutil
-
-# from fairing.backend import get_backend, Native
 from fairing.builders import get_container_builder
 from fairing.utils import is_runtime_phase, get_image_full
 from fairing.options import TensorboardOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
-from fairing.metaparticle import MetaparticleClient
 from fairing.utils import get_unique_tag, is_running_in_k8s, get_current_k8s_namespace
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
+DEFAULT_IMAGE_TAG = 'fairing'
 class Trainer(object):
     def __init__(self,
                  repository,
                  image_name='fairing-job',
                  image_tag=None,
                  publish=True,
+                 cleanup=False,
+                 stream_logs=True,
                  namespace=None,
                  dockerfile=None,
                  base_image=None,
@@ -28,7 +27,8 @@ class Trainer(object):
                  architecture=BasicArchitecture(),
                  strategy=BasicTrainingStrategy(),
                  builder=None):
-
+        self.cleanup = cleanup
+        self.stream_logs = stream_logs
         self.repository = repository
         self.image_name = image_name
         self.image_tag = image_tag
@@ -76,17 +76,14 @@ class Trainer(object):
             ast, self.repository, self.image_name, self.image_tag, volumes, volume_mounts)
         return ast, env
 
-    def get_metaparticle_client(self):
-        return MetaparticleClient()
-
     def fill_image_name_and_tag(self):
         if self.image_tag is None:
-            self.image_tag = get_unique_tag()
-        
+            os.environ['JH_UNIQUE_RUN_ID'] = get_unique_tag()
+            self.image_tag = "{}-{}".format(os.environ.get('JUPYTERHUB_USER', DEFAULT_IMAGE_TAG), os.environ['JH_UNIQUE_RUN_ID'])
         self.full_image_name = get_image_full(
             self.repository, self.image_name, self.image_tag)
 
-    def deploy_training(self, stream_logs=True):
+    def deploy_training(self):
         self.fill_image_name_and_tag()
         ast, env = self.compile_ast()
 
@@ -98,7 +95,7 @@ class Trainer(object):
                              self.publish,
                              env)
 
-        mp = self.get_metaparticle_client()
+        mp = self.backend.get_client()
 
         def signal_handler(signal, frame):
             mp.cancel(self.image_name)
@@ -108,19 +105,24 @@ class Trainer(object):
 
         logger.warn("Training(s) launched.")
 
-        if stream_logs:
-            self.backend.stream_logs(self.image_name, self.image_tag)
+        if self.stream_logs:
+            self.backend.stream_logs(self.image_name, self.image_tag, self.namespace)
 
-    def start_training(self, user_class):
-        self.strategy.exec_user_code(user_class)
+        if self.cleanup:
+            self.backend.cleanup(self.image_name, self.image_tag, self.namespace)
+
+    def start_training(self, curr_class, user_class, attribute_name):
+        return self.strategy.exec_user_code(curr_class, user_class, attribute_name)
 
 
 class Train(object):
     def __init__(self,
-                 repository,
+                 repository=None,
                  image_name='fairing-job',
                  image_tag=None,
                  publish=True,
+                 cleanup=False,
+                 stream_logs=True,
                  namespace=None,
                  dockerfile=None,
                  base_image=None,
@@ -133,6 +135,8 @@ class Train(object):
                                image_name=image_name,
                                image_tag=image_tag,
                                publish=publish,
+                               cleanup=cleanup,
+                               stream_logs=stream_logs,
                                namespace=namespace,
                                dockerfile=dockerfile,
                                base_image=base_image,
@@ -148,7 +152,7 @@ class Train(object):
             def __init__(user_class):
                 user_class.is_training_initialized = False
 
-            def __getattribute__(user_class, attribute_name):
+            def __getattribute__(user_class, attribute_name, *args, **kwargs):
                 # Overriding train in order to minimize the changes necessary in the user
                 # code to go from local to remote execution.
                 # That way, by simply commenting or uncommenting the Train decorator
@@ -161,8 +165,7 @@ class Train(object):
                     return super(UserClass, user_class).__getattribute__('_deploy_training')
 
                 user_class.is_training_initialized = True
-                self.trainer.start_training(user_class)
-                return super(UserClass, user_class).__getattribute__('_noop_attribute')
+                return self.trainer.start_training(UserClass, user_class, attribute_name)
 
             def _noop_attribute(user_class):
                 pass

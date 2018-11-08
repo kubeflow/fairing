@@ -1,6 +1,6 @@
 .metaparticle
 examples/*/Dockerfile
-
+.idea
 .vscode
 
 # Byte-compiled / optimized / DLL files
