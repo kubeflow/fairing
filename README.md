@@ -1,10 +1,8 @@
 # Fairing
 
-Easily train and serve ML models on Kubernetes, directly from your python code.  
+Easily train ML models on Kubernetes, directly from your python code.  
 
-This projects uses [Metaparticle](http://metaparticle.io/) behind the scene.
-
-fairing allows you to express how you want your model to be trained and served using native python decorators.  
+Fairing allows you to express how you want your model to be trained using python decorators.  
 
 
 ## Table of Contents
