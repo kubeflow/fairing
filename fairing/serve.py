@@ -1,3 +1,11 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import bytes
+from future import standard_library
+standard_library.install_aliases()
+
 import signal
 import sys
 import shutil
@@ -5,7 +13,7 @@ import http.server
 import logging
 
 from fairing.backend import NativeBackend
-from fairing.docker import DockerBuilder
+from fairing.docker_builder import DockerBuilder
 from fairing.utils import is_runtime_phase
 from fairing.options import PackageOptions
 import fairing.metaparticle as mp
