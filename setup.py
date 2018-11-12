@@ -12,7 +12,14 @@ setuptools.setup(
     include_package_data=False,
     zip_safe=False,
     classifiers=(
-        "Programming Language :: Python :: 3",
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
@@ -22,7 +29,9 @@ setuptools.setup(
         'notebook==5.6.0',
         'jupyter==1.0.0',
         'numpy==1.15.0',
-        'kubernetes==6.0.0'
+        'kubernetes==6.0.0',
+        'future==0.17.1',
+        'six==1.11.0'
     ],
     extras_require={
         'dev': [

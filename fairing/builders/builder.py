@@ -1,6 +1,13 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+
 from enum import Enum
 
-from fairing.builders.docker import DockerBuilder
+from fairing.builders.docker_builder import DockerBuilder
 from fairing.builders.knative import KnativeBuilder
 from fairing.utils import is_running_in_k8s
 
