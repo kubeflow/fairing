@@ -5,7 +5,7 @@ setuptools.setup(
     name='fairing',
     version='0.0.3',
     author="William Buchwalter",
-    description="Easily train and serve ML models on Kubernetes, directly from your python code.",
+    description="Easily train ML models on Kubernetes, directly from your python code.",
     url="https://github.com/kubeflow/fairing",
     packages=setuptools.find_packages(),
     package_data={},
