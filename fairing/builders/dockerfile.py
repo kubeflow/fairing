@@ -6,10 +6,13 @@ from builtins import open
 from future import standard_library
 standard_library.install_aliases()
 
-from fairing.notebook_helper import get_notebook_name, is_in_notebook
 import shutil
 import sys
 import os
+import logging
+logger = logging.getLogger('fairing')
+
+from fairing.notebook_helper import get_notebook_name, is_in_notebook
 
 class DockerFile(object):
 
@@ -39,7 +42,9 @@ class DockerFile(object):
                                "FAIRING_DEV_DOCKER_USERNAME is not. Either set "
                                "FAIRING_DEV_DOCKER_USERNAME to your Docker hub username, "
                                "or set FAIRING_DEV to false.")
-            return '{uname}/fairing:latest'.format(uname=uname)
+            dev_image_name = '{uname}/fairing:dev'.format(uname=uname)
+            logger.warn("Detected development environment, using %s as base image." % dev_image_name)
+            return dev_image_name
         return self.get_python_image_name()
 
     def get_python_image_name(self):
