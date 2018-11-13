@@ -21,6 +21,7 @@ from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.metaparticle import MetaparticleClient
 from fairing.utils import get_unique_tag, is_running_in_k8s, get_current_k8s_namespace
 
+logging.basicConfig()
 logger = logging.getLogger('fairing')
 
 class Trainer(object):
