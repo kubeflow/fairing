@@ -3,7 +3,7 @@ import json
 
 setuptools.setup(
     name='fairing',
-    version='0.0.3',
+    version='0.0.4.dev16',
     author="William Buchwalter",
     description="Easily train ML models on Kubernetes, directly from your python code.",
     url="https://github.com/kubeflow/fairing",
@@ -13,7 +13,7 @@ setuptools.setup(
     zip_safe=False,
     classifiers=(
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache License 2.0",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
     install_requires=[
