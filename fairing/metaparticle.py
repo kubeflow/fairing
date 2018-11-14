@@ -1,3 +1,11 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import open
+from future import standard_library
+standard_library.install_aliases()
+
 import subprocess
 import os
 import stat
@@ -5,7 +13,7 @@ import json
 from pkg_resources import resource_filename
 import platform
 import requests
-import tempfile
+from tempfile import mkdtemp
 import zipfile
 import tarfile
 import shutil
@@ -43,7 +51,9 @@ def update_metaparticle():
         ext=ext
     )
     r = requests.get(full_url, allow_redirects=True)
-    with tempfile.TemporaryDirectory() as tmp_dir:
+
+    tmp_dir = mkdtemp()
+    try:
         archive_path = os.path.join(tmp_dir, 'mp-archive')
         open(archive_path, 'wb+').write(r.content)
 
@@ -63,14 +73,18 @@ def update_metaparticle():
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         shutil.move(os.path.join(tmp_dir, file_name), dir_path)
-
-        os.chmod(get_mp_bin_path(),  stat.S_IEXEC |
-                                     stat.S_IREAD |
-                                     stat.S_IRGRP |
-                                     stat.S_IXGRP |
-                                     stat.S_IWRITE |
-                                     stat.S_IXOTH |
-                                     stat.S_IROTH)
+    except Exception as e:
+        raise RuntimeError("Could not install metaparticle: %s" % e)
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        
+    os.chmod(get_mp_bin_path(), stat.S_IEXEC |
+                                stat.S_IREAD |
+                                stat.S_IRGRP |
+                                stat.S_IXGRP |
+                                stat.S_IWRITE |
+                                stat.S_IXOTH |
+                                stat.S_IROTH)
     logger.warn('Metaparticle compiler succesfully installed.')
 
 def ensure_metaparticle_present():
@@ -89,8 +103,9 @@ class MetaparticleClient(object):
         if not os.path.exists('.metaparticle'):
             os.makedirs('.metaparticle')
 
-        with open('.metaparticle/spec.json', 'w') as out:
-            json.dump(svc, out)
+        with open('.metaparticle/spec.json', 'w', encoding='utf-8') as fout:
+            json_svc = json.dumps(svc, ensure_ascii=False)
+            fout.write(json_svc)
 
         subprocess.check_call([get_mp_bin_path(), '-f', '.metaparticle/spec.json'])
 

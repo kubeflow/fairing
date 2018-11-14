@@ -1,3 +1,10 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+
 import logging
 import os
 import shutil
@@ -28,7 +35,7 @@ class KnativeBuilder(ContainerImageBuilder):
         self.build_and_push(image, image_tag)
 
     def copy_src_to_mount_point(self):
-        context_dir = os.getcwd()
+        context_dir = os.getcwdu()
         dst = os.path.join(self.get_mount_point(), self._build_id)
         shutil.copytree(context_dir, dst)
 

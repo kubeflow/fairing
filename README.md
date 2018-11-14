@@ -28,8 +28,6 @@ You will also need to have docker installed locally.
 
 ## Getting `fairing`
 
-**Note**: This projects requires python 3
-
 ```bash
 pip install fairing
 ```

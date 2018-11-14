@@ -1,3 +1,11 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import super
+from future import standard_library
+standard_library.install_aliases()
+
 import signal
 import sys
 import types
@@ -13,6 +21,7 @@ from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.metaparticle import MetaparticleClient
 from fairing.utils import get_unique_tag, is_running_in_k8s, get_current_k8s_namespace
 
+logging.basicConfig(format='%(message)s')
 logger = logging.getLogger('fairing')
 
 class Trainer(object):
