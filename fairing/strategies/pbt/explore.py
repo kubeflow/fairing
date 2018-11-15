@@ -1,7 +1,7 @@
 import random
 import logging
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 class ExploreStrategy(object):
     def explore(self, hp_dict):

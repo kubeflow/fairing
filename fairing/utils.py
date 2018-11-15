@@ -1,7 +1,7 @@
 import os
 import uuid
 
-def get_image_full(repository, name, tag):
+def get_image_full_name(repository, name, tag):
     return "{base}:{tag}".format(
         base=get_image(repository, name),
         tag=tag

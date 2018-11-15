@@ -1,4 +1,5 @@
 from enum import Enum
+from abc import ABCMeta, abstractmethod
 
 from fairing.builders.docker import DockerBuilder
 from fairing.builders.knative import KnativeBuilder
@@ -30,3 +31,10 @@ def get_builder(builder):
         return DockerBuilder()
     elif builder == Builders.KNATIVE:
         return KnativeBuilder()
+
+
+class BaseBuilder(object):
+    __metaclass__ = metacclass=ABCMeta
+
+    @abstractmethod
+    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env): pass

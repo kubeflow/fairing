@@ -1,11 +1,11 @@
 from fairing.architectures.architecture import TrainingArchitecture
 from fairing.backend.native import NativeBackend
-from fairing.utils import get_image_full
+from fairing.utils import get_image_full_name
 
 class BasicArchitecture(TrainingArchitecture):
 
     def add_jobs(self, svc, count, repository, image_name, image_tag, volumes, volume_mounts):
-        full_image_name = get_image_full(repository, image_name, image_tag)
+        full_image_name = get_image_full_name(repository, image_name, image_tag)
         svc['jobs'] = [{
             "name": image_name,
             # TODO should parallelism and completion be surfaced ? How would that be implemented in all backends

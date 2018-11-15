@@ -8,17 +8,31 @@ from docker import APIClient
 
 from fairing.builders.dockerfile import DockerFile
 from fairing.builders.container_image_builder import ContainerImageBuilder
-from fairing.utils import get_image_full
+from fairing.utils import get_image_full_name
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 class DockerBuilder(ContainerImageBuilder):
-    def __init__(self):
-        self.docker_client = None
+    def __init__(self, 
+                repository, 
+                image_name='fairing-job', 
+                image_tag=None, 
+                base_image=None, 
+                dockerfile_path=None):
+
+        self.repository = repository
+        self.image_name = image_name
+        if image_tag is None:
+            self.image_tag = image_tag
+
+        self.base_image = base_image
+        self.dockerfile_path = dockerfile_path
         self.dockerfile = DockerFile()
+        self.docker_client = APIClient(version='auto')
+      
   
-    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env):
-        full_image_name = get_image_full(repository, image_name, image_tag)
+    def execute(self, env):
+        full_image_name = get_image_full_name(repository, image_name, image_tag)
         self.dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
         self.build(full_image_name)
         if publish:
@@ -26,9 +40,7 @@ class DockerBuilder(ContainerImageBuilder):
 
     def build(self, img, path='.'):
         logger.warn('Building docker image {}...'.format(img))
-        if self.docker_client is None:
-            self.docker_client = APIClient(version='auto')
-        
+               
         bld = self.docker_client.build(
             path=path,
             tag=img,
@@ -39,9 +51,7 @@ class DockerBuilder(ContainerImageBuilder):
             self._process_stream(line)
 
     def publish(self, img):
-        logger.warn('Publishing image {}...'.format(img))
-        if self.docker_client is None:
-            self.docker_client = APIClient(version='auto')
+        logger.warn('Publishing image {}...'.format(img))       
 
         # TODO: do we need to set tag?
         for line in self.docker_client.push(img, stream=True):

@@ -17,7 +17,7 @@ from fairing.utils import is_runtime_phase
 if is_runtime_phase():
     import tensorflow as tf
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 class PopulationBasedTraining(BasicTrainingStrategy):
     def __init__(self,

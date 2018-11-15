@@ -1,9 +1,9 @@
 from fairing.backend.kubeflow import KubeflowBackend
-from fairing.utils import get_image_full
+from fairing.utils import get_image_full_name
 
 class BasicArchitecture():
     def add_jobs(self, svc, count, repository, image_name, image_tag, volumes, volume_mounts):
-        full_image_name = get_image_full(repository, image_name, image_tag)
+        full_image_name = get_image_full_name(repository, image_name, image_tag)
         tfjobs = []
         for ix in range(count):
             tfjobs.append({

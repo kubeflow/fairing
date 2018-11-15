@@ -5,7 +5,7 @@ import logging
 
 from fairing.backend.native import NativeBackend
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 # This class can contain any specifities related to kubeflow services.
 # i.e. if kubeflow provides a TensorBoard CRD we could use it here

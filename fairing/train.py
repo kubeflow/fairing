@@ -6,39 +6,25 @@ import shutil
 
 # from fairing.backend import get_backend, Native
 from fairing.builders import get_container_builder
-from fairing.utils import is_runtime_phase, get_image_full
+from fairing.utils import is_runtime_phase
 from fairing.options import TensorboardOptions
 from fairing.architectures.native.basic import BasicArchitecture
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.metaparticle import MetaparticleClient
 from fairing.utils import get_unique_tag, is_running_in_k8s, get_current_k8s_namespace
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 class Trainer(object):
-    def __init__(self,
-                 repository,
-                 image_name='fairing-job',
-                 image_tag=None,
-                 publish=True,
-                 namespace=None,
-                 dockerfile=None,
-                 base_image=None,
+    def __init__(self,                 
+                 namespace=None,                 
                  tensorboard=None,
                  architecture=BasicArchitecture(),
-                 strategy=BasicTrainingStrategy(),
-                 builder=None):
-
-        self.repository = repository
-        self.image_name = image_name
-        self.image_tag = image_tag
+                 strategy=BasicTrainingStrategy()):
 
         # Target namespace where the job(s) will be deployed
         self.namespace = namespace or self.get_default_target_namespace()
-        self.publish = publish
-        self.base_image = base_image
-        self.dockerfile = dockerfile
-
+        
         self.strategy = strategy
         self.architecture = architecture
         self.tensorboard_options = TensorboardOptions(**tensorboard) if tensorboard else None
@@ -46,8 +32,6 @@ class Trainer(object):
         self.strategy.set_architecture(self.architecture)
 
         self.builder = get_container_builder(builder)
-
-        self.full_image_name = None
 
 
     def get_default_target_namespace(self):
@@ -79,24 +63,10 @@ class Trainer(object):
     def get_metaparticle_client(self):
         return MetaparticleClient()
 
-    def fill_image_name_and_tag(self):
-        if self.image_tag is None:
-            self.image_tag = get_unique_tag()
-        
-        self.full_image_name = get_image_full(
-            self.repository, self.image_name, self.image_tag)
-
     def deploy_training(self, stream_logs=True):
-        self.fill_image_name_and_tag()
         ast, env = self.compile_ast()
 
-        self.builder.execute(self.repository,
-                             self.image_name,
-                             self.image_tag,
-                             self.base_image,
-                             self.dockerfile,
-                             self.publish,
-                             env)
+        self.builder.execute(env)
 
         mp = self.get_metaparticle_client()
 

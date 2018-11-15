@@ -11,7 +11,7 @@ import tarfile
 import shutil
 import logging
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 def get_mp_bin_path():
     plat = platform.system()

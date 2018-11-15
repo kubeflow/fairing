@@ -41,35 +41,6 @@ class NativeBackend(Backend):
             "public": tb_options.public
         }
         return svc, volumes, volumeMounts
-
-    def compile_serving_ast(self, img, name, port, replicas):
-        svc = {
-            "name": name,
-            "guid": 456789,
-        }
-
-        svc["services"] = [
-            {
-                "name": "{}-fairing-serving".format(name),
-                "replicas": replicas,
-                "containers": [
-                    {
-                        "image": img,
-                    }
-                ],
-                # TODO: Use self.serving_options
-                "ports": [{
-                    'number': port,
-                    'protocol': 'TCP'
-                }],
-            }
-        ]
-
-        svc["serve"] = {
-            "name": "{}-fairing-serving".format(name),
-            "public": True
-        }
-        return svc
     
     def stream_logs(self, image_name, image_tag):
         mp_client = MetaparticleClient()

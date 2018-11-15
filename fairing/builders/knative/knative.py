@@ -9,9 +9,9 @@ from fairing.builders.dockerfile import DockerFile
 from fairing.builders.container_image_builder import ContainerImageBuilder
 from fairing.builders.knative.models.build_template import BuildTemplate, BuildTemplateSpec, BuildTemplateSpecParameter, BuildTemplateSpecStep
 from fairing.builders.knative.models.build import Build, BuildSpec, BuildSpecArgument, BuildSpecTemplate
-from fairing.utils import get_image, get_image_full, is_running_in_k8s, get_current_k8s_namespace
+from fairing.utils import get_image, is_running_in_k8s, get_current_k8s_namespace
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 
 class KnativeBuilder(ContainerImageBuilder):

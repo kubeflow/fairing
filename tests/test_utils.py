@@ -1,6 +1,6 @@
 import pytest
 
-from fairing.utils import is_runtime_phase, get_image_full, get_image
+from fairing.utils import is_runtime_phase, get_image_full_name, get_image
 
 REPO_NAME = 'testrepo'
 IMAGE_NAME = 'fairing-test'
@@ -13,7 +13,7 @@ def test_is_runtime_phase(runtime_phase, monkeypatch):
     assert is_runtime_phase() == runtime_phase
 
 def test_get_image_full():
-    img = get_image_full(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
+    img = get_image_full_name(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
     assert img == '{}/{}:{}'.format(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
 
 def test_get_image():

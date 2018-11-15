@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.architectures.native.basic import BasicArchitecture
-from fairing.utils import get_image_full
+from fairing.utils import get_image_full_name
 
 class DummyUserModel(object):
     def train():

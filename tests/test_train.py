@@ -6,7 +6,7 @@ from fairing.backend import NativeBackend
 from fairing.strategies.basic import BasicTrainingStrategy
 from fairing.builders.container_image_builder import ContainerImageBuilder
 from fairing.metaparticle import MetaparticleClient
-from fairing.utils import get_image_full
+from fairing.utils import get_image_full_name
 
 REPO_NAME = 'testrepo'
 IMAGE_NAME = 'fairing-test'
@@ -46,7 +46,7 @@ def test_compile_ast(trainer):
     job = svc['jobs'][0]
 
     assert len(job['containers']) == 1
-    assert job['containers'][0]['image'] == get_image_full(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
+    assert job['containers'][0]['image'] == get_image_full_name(REPO_NAME, IMAGE_NAME, IMAGE_TAG)
 
 
 def test_start_training(mock_strategy):
