@@ -26,12 +26,11 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
+
 import fairing
 from fairing import builders
-from fairing.training import kubeflow
+from fairing.training import native
 
-#TODO: I should be able to pass repository and image infos here
-fairing.config.set_builder(builder.Docker())
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -46,8 +45,9 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-#TODO: I should be able to specify distribution in this decorator
-@kubeflow.Training()
+fairing.config.set_builder(builders.DockerBuilder(repository='wbuchwalter'))
+
+@native.Training()
 class MyModel(object):
     def train(self):
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)

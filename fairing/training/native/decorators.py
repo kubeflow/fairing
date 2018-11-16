@@ -1,38 +1,49 @@
+import logging
+
 from fairing.training import base
-from fairing.training import native
+from .deployment import NativeDeployment
+from .runtime import NativeRuntime
+
+logger = logging.getLogger(__name__)
 
 class Training(base.TrainingDecoratorInterface):
+    """A simple Kubernetes training.
+    
+    Args:
+        namespace {string} -- (optional) here the training should be deployed
+    """
 
     def __init__(self, namespace=None):
-        self.deployment = native.NativeDeployment(namespace, 1)
+        self.namespace = namespace
+        self.runs = 1
     
-    def __validate(self, user_object):
+    def _validate(self, user_object):
         """TODO: Verify that the training conforms to what is expected from 
-            a simple training. (probably not HP tuning)
-        
-        Arguments:
-            user_object {[type]} -- [description]
-        
-        Raises:
-            NotImplementedError -- [description]
-        """
+            a simple training. (probably not HP tuning)"""
+        pass
 
-        raise NotImplementedError()
+    def _train(self, user_object):
+        runtime = NativeRuntime()
+        runtime.execute(user_object)
 
-    def __train(self, user_object):
-        self.runtime.execute(user_object)
-
-    def __deploy(self, user_object):
-        deployment = native.NativeDeployment()
+    def _deploy(self, user_object):
+        deployment = NativeDeployment(self.namespace, self.runs)
         deployment.execute()
 
 
 class HPTuning(base.TrainingDecoratorInterface):
+    """Multiple trainings running in parallel to perform hyperparameters search
+    
+    Arguments:
+        namespace {string} -- (optional) here the training should be deployed
+        runs {integer} -- (optional) the number of parallel runs to launch
+    """
 
     def __init__(self, namespace=None, runs=1):
-        self.deployment = native.NativeDeployment(namespace, runs)
+        super(HPTuning, self).__init__(namespace, runs)
     
-    def validate()
-
+    def _validate(self, user_object):
+        #TODO verify hp and train (or have hp part of the decorator)
+        raise NotImplementedError()
 
 

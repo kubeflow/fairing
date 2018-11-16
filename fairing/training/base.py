@@ -5,11 +5,7 @@ import sys
 
 import six
 
-from fairing import config
-from fairing import metaparticle
-from fairing import options
-from fairing import strategies
-from fairing import architectures
+from fairing import utils
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +21,8 @@ class DeploymentInterface(object):
 @six.add_metaclass(abc.ABCMeta)
 class RuntimeInterface(object):
 
-    def execute(user_object):
+    def execute(self, user_object):
         pass
-
-
 
 @six.add_metaclass(abc.ABCMeta)
 class TrainingDecoratorInterface(object):
@@ -36,11 +30,11 @@ class TrainingDecoratorInterface(object):
     def __call__(self, cls):
         class UserClass(cls):
             # self refers to the BaseTraining instance
-            # user_class is equivalent to self in the UserClass instance
-            def __init__(user_class):
-                user_class.is_training_initialized = False
+            # user_object is equivalent to self in the UserClass instance
+            def __init__(user_object):
+                user_object.is_training_initialized = False
 
-            def __getattribute__(user_class, attribute_name):
+            def __getattribute__(user_object, attribute_name):
                 # Overriding train in order to minimize the changes 
                 # necessary in the user code to go from local to remoten't be here probably
                 # execution.
@@ -49,36 +43,36 @@ class TrainingDecoratorInterface(object):
                 # setup or in kubernetes.
 
                 if (attribute_name != 'train'
-                        or user_class.is_training_initialized):
-                    return super(UserClass, user_class).__getattribute__(
+                        or user_object.is_training_initialized):
+                    return super(UserClass, user_object).__getattribute__(
                         attribute_name)
 
-                if attribute_name == 'train' and not is_runtime_phase():
-                    return super(UserClass, user_class).__getattribute__(
+                if attribute_name == 'train' and not utils.is_runtime_phase():
+                    return super(UserClass, user_object).__getattribute__(
                         '_deploy_training')
 
-                user_class.is_training_initialized = True
-                self.__train(user_class)
-                return super(UserClass, user_class).__getattribute__(
+                user_object.is_training_initialized = True
+                self._train(user_object)
+                return super(UserClass, user_object).__getattribute__(
                     '_noop_attribute')
 
-            def _noop_attribute(user_class):
+            def _noop_attribute(user_object):
                 pass
 
-            def _deploy_training(user_class):
-                self._validate(user_class)
-                self.__deploy(user_class)
+            def _deploy_training(user_object):
+                self._validate(user_object)
+                self._deploy(user_object)
 
         return UserClass
 
     @abc.abstractmethod
-    def __validate(self, user_class):
+    def _validate(self, user_object):
         pass
 
     @abc.abstractmethod
-    def __train(self, user_class):
+    def _train(self, user_object):
         pass
 
     @abc.abstractmethod
-    def __deploy(self, user_class):
+    def _deploy(self, user_object):
         pass

@@ -7,9 +7,9 @@ class Config(object):
         self._builder = None
 
     def set_builder(self, builder):
-        if not isinstance(builder, builder.BaseBuilder):
+        if not isinstance(builder, builders.BuilderInterface):
             raise TypeError(
-                'builder must be a fairing.Builder, but got %s' 
+                'builder must be a BuilderInterface, but got %s' 
                 % type(builder))
         self._builder = builder
     

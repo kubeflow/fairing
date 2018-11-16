@@ -1,40 +1,11 @@
-from enum import Enum
-from abc import ABCMeta, abstractmethod
+import abc 
+import six
 
-from fairing.builders.docker import DockerBuilder
-from fairing.builders.knative import KnativeBuilder
-from fairing.utils import is_running_in_k8s
+@six.add_metaclass(abc.ABCMeta)
+class BuilderInterface(object):
 
-class Builders(Enum):
-    DOCKER = 1
-    KNATIVE = 2
+    @abc.abstractmethod
+    def execute(self): pass
 
-def get_container_builder(builder_str=None):
-    if builder_str == None:
-        return get_default_container_builder()
-    
-    try:
-        builder = Builders[builder_str.upper()]
-    except KeyError:
-        raise ValueError("Unsupported builder type: ", builder_str)
-
-    return get_builder(builder)
-
-def get_default_container_builder():
-    if is_running_in_k8s():
-        return get_builder(Builders.KNATIVE)
-    return get_builder(Builders.DOCKER)
-
-
-def get_builder(builder):
-    if builder == Builders.DOCKER:
-        return DockerBuilder()
-    elif builder == Builders.KNATIVE:
-        return KnativeBuilder()
-
-
-class BaseBuilder(object):
-    __metaclass__ = metacclass=ABCMeta
-
-    @abstractmethod
-    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env): pass
+    @abc.abstractmethod
+    def generate_pod_spec(self): pass

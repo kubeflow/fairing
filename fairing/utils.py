@@ -27,3 +27,8 @@ def get_current_k8s_namespace():
 def get_unique_tag():
     id = uuid.uuid4()
     return str(id).split('-')[0]
+
+def get_default_target_namespace():
+    if not is_running_in_k8s():
+        return 'default'
+    return get_current_k8s_namespace()
