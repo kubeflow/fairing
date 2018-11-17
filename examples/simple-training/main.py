@@ -46,7 +46,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
 fairing.config.set_builder(builders.DockerBuilder(repository='wbuchwalter'))
-
+ 
 @native.Training()
 class MyModel(object):
     def train(self):

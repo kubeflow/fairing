@@ -1,3 +1,9 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
 import logging
 
 from kubernetes import client as k8s_client
@@ -52,7 +58,7 @@ class NativeDeployment(base.DeploymentInterface):
         self.builder.execute()
         self.deploy()
         logger.warn("Training(s) launched.")
-        self.get_log()
+        self.get_logs()
     
     def generate_pod_template_spec(self, pod_spec):
         """Generate a V1PodTemplateSpec initiazlied with correct metadata
@@ -84,7 +90,7 @@ class NativeDeployment(base.DeploymentInterface):
             spec=job_spec
         )
 
-    def get_log(self):
+    def get_logs(self):
         self.backend.log(self.name, self.namespace)
 
     def deploy(self):

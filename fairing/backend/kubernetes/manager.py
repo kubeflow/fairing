@@ -1,20 +1,31 @@
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from future import standard_library
+standard_library.install_aliases()
+
 import logging
+logger = logging.getLogger(__name__)
+from pprint import pprint
 
 from kubernetes import client, config, watch
 
-logger = logging.getLogger(__name__)
+MAX_STREAM_BYTES = 1024
+
 
 class KubeManager(object):
     """Handles commonucation with Kubernetes' client."""
 
     def __init__(self):
-         config.load_kube_config()
+        config.load_kube_config()
 
     def create_job(self, namespace, job):
         """Creates a V1Job in the specified namespace"""
         api_instance = client.BatchV1Api()
         api_instance.create_namespaced_job(namespace, job)
-    
+
     def create_deployment(self, namespace, deployment):
         """Create an ExtensionsV1beta1Deployment in the specified namespace"""
         api_instance = client.ExtensionsV1beta1Api()
@@ -24,15 +35,15 @@ class KubeManager(object):
         """Delete the specified job"""
         api_instance = client.BatchV1Api()
         api_instance.delete_namespaced_job(
-            name, 
+            name,
             namespace,
-            client.V1DeleteOptions())   
-    
+            client.V1DeleteOptions())
+
     def delete_deployment(self, name, namespace):
         api_instance = client.ExtensionsV1beta1Api()
         api_instance.delete_namespaced_deployment(
             name,
-            namespace, 
+            namespace,
             client.V1DeleteOptions())
 
     def log(self, name, namespace):
@@ -40,17 +51,38 @@ class KubeManager(object):
         # Retry to allow starting of pod
         w = watch.Watch()
         try:
-            for event in w.stream(v1.list_namespaced_pod, namespace=namespace, field_selector="metadata.name={}".format(name)):
-                logger.info("Event: %s %s %s", event['type'], event['object'].metadata.name,  event['object'].status.phase)
-                if event['object'].status.phase == 'Pending':
+            for event in w.stream(v1.list_namespaced_pod,
+                                  namespace=namespace,
+                                  label_selector="job-name={}".format(name)):
+                pod = event['object']
+                logger.debug("Event: %s %s %s",
+                            event['type'],
+                            pod.metadata.name,
+                            pod.status.phase)
+                if pod.status.phase == 'Pending':
+                    logger.warn('Waiting for job to start...')
                     continue
-                elif event['object'].status.phase == 'Running' and event['object'].status.container_statuses[0].ready:
-                    logger.info("Pod started running %s", event['object'].status.container_statuses[0].ready)
-                    tail = v1.read_namespaced_pod_log(name, namespace, follow=True, _preload_content=False)
+                elif (pod.status.phase == 'Running'
+                      and pod.status.container_statuses[0].ready):
+                    logger.info("Pod started running %s",
+                                pod.status.container_statuses[0].ready)
+                    tail = v1.read_namespaced_pod_log(pod.metadata.name,
+                                                      namespace,
+                                                      follow=True,
+                                                      _preload_content=False,
+                                                      pretty='pretty')
                     break
-                elif event['type'] == 'DELETED' or event['object'].status.phase == 'Failed' or event['object'].status.container_statuses[0].state.waiting:
-                    logger.error("Failed to launch %s, reason: %s",  event['object'].metadata.name, event['object'].status.container_statuses[0].state.waiting.reason)
-                    tail = v1.read_namespaced_pod_log(name, namespace, follow=True, _preload_content=False)
+                elif (event['type'] == 'DELETED'
+                      or pod.status.phase == 'Failed'
+                      or pod.status.container_statuses[0].state.waiting):
+                    logger.error("Failed to launch %s, reason: %s",
+                                 pod.metadata.name,
+                                 pod.status.container_statuses[0].state.waiting.reason)
+                    tail = v1.read_namespaced_pod_log(pod.metadata.name,
+                                                      namespace,
+                                                      follow=True,
+                                                      _preload_content=False,
+                                                      pretty='pretty')
                     break
         except ValueError as v:
             logger.error("error getting status for {} {}".format(name, str(v)))
@@ -58,7 +90,7 @@ class KubeManager(object):
             logger.error("error getting status for {} {}".format(name, str(e)))
         if tail:
             try:
-                for chunk in tail.stream(MAX_STREAM_BYTES):
-                    print(chunk)
+                for chunk in tail.stream(MAX_STREAM_BYTES):                    
+                    print(chunk.rstrip())
             finally:
                 tail.release_conn()
