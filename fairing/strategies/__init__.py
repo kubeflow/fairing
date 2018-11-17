@@ -5,6 +5,6 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from fairing.config import config
-
-name = "fairing"
+from .basic import BasicTrainingStrategy
+from .hp import HyperparameterTuning
+from .pbt import *
