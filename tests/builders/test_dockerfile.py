@@ -4,15 +4,13 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
+
 import pytest
 
-from fairing.builders.dockerfile import DockerFile
+from fairing.builders import dockerfile
 
-@pytest.fixture
-def dockerfile():
-    return DockerFile()
-
-def test_get_base_image(dockerfile, monkeypatch):
+def test_get_base_image(monkeypatch):
+    monkeypatch.delenv('FAIRING_DEV', False)
     assert dockerfile.get_default_base_image().startswith("library/python:")
 
     monkeypatch.setenv('FAIRING_DEV', 1)
@@ -42,17 +40,6 @@ def test_get_base_image(dockerfile, monkeypatch):
 
 #     assert exp == dockerfile.build_dockerfile()
 
-def test_get_env_steps(dockerfile):
-    env = [
-        {'name': 'env1', 'value': 'val1'},
-        {'name': 'env2', 'value': 'val2'}
-    ]
-    exp = [
-        "ENV env1 val1",
-        "ENV env2 val2"
-    ]
-    assert exp == dockerfile.get_env_steps(env)
-
 @pytest.mark.parametrize("file_name, expected_name",
                          [
                              ('./test.py', 'test.py'),
@@ -60,6 +47,6 @@ def test_get_env_steps(dockerfile):
                              ('./here/test.py', 'here/test.py'),
 
                          ])
-def test_get_exec_file_name(dockerfile, monkeypatch, file_name, expected_name):
+def test_get_exec_file_name(monkeypatch, file_name, expected_name):
     monkeypatch.setattr('sys.argv', [file_name, "--some-arguments"])
     assert dockerfile.get_exec_file_name() == expected_name

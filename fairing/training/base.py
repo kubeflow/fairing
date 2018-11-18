@@ -17,21 +17,6 @@ from fairing import utils
 logger = logging.getLogger(__name__)
 
 @six.add_metaclass(abc.ABCMeta)
-class DeploymentInterface(object):
-
-    def execute(self):
-        pass
-    
-    def validate(self, user_object):
-        pass
-
-@six.add_metaclass(abc.ABCMeta)
-class RuntimeInterface(object):
-
-    def execute(self, user_object):
-        pass
-
-@six.add_metaclass(abc.ABCMeta)
 class TrainingDecoratorInterface(object):
 
     def __call__(self, cls):

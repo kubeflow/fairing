@@ -16,7 +16,7 @@ from fairing.backend import kubernetes
 logger = logging.getLogger(__name__)
 DEFAULT_JOB_NAME = 'fairing-job'
 
-class NativeDeployment(base.DeploymentInterface):
+class NativeDeployment(object):
     """Handle all the template building for metaparticle api and calling mpclient
 
     Attributes:
@@ -66,9 +66,10 @@ class NativeDeployment(base.DeploymentInterface):
         if not isinstance(pod_spec, k8s_client.V1PodSpec):
              raise TypeError('pod_spec must be a V1PodSpec, but got %s' 
                 % type(pod_spec))
-
+        labels = {}
+        labels['fairing-job-id'] = self.name
         return k8s_client.V1PodTemplateSpec(
-            metadata=k8s_client.V1ObjectMeta(name=self.name),
+            metadata=k8s_client.V1ObjectMeta(name=self.name, labels=labels),
             spec=pod_spec)
         
     def generate_job(self, pod_template_spec):

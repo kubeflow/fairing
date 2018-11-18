@@ -5,6 +5,4 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from .deployment import NativeDeployment
-from .runtime import BasicNativeRuntime
 from .decorators import Training

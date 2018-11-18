@@ -5,11 +5,12 @@ from __future__ import absolute_import
 from builtins import super
 from future import standard_library
 standard_library.install_aliases()
+
 import logging
 
 from fairing.training import base
 from .deployment import NativeDeployment
-from .runtime import NativeRuntime
+from .runtime import BasicNativeRuntime
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class Training(base.TrainingDecoratorInterface):
         pass
 
     def _train(self, user_object):
-        runtime = NativeRuntime()
+        runtime = BasicNativeRuntime()
         runtime.execute(user_object)
 
     def _deploy(self, user_object):
@@ -38,19 +39,19 @@ class Training(base.TrainingDecoratorInterface):
         deployment.execute()
 
 
-class HPTuning(base.TrainingDecoratorInterface):
-    """Multiple trainings running in parallel to perform hyperparameters search
+# class HPTuning(base.TrainingDecoratorInterface):
+#     """Multiple trainings running in parallel to perform hyperparameters search
     
-    Arguments:
-        namespace {string} -- (optional) here the training should be deployed
-        runs {integer} -- (optional) the number of parallel runs to launch
-    """
+#     Arguments:
+#         namespace {string} -- (optional) here the training should be deployed
+#         runs {integer} -- (optional) the number of parallel runs to launch
+#     """
 
-    def __init__(self, namespace=None, runs=1):
-        super(HPTuning, self).__init__(namespace, runs)
+#     def __init__(self, namespace=None, runs=1):
+#         super(HPTuning, self).__init__(namespace, runs)
     
-    def _validate(self, user_object):
-        #TODO verify hp and train (or have hp part of the decorator)
-        raise NotImplementedError()
+#     def _validate(self, user_object):
+#         #TODO verify hp and train (or have hp part of the decorator)
+#         raise NotImplementedError()
 
 

@@ -32,7 +32,8 @@ def get_command():
     return "CMD python /app/{exec_file}".format(exec_file=exec_file)
 
 def get_default_base_image():
-    if os.environ.get('FAIRING_DEV', None) != None:
+    dev = os.environ.get('FAIRING_DEV', False)
+    if dev:
         try:
             uname = os.environ['FAIRING_DEV_DOCKER_USERNAME']
         except KeyError:
@@ -40,7 +41,7 @@ def get_default_base_image():
                             "FAIRING_DEV_DOCKER_USERNAME is not. Either set "
                             "FAIRING_DEV_DOCKER_USERNAME to your Docker hub username, "
                             "or set FAIRING_DEV to false.")
-        return '{uname}/fairing:latest'.format(uname=uname)
+        return '{uname}/fairing:dev'.format(uname=uname)
     return 'library/python:3.6'
 
 def generate_dockerfile( base_image):

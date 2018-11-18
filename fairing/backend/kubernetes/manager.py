@@ -13,7 +13,10 @@ from pprint import pprint
 from kubernetes import client, config, watch
 
 MAX_STREAM_BYTES = 1024
-
+TF_JOB_GROUP = "kubeflow.org"
+TF_JOB_KIND = "TFJob"
+TF_JOB_PLURAL = "tfjobs"
+TF_JOB_VERSION = "v1alpha2"
 
 class KubeManager(object):
     """Handles commonucation with Kubernetes' client."""
@@ -25,6 +28,18 @@ class KubeManager(object):
         """Creates a V1Job in the specified namespace"""
         api_instance = client.BatchV1Api()
         api_instance.create_namespaced_job(namespace, job)
+    
+    def create_tf_job(self, namespace, job):
+        """Create the provided TFJob in the specified namespace"""
+        print(job)
+        api_instance = client.CustomObjectsApi()
+        api_instance.create_namespaced_custom_object(
+            TF_JOB_GROUP,
+            TF_JOB_VERSION,
+            namespace,
+            TF_JOB_PLURAL,
+            job
+        )
 
     def create_deployment(self, namespace, deployment):
         """Create an ExtensionsV1beta1Deployment in the specified namespace"""
@@ -52,8 +67,8 @@ class KubeManager(object):
         w = watch.Watch()
         try:
             for event in w.stream(v1.list_namespaced_pod,
-                                  namespace=namespace,
-                                  label_selector="job-name={}".format(name)):
+                            namespace=namespace,
+                            label_selector="fairing-job-id={}".format(name)):
                 pod = event['object']
                 logger.debug("Event: %s %s %s",
                             event['type'],
