@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_JOB_NAME = 'fairing-job'
 
 class NativeDeployment(object):
-    """Handle all the template building for metaparticle api and calling mpclient
-
+    """Handle all the k8s' template building for a training 
     Attributes:
         namespace: k8s namespace where the training's components 
             will be deployed.
@@ -34,6 +33,7 @@ class NativeDeployment(object):
         
         # Used as pod and job name
         self.name = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
+        k8s_client.V1ObjectMeta.generate_name()
         self.job_spec = None
         self.runs = runs
 

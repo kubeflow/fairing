@@ -13,5 +13,3 @@ class BasicNativeRuntime(object):
         if 'build' in dir(user_object) and callable(getattr(user_object, 'build')):
             user_object.build()
         user_object.train()
-
-#class HPNativeRuntime

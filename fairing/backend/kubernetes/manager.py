@@ -19,7 +19,7 @@ TF_JOB_PLURAL = "tfjobs"
 TF_JOB_VERSION = "v1alpha2"
 
 class KubeManager(object):
-    """Handles commonucation with Kubernetes' client."""
+    """Handles communication with Kubernetes' client."""
 
     def __init__(self):
         config.load_kube_config()
