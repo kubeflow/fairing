@@ -28,10 +28,10 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 import fairing
 from fairing import builders
-from fairing.training.kubeflow import Training
+from fairing.training import kubeflow
 
-fairing.config.set_builder(builders.DockerBuilder('wbuchwalter'))
-
+DOCKER_REPOSITORY_NAME = '<your-repository-name>'
+fairing.config.set_builder(builders.DockerBuilder(DOCKER_REPOSITORY_NAME))
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -46,7 +46,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-@Training(namespace='kubeflow')
+@kubeflow.Training(namespace='kubeflow')
 class MyModel(object):
     def train(self):
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)

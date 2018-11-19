@@ -5,4 +5,4 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from .decorators import Training
+from .decorators import Training, DistributedTraining

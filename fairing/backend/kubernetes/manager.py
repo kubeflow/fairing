@@ -31,7 +31,6 @@ class KubeManager(object):
     
     def create_tf_job(self, namespace, job):
         """Create the provided TFJob in the specified namespace"""
-        print(job)
         api_instance = client.CustomObjectsApi()
         api_instance.create_namespaced_custom_object(
             TF_JOB_GROUP,
@@ -61,14 +60,18 @@ class KubeManager(object):
             namespace,
             client.V1DeleteOptions())
 
-    def log(self, name, namespace):
+    def log(self, name, namespace, extra_label_selector=None):
+        selector = "fairing-job-id={}".format(name)
+        if extra_label_selector is not None:
+            selector = "{},{}".format(selector, extra_label_selector)
+
         v1 = client.CoreV1Api()
         # Retry to allow starting of pod
         w = watch.Watch()
         try:
             for event in w.stream(v1.list_namespaced_pod,
                             namespace=namespace,
-                            label_selector="fairing-job-id={}".format(name)):
+                            label_selector=selector):
                 pod = event['object']
                 logger.debug("Event: %s %s %s",
                             event['type'],
