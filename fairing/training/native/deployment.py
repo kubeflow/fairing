@@ -33,7 +33,6 @@ class NativeDeployment(object):
         
         # Used as pod and job name
         self.name = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
-        k8s_client.V1ObjectMeta.generate_name()
         self.job_spec = None
         self.runs = runs
 
