@@ -5,35 +5,20 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from enum import Enum
+import abc 
+import six
 
-from fairing.builders.docker_builder import DockerBuilder
-from fairing.builders.knative import KnativeBuilder
-from fairing.utils import is_running_in_k8s
+@six.add_metaclass(abc.ABCMeta)
+class BuilderInterface(object):
 
-class Builders(Enum):
-    DOCKER = 1
-    KNATIVE = 2
-
-def get_container_builder(builder_str=None):
-    if builder_str == None:
-        return get_default_container_builder()
-    
-    try:
-        builder = Builders[builder_str.upper()]
-    except KeyError:
-        raise ValueError("Unsupported builder type: ", builder_str)
-
-    return get_builder(builder)
-
-def get_default_container_builder():
-    if is_running_in_k8s():
-        return get_builder(Builders.KNATIVE)
-    return get_builder(Builders.DOCKER)
-
-
-def get_builder(builder):
-    if builder == Builders.DOCKER:
-        return DockerBuilder()
-    elif builder == Builders.KNATIVE:
-        return KnativeBuilder()
+    @abc.abstractmethod
+    def execute(self):
+        """Will be called when the build needs to start"""
+        raise NotImplementedError('BuilderInterface.execute')
+        
+    @abc.abstractmethod
+    def generate_pod_spec(self): 
+        """This method should return a V1PodSpec with the correct image set.
+            This is also where the builder should set the environment variables
+            and volume/volumeMounts that it may need to work"""
+        raise NotImplementedError('BuilderInterface.generate_pod_spec')

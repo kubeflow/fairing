@@ -13,53 +13,80 @@ import logging
 import sys
 
 from docker import APIClient
+from kubernetes import client
 
-from fairing.builders.dockerfile import DockerFile
-from fairing.builders.container_image_builder import ContainerImageBuilder
-from fairing.utils import get_image_full
+from fairing import utils
+from .builder import BuilderInterface
+from .dockerfile import write_dockerfile
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
+DEFAULT_IMAGE_NAME = 'fairing-job'
 
-class DockerBuilder(ContainerImageBuilder):
-    def __init__(self):
+class DockerBuilder(BuilderInterface):
+    """A builder using the local Docker client"""
+
+    def __init__(self, 
+                repository, 
+                image_name=DEFAULT_IMAGE_NAME, 
+                image_tag=None, 
+                base_image=None, 
+                dockerfile_path=None):
+
+        self.repository = repository
+        self.image_name = image_name
+        self.base_image = base_image
+        self.dockerfile_path = dockerfile_path
+
+        if image_tag is None:
+            self.image_tag = utils.get_unique_tag()
+        else: 
+            self.image_tag = image_tag
+        self.full_image_name = utils.get_image_full_name(
+            self.repository, 
+            self.image_name,
+            self.image_tag
+        )
         self.docker_client = None
-        self.dockerfile = DockerFile()
-  
-    def execute(self, repository, image_name, image_tag, base_image, dockerfile, publish, env):
-        full_image_name = get_image_full(repository, image_name, image_tag)
-        self.dockerfile.write(env, dockerfile=dockerfile, base_image=base_image)
-        self.build(full_image_name)
-        if publish:
-            self.publish(full_image_name)
+      
+    def generate_pod_spec(self):
+        """return a V1PodSpec initialized with the proper container"""
 
-    def build(self, img, path='.'):
-        logger.warn('Building docker image {}...'.format(img))
-        if self.docker_client is None:
-            self.docker_client = APIClient(version='auto')
+        return client.V1PodSpec(
+            containers=[client.V1Container(
+                name='model',
+                image=self.full_image_name,
+            )],
+            restart_policy='Never'
+        )
         
+    def execute(self):
+        write_dockerfile(
+            dockerfile_path=self.dockerfile_path, 
+            base_image=self.base_image)
+        self.docker_client = APIClient(version='auto')
+        self.build()       
+        self.publish()
+
+    def build(self):
+        logger.warn('Building docker image {}...'.format(self.full_image_name))
         bld = self.docker_client.build(
-            path=path,
-            tag=img,
+            path='.',
+            tag=self.full_image_name,
             encoding='utf-8'
         )
 
         for line in bld:
             self._process_stream(line)
 
-    def publish(self, img):
-        logger.warn('Publishing image {}...'.format(img))
-        if self.docker_client is None:
-            self.docker_client = APIClient(version='auto')
-
-        # TODO: do we need to set tag?
-        for line in self.docker_client.push(img, stream=True):
+    def publish(self):
+        logger.warn('Publishing image {}...'.format(self.full_image_name))       
+        for line in self.docker_client.push(self.full_image_name, stream=True):
             self._process_stream(line)
 
     def _process_stream(self, line):
         raw = line.decode('utf-8').strip()
         lns = raw.split('\n')
         for ln in lns:
-            # try to decode json
             try:
                 ljson = json.loads(ln)
 

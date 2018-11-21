@@ -11,7 +11,7 @@ import logging
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 class BuildTemplateSpecParameter(object):
     def __init__(self, name=None, description=None, default=None):

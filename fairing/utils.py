@@ -10,7 +10,7 @@ standard_library.install_aliases()
 import os
 import uuid
 
-def get_image_full(repository, name, tag):
+def get_image_full_name(repository, name, tag):
     return "{base}:{tag}".format(
         base=get_image(repository, name),
         tag=tag
@@ -36,3 +36,8 @@ def get_current_k8s_namespace():
 def get_unique_tag():
     id = uuid.uuid4()
     return str(id).split('-')[0]
+
+def get_default_target_namespace():
+    if not is_running_in_k8s():
+        return 'default'
+    return get_current_k8s_namespace()

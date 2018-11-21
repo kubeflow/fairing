@@ -15,7 +15,7 @@ import sys
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 
-logger = logging.getLogger('fairing')
+logger = logging.getLogger(__name__)
 
 
 class BuildSpecArgument(object):

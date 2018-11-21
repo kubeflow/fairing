@@ -34,10 +34,13 @@ import logging
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-from fairing.train import Train
-from fairing.architectures.kubeflow.distributed import DistributedTraining
 
-# logging.basicConfig(level=logging.INFO)
+import fairing
+from fairing.training import kubeflow
+from fairing import builders
+
+DOCKER_REPOSITORY_NAME = '<your-repository-name>'
+fairing.config.set_builder(builders.DockerBuilder(DOCKER_REPOSITORY_NAME))
 
 MAX_STEPS = 1000
 LEARNING_RATE = 0.001
@@ -47,16 +50,7 @@ DATA_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
 
-@Train(
-    repository='<your-repository-name>',
-    image_name='fairing-distributed-mnist',
-    architecture=DistributedTraining(ps_count=1, worker_count=3),
-    tensorboard={
-        'log_dir': LOG_DIR,
-        'pvc_name': '<pvc-name>',
-        'public': True
-    }
-)
+@kubeflow.DistributedTraining(worker_count=3, ps_count=1, namespace='kubeflow')
 class MyModel(object):
 
     def build(self):
@@ -74,7 +68,7 @@ class MyModel(object):
             job_name=job_name,
             task_index=task_id)
         self.server = tf.train.Server(server_def)
-        self.is_chief = (job_name == 'master')
+        self.is_chief = (job_name == 'chief' or job_name == 'master')
 
         # Import data
         self.mnist = input_data.read_data_sets(DATA_DIR, one_hot=True)
@@ -245,4 +239,4 @@ class MyModel(object):
 
 if __name__ == '__main__':
     model = MyModel()
-    model()
+    model.train()

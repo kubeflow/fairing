@@ -26,7 +26,12 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-from fairing.train import Train
+import fairing
+from fairing import builders
+from fairing.training import native
+
+DOCKER_REPOSITORY_NAME = '<your-repository-name>'
+fairing.config.set_builder(builders.KnativeBuilder(repository=DOCKER_REPOSITORY_NAME))
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -41,7 +46,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-@Train(repository='<your-repository>', builder='knative')
+@native.Training()
 class MyModel(object):
     def train(self):
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)

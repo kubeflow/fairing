@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from fairing.builders.builder import get_container_builder
-from fairing.builders.builder import Builders
-from fairing.builders.docker_builder import DockerBuilder
-from fairing.builders.knative.knative import KnativeBuilder
+from .builder import BuilderInterface
+
+from .docker_builder import DockerBuilder
+from .knative import KnativeBuilder
