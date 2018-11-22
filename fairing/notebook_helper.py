@@ -27,8 +27,6 @@ def get_notebook_name():
             if nn['kernel']['id'] == kernel_id:
                 full_path = nn['notebook']['path']
                 return os.path.basename(full_path)
-    
-    return f
 
 def is_in_notebook():
     try:

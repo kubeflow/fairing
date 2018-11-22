@@ -23,6 +23,14 @@ class KubeManager(object):
 
     def __init__(self):
         config.load_kube_config()
+    
+    def create_config_map(self, namespace, config_map):
+        """Creates a V1ConfigMap in the specified namespace"""
+        api_instance = client.CoreV1Api()
+        api_instance.create_namespaced_config_map(
+            namespace,
+            config_map
+        )
 
     def create_job(self, namespace, job):
         """Creates a V1Job in the specified namespace"""

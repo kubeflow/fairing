@@ -31,8 +31,7 @@ class NativeDeployment(object):
         else:
             self.namespace = namespace
         
-        # Used as pod and job name
-        self.name = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
+        self.job_id = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
         self.job_spec = None
         self.runs = runs
 
@@ -40,7 +39,7 @@ class NativeDeployment(object):
         self.backend = kubernetes.KubeManager()
 
     def execute(self):
-        pod_spec = self.builder.generate_pod_spec()
+        pod_spec = self.builder.generate_pod_spec(self.job_id)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
 
         #TODO:
@@ -54,7 +53,7 @@ class NativeDeployment(object):
         #self.validate(job_spec)
 
         # Actually build and push the image, or generate ConfigMaps
-        self.builder.execute()
+        self.builder.execute(self.namespace, self.job_id)
         self.deploy()
         logger.warn("Training(s) launched.")
         self.get_logs()
@@ -66,9 +65,9 @@ class NativeDeployment(object):
              raise TypeError('pod_spec must be a V1PodSpec, but got %s' 
                 % type(pod_spec))
         labels = {}
-        labels['fairing-job-id'] = self.name
+        labels['fairing-job-id'] = self.job_id
         return k8s_client.V1PodTemplateSpec(
-            metadata=k8s_client.V1ObjectMeta(name=self.name, labels=labels),
+            metadata=k8s_client.V1ObjectMeta(name=self.job_id, labels=labels),
             spec=pod_spec)
         
     def generate_job(self, pod_template_spec):
@@ -85,13 +84,13 @@ class NativeDeployment(object):
         
         return k8s_client.V1Job(
             metadata=k8s_client.V1ObjectMeta(
-                name=self.name
+                name=self.job_id
             ),
             spec=job_spec
         )
 
     def get_logs(self):
-        self.backend.log(self.name, self.namespace)
+        self.backend.log(self.job_id, self.namespace)
 
     def deploy(self):
         """Handles communication with kubeclient to deploy 

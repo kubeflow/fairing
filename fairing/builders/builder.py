@@ -12,12 +12,12 @@ import six
 class BuilderInterface(object):
 
     @abc.abstractmethod
-    def execute(self):
+    def execute(self, namespace, job_id):
         """Will be called when the build needs to start"""
         raise NotImplementedError('BuilderInterface.execute')
         
     @abc.abstractmethod
-    def generate_pod_spec(self): 
+    def generate_pod_spec(self, job_id): 
         """This method should return a V1PodSpec with the correct image set.
             This is also where the builder should set the environment variables
             and volume/volumeMounts that it may need to work"""

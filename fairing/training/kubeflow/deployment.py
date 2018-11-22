@@ -37,7 +37,7 @@ class KubeflowDeployment(deployment.NativeDeployment):
         tf_job = {}
         tf_job['kind'] = 'TFJob'
         tf_job['apiVersion'] = 'kubeflow.org/v1alpha2'
-        tf_job['metadata'] = k8s_client.V1ObjectMeta(name=self.name)
+        tf_job['metadata'] = k8s_client.V1ObjectMeta(name=self.job_id)
         tf_job['spec'] = spec
 
         return tf_job
@@ -49,4 +49,4 @@ class KubeflowDeployment(deployment.NativeDeployment):
 
     def get_logs(self):
         selector='tf-replica-index=0,tf-replica-type=worker'
-        self.backend.log(self.name, self.namespace, selector)
+        self.backend.log(self.job_id, self.namespace, selector)

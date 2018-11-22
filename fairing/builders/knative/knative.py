@@ -43,7 +43,7 @@ class KnativeBuilder(BuilderInterface):
         # Unique build_id to avoid conflicts
         self._build_id = utils.get_unique_tag()
 
-    def execute(self):
+    def execute(self, job_id):
         dockerfile.write_dockerfile(
             dockerfile_path=self.dockerfile_path,
             base_image=self.base_image
@@ -52,7 +52,7 @@ class KnativeBuilder(BuilderInterface):
         self.build_and_push()
 
 
-    def generate_pod_spec(self):
+    def generate_pod_spec(self, namespace, job_id):
         """return a V1PodSpec initialized with the proper container"""
         return client.V1PodSpec(
             containers=[client.V1Container(

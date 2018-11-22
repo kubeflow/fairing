@@ -6,11 +6,9 @@ from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
-import shutil
 import os
 import json
 import logging
-import sys
 
 from docker import APIClient
 from kubernetes import client
@@ -48,7 +46,7 @@ class DockerBuilder(BuilderInterface):
         )
         self.docker_client = None
       
-    def generate_pod_spec(self):
+    def generate_pod_spec(self, job_id):
         """return a V1PodSpec initialized with the proper container"""
 
         return client.V1PodSpec(
@@ -59,7 +57,7 @@ class DockerBuilder(BuilderInterface):
             restart_policy='Never'
         )
         
-    def execute(self):
+    def execute(self, namespace, job_id):
         write_dockerfile(
             dockerfile_path=self.dockerfile_path, 
             base_image=self.base_image)

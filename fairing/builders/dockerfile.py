@@ -44,7 +44,7 @@ def get_default_base_image():
         return '{uname}/fairing:dev'.format(uname=uname)
     return 'library/python:3.6'
 
-def generate_dockerfile( base_image):
+def generate_dockerfile(base_image):
     if base_image is None:
         base_image = get_default_base_image()
     
