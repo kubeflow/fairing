@@ -70,11 +70,6 @@ def get_mandatory_steps():
         ]
     return steps
 
-# def get_env_steps(self, env):
-#     if env:
-#         return ["ENV {} {}".format(e['name'], e['value']) for e in env]
-#     return []
-
 def write_dockerfile(destination='Dockerfile', dockerfile_path=None, base_image=None):
     if dockerfile_path is not None:
         shutil.copy(dockerfile_path, destination)

@@ -12,19 +12,16 @@ from fairing.backend import kubernetes
 
 class ConfigMapBuilder(BuilderInterface):
 
-    def __init__(self, base_image, notebook_name=None):
+    def __init__(self, notebook_name=None):
         if notebook_name is None:
             self.notebook_name = notebook_helper.get_notebook_name()
         else:
             self.notebook_name = notebook_name
-        self.base_image = base_image
 
-    def execute(self, namespace, job_id):
+    def execute(self, namespace, job_id, base_image):
         nb_full_path = os.path.join(os.getcwd(), self.notebook_name)
-
         temp_dir = tempfile.mkdtemp()
         code_path = os.path.join(temp_dir, 'code.py')
-
         try:
             cmd = "jupyter nbconvert --to python {nb_path} --output {output}"
             .format(
@@ -45,13 +42,14 @@ class ConfigMapBuilder(BuilderInterface):
         )
         k8s = kubernetes.KubeManager()
         k8s.create_config_map(namespace, config_map)
+        return self._generate_pod_spec(job_id, base_image)
 
-    def generate_pod_spec(self, job_id):
+    def _generate_pod_spec(self, job_id, base_image):
         volume_name = 'code'
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='model',
-                image=self.base_image,
+                image=base_image,
                 command="python /code/code.py".split(),
                 volume_mounts=[client.V1VolumeMount(name=volume_name, mount_path='/code')]
             )],

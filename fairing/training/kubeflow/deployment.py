@@ -1,11 +1,11 @@
 from kubernetes import client as k8s_client
 
-from ..native import deployment
+from ..kubernetes import deployment
 
-class KubeflowDeployment(deployment.NativeDeployment):
+class KubeflowDeployment(deployment.KubernetesDeployment):
 
-    def __init__(self, namespace, runs, distribution):
-        super(KubeflowDeployment, self).__init__(namespace, runs)
+    def __init__(self, namespace, runs, distribution, base_image=None):
+        super(KubeflowDeployment, self).__init__(namespace, runs, base_image)
         self.distribution = distribution
 
     def deploy(self):

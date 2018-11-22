@@ -9,8 +9,8 @@ standard_library.install_aliases()
 import logging
 
 from fairing.training import base
-from .deployment import NativeDeployment
-from .runtime import BasicNativeRuntime
+from .deployment import KubernetesDeployment
+from .runtime import BasicKubernetesRuntime
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +21,10 @@ class Training(base.TrainingDecoratorInterface):
         namespace {string} -- (optional) here the training should be deployed
     """
 
-    def __init__(self, namespace=None):
+    def __init__(self, namespace=None, base_image=None):
         self.namespace = namespace
         self.runs = 1
+        self.base_image = base_image
     
     def _validate(self, user_object):
         """TODO: Verify that the training conforms to what is expected from 
@@ -31,11 +32,11 @@ class Training(base.TrainingDecoratorInterface):
         pass
 
     def _train(self, user_object):
-        runtime = BasicNativeRuntime()
+        runtime = BasicKubernetesRuntime()
         runtime.execute(user_object)
 
     def _deploy(self, user_object):
-        deployment = NativeDeployment(self.namespace, self.runs)
+        deployment = KubernetesDeployment(self.namespace, self.runs, self.base_image)
         deployment.execute()
 
 

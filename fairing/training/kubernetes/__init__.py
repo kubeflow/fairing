@@ -5,6 +5,6 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from .deployment import NativeDeployment
-from .runtime import BasicNativeRuntime
+from .deployment import KubernetesDeployment
+from .runtime import BasicKubernetesRuntime
 from .decorators import Training

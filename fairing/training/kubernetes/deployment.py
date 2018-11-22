@@ -16,7 +16,7 @@ from fairing.backend import kubernetes
 logger = logging.getLogger(__name__)
 DEFAULT_JOB_NAME = 'fairing-job'
 
-class NativeDeployment(object):
+class KubernetesDeployment(object):
     """Handle all the k8s' template building for a training 
     Attributes:
         namespace: k8s namespace where the training's components 
@@ -25,7 +25,7 @@ class NativeDeployment(object):
             will generate multiple jobs.
     """
 
-    def __init__(self, namespace, runs):
+    def __init__(self, namespace, runs, base_image):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
@@ -34,12 +34,13 @@ class NativeDeployment(object):
         self.job_id = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
         self.job_spec = None
         self.runs = runs
+        self.base_image = base_image
 
         self.builder = config.get_builder()
         self.backend = kubernetes.KubeManager()
 
     def execute(self):
-        pod_spec = self.builder.generate_pod_spec(self.job_id)
+        pod_spec = self.build() #self.builder.generate_pod_spec(self.job_id)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
 
         #TODO:
@@ -52,12 +53,13 @@ class NativeDeployment(object):
         #TODO: if needed, can be an extra validation step for the final template
         #self.validate(job_spec)
 
-        # Actually build and push the image, or generate ConfigMaps
-        self.builder.execute(self.namespace, self.job_id)
         self.deploy()
         logger.warn("Training(s) launched.")
         self.get_logs()
     
+    def build(self):
+        return self.builder.execute(self.namespace, self.job_id, self.base_image)
+
     def generate_pod_template_spec(self, pod_spec):
         """Generate a V1PodTemplateSpec initiazlied with correct metadata
             and with the provided pod_spec"""

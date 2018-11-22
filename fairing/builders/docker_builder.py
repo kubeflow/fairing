@@ -27,12 +27,10 @@ class DockerBuilder(BuilderInterface):
                 repository, 
                 image_name=DEFAULT_IMAGE_NAME, 
                 image_tag=None, 
-                base_image=None, 
                 dockerfile_path=None):
 
         self.repository = repository
         self.image_name = image_name
-        self.base_image = base_image
         self.dockerfile_path = dockerfile_path
 
         if image_tag is None:
@@ -46,7 +44,7 @@ class DockerBuilder(BuilderInterface):
         )
         self.docker_client = None
       
-    def generate_pod_spec(self, job_id):
+    def _generate_pod_spec(self, job_id):
         """return a V1PodSpec initialized with the proper container"""
 
         return client.V1PodSpec(
@@ -57,15 +55,17 @@ class DockerBuilder(BuilderInterface):
             restart_policy='Never'
         )
         
-    def execute(self, namespace, job_id):
+    def execute(self, namespace, job_id, base_image):
         write_dockerfile(
             dockerfile_path=self.dockerfile_path, 
-            base_image=self.base_image)
+            base_image=base_image
+        )
         self.docker_client = APIClient(version='auto')
-        self.build()       
-        self.publish()
+        self._build()       
+        self._publish()
+        return self._generate_pod_spec(job_id)
 
-    def build(self):
+    def _build(self):
         logger.warn('Building docker image {}...'.format(self.full_image_name))
         bld = self.docker_client.build(
             path='.',
@@ -76,7 +76,7 @@ class DockerBuilder(BuilderInterface):
         for line in bld:
             self._process_stream(line)
 
-    def publish(self):
+    def _publish(self):
         logger.warn('Publishing image {}...'.format(self.full_image_name))       
         for line in self.docker_client.push(self.full_image_name, stream=True):
             self._process_stream(line)
