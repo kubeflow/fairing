@@ -40,6 +40,9 @@ class NativeDeployment(object):
         self.backend = kubernetes.KubeManager()
 
     def execute(self):
+        # Actually build and push the image, or generate ConfigMaps
+        self.builder.execute()
+        
         pod_spec = self.builder.generate_pod_spec()
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
 
@@ -52,9 +55,6 @@ class NativeDeployment(object):
 
         #TODO: if needed, can be an extra validation step for the final template
         #self.validate(job_spec)
-
-        # Actually build and push the image, or generate ConfigMaps
-        self.builder.execute()
         self.deploy()
         logger.warn("Training(s) launched.")
         self.get_logs()

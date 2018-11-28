@@ -9,6 +9,7 @@ standard_library.install_aliases()
 
 import os
 import uuid
+import tarfile
 
 def get_image_full_name(repository, name, tag):
     return "{base}:{tag}".format(
@@ -41,3 +42,13 @@ def get_default_target_namespace():
     if not is_running_in_k8s():
         return 'default'
     return get_current_k8s_namespace()
+
+def generate_context_tarball(src_filename, output_tar_filename):
+    with tarfile.open(output_tar_filename, "w:gz") as tar:
+        tar.add(src_filename, filter=reset_tar_mtime)
+
+# Reset the mtime on the the tarball for reproducibility
+def reset_tar_mtime(tarinfo):
+    tarinfo.mtime = 0
+    tarinfo.name = os.path.join("/app", tarinfo.name)
+    return tarinfo

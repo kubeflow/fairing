@@ -93,9 +93,10 @@ class KubeManager(object):
                 elif (event['type'] == 'DELETED'
                       or pod.status.phase == 'Failed'
                       or pod.status.container_statuses[0].state.waiting):
-                    logger.error("Failed to launch %s, reason: %s",
+                    logger.error("Failed to launch %s, reason: %s, message: %s",
                                  pod.metadata.name,
-                                 pod.status.container_statuses[0].state.waiting.reason)
+                                 pod.status.container_statuses[0].state.terminated.reason,
+                                 pod.status.container_statuses[0].state.terminated.message)
                     tail = v1.read_namespaced_pod_log(pod.metadata.name,
                                                       namespace,
                                                       follow=True,

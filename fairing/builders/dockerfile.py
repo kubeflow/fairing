@@ -15,11 +15,7 @@ logger = logging.getLogger('fairing')
 from fairing.notebook_helper import get_notebook_name, is_in_notebook
    
 def get_exec_file_name():
-    exec_file = sys.argv[0]
-    slash_ix = exec_file.find('/')
-    if slash_ix != -1:
-        exec_file = exec_file[slash_ix + 1:]
-    return exec_file
+    return os.path.basename(sys.argv[0])
 
 def get_command():
     exec_file = ''
@@ -29,7 +25,7 @@ def get_command():
     else:
         exec_file = get_exec_file_name()
 
-    return "CMD python /app/{exec_file}".format(exec_file=exec_file)
+    return "python /app/{exec_file}".format(exec_file=exec_file)
 
 def get_default_base_image():
     dev = os.environ.get('FAIRING_DEV', False)
@@ -50,7 +46,7 @@ def generate_dockerfile( base_image):
     
     all_steps = ['FROM {base}'.format(base=base_image)] + \
                 get_mandatory_steps() + \
-                [get_command()]
+                ["CMD " + get_command()]
 
     return '\n'.join(all_steps)
 
