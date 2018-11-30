@@ -39,8 +39,9 @@ def is_in_notebook():
         return False
     return True
 
-def export_notebook_to_tar_gz(output_filename, converted_filename=DEFAULT_CONVERTED_FILENAME):
-    notebook_file = get_notebook_name()
+def export_notebook_to_tar_gz(notebook_file, output_filename, converted_filename=DEFAULT_CONVERTED_FILENAME):
+    if notebook_file is None:
+        notebook_file = get_notebook_name()
     exporter = nbconvert.PythonExporter()
     contents, _ = exporter.from_filename(notebook_file)
     with open(converted_filename, "w+") as f:

@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 from pprint import pprint
 
 from kubernetes import client, config, watch
+from fairing.utils import is_running_in_k8s
 
 MAX_STREAM_BYTES = 1024
 TF_JOB_GROUP = "kubeflow.org"
@@ -22,7 +23,10 @@ class KubeManager(object):
     """Handles communication with Kubernetes' client."""
 
     def __init__(self):
-        config.load_kube_config()
+        if is_running_in_k8s():
+            config.load_incluster_config()
+        else:
+            config.load_kube_config()
 
     def create_job(self, namespace, job):
         """Creates a V1Job in the specified namespace"""

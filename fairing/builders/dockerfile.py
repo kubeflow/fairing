@@ -17,14 +17,11 @@ from fairing.notebook_helper import get_notebook_name, is_in_notebook
 def get_exec_file_name():
     return os.path.basename(sys.argv[0])
 
-def get_command():
-    exec_file = ''
-    if is_in_notebook():
+def get_command(exec_file=None):
+    if exec_file is None and is_in_notebook():
         nb_name = get_notebook_name()
         exec_file = nb_name.replace('.ipynb', '.py')
-    else:
-        exec_file = get_exec_file_name()
-
+    exec_file = get_exec_file_name()
     return "python /app/{exec_file}".format(exec_file=exec_file)
 
 def get_default_base_image():

@@ -15,7 +15,7 @@ from kubernetes import client
 from fairing import utils
 from fairing.builders import BuilderInterface
 from fairing.builders.dockerfile import get_command
-from fairing.notebook_helper import is_in_notebook, export_notebook_to_tar_gz
+from fairing import notebook_helper
 
 from containerregistry.client import docker_creds
 from containerregistry.client import docker_name
@@ -27,7 +27,7 @@ from containerregistry.transport import transport_pool
 logger = logging.getLogger(__name__)
 
 DEFAULT_IMAGE_NAME = 'fairing-job'
-DEFAULT_BASE_IMAGE = 'gcr.io/kubeflow-images-public/fairing-base:v0.0.1'
+DEFAULT_BASE_IMAGE = 'gcr.io/mrick-gcp/fairing-job:33c4831a588183aaeece542d6621affec196c8b60febc4e98a67608ba18bed8b'
 
 TEMP_TAR_GZ_FILENAME = '.tmp.fairing.layer.tar.gz'
 _THREADS = 8
@@ -37,14 +37,17 @@ class AppendBuilder(BuilderInterface):
                 repository,
                 image_name=DEFAULT_IMAGE_NAME,
                 base_image=DEFAULT_BASE_IMAGE,
+                notebook_file=None,
                 image_tag=None):
         self.repository = repository
         self.image_name = image_name
         self.base_image = base_image
         self.image_tag = image_tag
+        self.notebook_file = notebook_file
 
     def execute(self):
         """Will be called when the build needs to start"""
+        logger.warn("Running...")
         self.append()
 
     def generate_pod_spec(self):
@@ -53,7 +56,7 @@ class AppendBuilder(BuilderInterface):
             containers=[client.V1Container(
                 name='model',
                 image=self.full_image_name(),
-                command=get_command().split(" "),
+                command=self.get_command(),
                 env= [client.V1EnvVar(
                     name='FAIRING_RUNTIME',
                     value='1',
@@ -63,8 +66,8 @@ class AppendBuilder(BuilderInterface):
         )
 
     def append(self):
-      if is_in_notebook():
-          export_notebook_to_tar_gz(TEMP_TAR_GZ_FILENAME)
+      if notebook_helper.is_in_notebook():
+          notebook_helper.export_notebook_to_tar_gz(self.notebook_file, TEMP_TAR_GZ_FILENAME, converted_filename=self.get_python_entrypoint())
       else:
         utils.generate_context_tarball(".", TEMP_TAR_GZ_FILENAME)
       transport = transport_pool.Http(httplib2.Http, size=_THREADS)
@@ -84,3 +87,13 @@ class AppendBuilder(BuilderInterface):
     
     def full_image_name(self):
         return '{}/{}:{}'.format(self.repository, self.image_name, self.image_tag)
+        
+    def get_python_entrypoint(self):
+        entrypoint = os.path.basename(self.notebook_file)
+        if notebook_helper.is_in_notebook() and entrypoint is None:
+            entrypoint = notebook_helper.get_notebook_name()
+        return entrypoint.replace('.ipynb', '.py')
+
+    def get_command(self):
+        entrypoint = self.get_python_entrypoint()
+        return ["python", "/app/{entrypoint}".format(entrypoint=entrypoint)]
