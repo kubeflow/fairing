@@ -252,22 +252,22 @@ class Push(object):
                     mount = None
                    ):
     """POST to begin the upload process with optional cross-repo mount param."""
-    if not mount:
-      # Do a normal POST to initiate an upload if mount is missing.
-      url = '{base_url}/blobs/uploads/'.format(base_url=self._base_url())
-      accepted_codes = [six.moves.http_client.ACCEPTED]
-    else:
-      # If we have a mount parameter, try to mount the blob from another repo.
-      mount_from = '&'.join([
-          'from=' + six.moves.urllib.parse.quote(repo.repository, '')
-          for repo in self._mount
-      ])
-      url = '{base_url}/blobs/uploads/?mount={digest}&{mount_from}'.format(
-          base_url=self._base_url(), digest=digest, mount_from=mount_from)
-      accepted_codes = [
-          six.moves.http_client.CREATED, six.moves.http_client.ACCEPTED
-      ]
-
+    # Do a normal POST to initiate an upload if mount is missing.
+    url = '{base_url}/blobs/uploads/'.format(base_url=self._base_url())
+    accepted_codes = [six.moves.http_client.ACCEPTED]
+    # TODO(r2d4): Enable mount parameter for dockerhub
+    # else:
+    #   # If we have a mount parameter, try to mount the blob from another repo.
+    #   mount_from = '&'.join([
+    #       'from=' + six.moves.urllib.parse.quote(repo.repository, '')
+    #       for repo in self._mount
+    #   ])
+    #   url = '{base_url}/blobs/uploads/?mount={digest}&{mount_from}'.format(
+    #       base_url=self._base_url(), digest=digest, mount_from=mount_from)
+    #   accepted_codes = [
+    #       six.moves.http_client.CREATED, six.moves.http_client.ACCEPTED
+    #   ]
+    # import pdb; pdb.set_trace()
     resp, unused_content = self._transport.Request(
         url, method='POST', body=None, accepted_codes=accepted_codes)
     # pytype: disable=attribute-error,bad-return-type
