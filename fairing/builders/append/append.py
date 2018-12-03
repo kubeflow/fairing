@@ -36,7 +36,7 @@ _THREADS = 8
 
 class AppendBuilder(BuilderInterface):
     def __init__(self,
-                repository=DEFAULT_REGISTRY,
+                repository,
                 image_name=DEFAULT_IMAGE_NAME,
                 base_image=DEFAULT_BASE_IMAGE,
                 notebook_file=None,
@@ -46,6 +46,9 @@ class AppendBuilder(BuilderInterface):
         self.base_image = base_image
         self.image_tag = image_tag
         self.notebook_file = notebook_file
+
+        if repository.count("/") is 0:
+            self.repository = "{DEFAULT_REGISTRY}/{USER_REPOSITORY}".format(DEFAULT_REGISTRY=DEFAULT_REGISTRY, USER_REPOSITORY=self.repository)
 
     def execute(self):
         """Will be called when the build needs to start"""
@@ -83,6 +86,7 @@ class AppendBuilder(BuilderInterface):
       dst = docker_name.Tag(self.full_image_name())
       creds = docker_creds.DefaultKeychain.Resolve(dst)
       with docker_session.Push(dst, creds, transport, threads=_THREADS, mount=[src.as_repository()]) as session:
+        logger.warn("Uploading {}".format(self.full_image_name()))
         session.upload(new_img)
       os.remove(TEMP_TAR_GZ_FILENAME)
       logger.warn("Pushed image {}".format(self.full_image_name()))
