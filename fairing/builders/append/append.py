@@ -8,6 +8,7 @@ standard_library.install_aliases()
 
 import httplib2
 import os
+import sys
 import logging
 
 from kubernetes import client
@@ -27,14 +28,15 @@ from containerregistry.transport import transport_pool
 logger = logging.getLogger(__name__)
 
 DEFAULT_IMAGE_NAME = 'fairing-job'
-DEFAULT_BASE_IMAGE = 'gcr.io/mrick-gcp/fairing-job:33c4831a588183aaeece542d6621affec196c8b60febc4e98a67608ba18bed8b'
+DEFAULT_BASE_IMAGE = 'gcr.io/kubeflow-images-public/fairing:dev'
+DEFAULT_REGISTRY   = 'index.docker.io'
 
-TEMP_TAR_GZ_FILENAME = '.tmp.fairing.layer.tar.gz'
+TEMP_TAR_GZ_FILENAME = '/tmp/fairing.layer.tar.gz'
 _THREADS = 8
 
 class AppendBuilder(BuilderInterface):
     def __init__(self,
-                repository,
+                repository=DEFAULT_REGISTRY,
                 image_name=DEFAULT_IMAGE_NAME,
                 base_image=DEFAULT_BASE_IMAGE,
                 notebook_file=None,
@@ -89,7 +91,9 @@ class AppendBuilder(BuilderInterface):
         return '{}/{}:{}'.format(self.repository, self.image_name, self.image_tag)
         
     def get_python_entrypoint(self):
-        entrypoint = os.path.basename(self.notebook_file)
+        entrypoint = sys.argv[0]
+        if self.notebook_file is not None:
+            entrypoint = os.path.basename(self.notebook_file)
         if notebook_helper.is_in_notebook() and entrypoint is None:
             entrypoint = notebook_helper.get_notebook_name()
         return entrypoint.replace('.ipynb', '.py')

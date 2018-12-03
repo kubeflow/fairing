@@ -31,8 +31,7 @@ from fairing import builders
 from fairing.training import native
 
 DOCKER_REPOSITORY_NAME = 'gcr.io/mrick-gcp'
-NOTEBOOK_FILE = '/home/jovyan/work/notebook.ipynb'
-fairing.config.set_builder(builders.AppendBuilder(repository=DOCKER_REPOSITORY_NAME, notebook_file=NOTEBOOK_FILE))
+fairing.config.set_builder(builders.AppendBuilder(repository=DOCKER_REPOSITORY_NAME))
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
