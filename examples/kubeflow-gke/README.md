@@ -8,18 +8,17 @@ This uses the appender builder and the jupyter-notebook service account to push 
 
 ## Instructions
 
-In the JupyterHub UI, use create a new instance of jupyter with `gcr.io/kubeflow-images-public/fairing:v0.0.1` as the image.
+In the JupyterHub UI, use create a new instance of jupyter with `gcr.io/kubeflow-images-public/fairing:dev` as the image.
 
-This will only work on newer versions of Kubeflow. To use this on 0.3.x, you need to manually give `jupyter-notebook-role` `pods/log` permission.
+This will only work on newer versions of Kubeflow. To use this on 0.3.x, you need to give `jupyter-notebook-role` `pods/log` permission either by applying the patch below with kubectl apply or editing the ksonnet app.
 
 On 0.3.x, from this directory apply the pre-0.4-patch.yaml to the cluster with 
 
 `kubectl apply -f pre-0.4-patch.yaml`
 
-In the notebook, there are three parameters to be set.
+In the notebook, there are two parameters to be set.
 ```
 DOCKER_REPOSITORY_NAME = 'gcr.io/mrick-gcp'
-BASE_IMAGE='gcr.io/kubeflow-images-public/fairing:v0.0.1'
 NOTEBOOK_FILE = '/home/jovyan/work/demo.ipynb'
 ```
 
