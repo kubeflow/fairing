@@ -1,0 +1,14 @@
+FROM gcr.io/kubeflow-images-public/tensorflow-1.11.0-notebook-cpu:v-base-8d15182-933
+
+# First copy setup.py and do a pip install -e to 
+# only install dependencies. This will make 
+# subsequent docker builds much faster
+RUN mkdir -p /opt/fairing
+COPY setup.py /opt/fairing/
+
+RUN cd /opt/fairing && \
+	pip install -e .
+
+COPY ./ /opt/fairing
+RUN cd /opt/fairing && \
+    python ./setup.py install
