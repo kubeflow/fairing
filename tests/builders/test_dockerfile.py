@@ -15,7 +15,7 @@ def test_get_base_image(monkeypatch):
 
     monkeypatch.setenv('FAIRING_DEV', 1)
     monkeypatch.setenv('FAIRING_DEV_DOCKER_USERNAME', 'wbuchwalter')
-    assert dockerfile.get_default_base_image() == "wbuchwalter/fairing:latest"
+    assert dockerfile.get_default_base_image() == "wbuchwalter/fairing:dev"
 
     monkeypatch.setenv('FAIRING_DEV', 1)
     monkeypatch.delenv('FAIRING_DEV_DOCKER_USERNAME', False)
@@ -44,7 +44,7 @@ def test_get_base_image(monkeypatch):
                          [
                              ('./test.py', 'test.py'),
                              ('test.py', 'test.py'),
-                             ('./here/test.py', 'here/test.py'),
+                             ('./here/test.py', 'test.py'),
 
                          ])
 def test_get_exec_file_name(monkeypatch, file_name, expected_name):

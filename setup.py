@@ -23,23 +23,26 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
+    setup_requires=[
+        'pytest-runner'
+    ],
     install_requires=[
         'docker==3.4.1',
         'redis==2.10.6',
         'notebook==5.6.0',
         'jupyter==1.0.0',
         'numpy==1.15.0',
-        'kubernetes==6.0.0',
+        'kubernetes==8.0.0',
         'future==0.17.1',
         'six==1.11.0',
         'httplib2==0.12.0',
         'oauth2client==4.0.0',
     ],
-    extras_require={
-        'dev': [
-            'pytest',
-            'pytest-pep8',
-            'pytest-cov'
-        ]
-    }
+    tests_require=[
+        'mock',
+        'pytest',
+        'pytest-pep8',
+        'pytest-cov',
+        'pytest-runner'
+    ]
 )

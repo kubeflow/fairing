@@ -9,4 +9,5 @@ COPY setup.py /opt/fairing/
 RUN pip install -e .
 
 COPY ./ /opt/fairing
+RUN python ./setup.py test
 RUN python ./setup.py install

@@ -1,0 +1,78 @@
+apiVersion: "kubeflow.org/v1alpha2"
+kind: TFJob
+metadata:
+  name: {{ name }}
+spec:
+  tfReplicaSpecs:
+    Ps:
+      replicas: {{ ps_count }}
+      restartPolicy: OnFailure
+      template:
+        spec:
+          nodeSelector:
+            node-role.kubernetes.io/cpu: cpu
+          containers:
+            - name: tensorflow
+              resources:
+                requests:
+                  memory: 20Gi
+                  cpu: 16
+                limits:
+                  memory: 36Gi
+                  cpu: 16
+              image: {{ ps_image }}
+              env:
+                - name: FAIRING_RUNTIME
+                  value: "1"
+              command: {{ cmd }}
+              volumeMounts: &volumemounts
+                - name: code
+                  mountPath: /code
+          volumes: &volumes
+            - name: code
+              configMap:
+                name: {{ name }}
+      tfReplicaType: PS
+    Chief:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec: &spec
+          shareProcessNamespace: true
+          containers:
+            - name: tensorflow
+              image: {{ worker_image }}
+              env:
+                - name: FAIRING_RUNTIME
+                  value: "1"
+              resources:
+                limits:
+                  nvidia.com/gpu: 1 # requesting 1 GPU
+                  memory: 100Gi
+                  cpu: 54
+                requests:
+                  memory: 28Gi
+                  cpu: 16
+              command: {{ cmd }}
+              volumeMounts:
+                - name: code
+                  mountPath: /code
+          volumes:
+            - name: code
+              configMap:
+                name: {{ name }}
+      tfReplicaType: MASTER
+    Worker:
+      replicas: {{ worker_count }}
+      restartPolicy: OnFailure
+      template:
+        spec:
+          <<: *spec
+      tfReplicaType: WORKER
+    Evaluator:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          <<: *spec
+      tfReplicaType: WORKER

@@ -1,6 +1,6 @@
 from kubernetes import client as k8s_client
-
 from ..native import deployment
+
 
 class KubeflowDeployment(deployment.NativeDeployment):
 
@@ -12,36 +12,43 @@ class KubeflowDeployment(deployment.NativeDeployment):
         self.backend.create_tf_job(self.namespace, self.job_spec)
     
     def generate_job(self, pod_template_spec):
-        """Returns a TFJob template"""
+        """Returns a TFJob template.
+           If there's a tfjob-template configmap defined in the namespace,
+           uses that to generate the job, otherwise defaults to a simple tfjob template
+        """
+        if self.backend.configmap_exists('tfjob-template', self.namespace):
+            self.backend.configmap_tf_job_template(name='tfjob-template',
+                                                   namespace=self.namespace,
+                                                   pod_template_spec=pod_template_spec,
+                                                   worker_count=self.distribution['Worker'],
+                                                   ps_count=self.distribution['PS']
+                                                   )
+        return self.default_tf_job_template(pod_template_spec)
+
+    def default_tf_job_template(self, pod_template_spec):
         self.set_container_name(pod_template_spec)
-        
         worker_replica_spec = {}
         worker_replica_spec['replicas'] = self.distribution['Worker']
         worker_replica_spec['template'] = pod_template_spec
-
         ps_replica_spec = {}
         ps_replica_spec['replicas'] = self.distribution['PS']
         ps_replica_spec['template'] = pod_template_spec
-
         chief_replica_spec = {}
         chief_replica_spec['replicas'] = 1
         chief_replica_spec['template'] = pod_template_spec
-
-        spec = {} 
+        spec = {}
         spec['tfReplicaSpecs'] = {}
         spec['tfReplicaSpecs']['Chief'] = chief_replica_spec
         spec['tfReplicaSpecs']['Worker'] = worker_replica_spec
         if ps_replica_spec['replicas'] > 0:
             spec['tfReplicaSpecs']['PS'] = ps_replica_spec
-
         tf_job = {}
         tf_job['kind'] = 'TFJob'
         tf_job['apiVersion'] = 'kubeflow.org/v1alpha2'
         tf_job['metadata'] = k8s_client.V1ObjectMeta(name=self.name)
         tf_job['spec'] = spec
-
         return tf_job
-    
+
     def set_container_name(self, pod_template_spec):
         """Sets the name of the main container to `tensorflow`.
             This is required for TfJobs"""
