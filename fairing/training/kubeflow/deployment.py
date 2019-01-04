@@ -20,17 +20,18 @@ class KubeflowDeployment(deployment.NativeDeployment):
         worker_replica_spec['template'] = pod_template_spec
 
         ps_replica_spec = {}
-        ps_replica_spec['replicas'] = self.distribution['PS']
+        ps_replica_spec['replicas'] = self.distribution.get('PS', 0)
         ps_replica_spec['template'] = pod_template_spec
 
         chief_replica_spec = {}
-        chief_replica_spec['replicas'] = 1
+        chief_replica_spec['replicas'] = self.distribution.get('Chief', 0)
         chief_replica_spec['template'] = pod_template_spec
 
         spec = {} 
         spec['tfReplicaSpecs'] = {}
-        spec['tfReplicaSpecs']['Chief'] = chief_replica_spec
         spec['tfReplicaSpecs']['Worker'] = worker_replica_spec
+        if chief_replica_spec['replicas'] > 0:
+            spec['tfReplicaSpecs']['Chief'] = chief_replica_spec
         if ps_replica_spec['replicas'] > 0:
             spec['tfReplicaSpecs']['PS'] = ps_replica_spec
 
