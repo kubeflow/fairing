@@ -29,7 +29,7 @@ setuptools.setup(
         'notebook==5.6.0',
         'jupyter==1.0.0',
         'numpy==1.15.0',
-        'kubernetes==6.0.0',
+        'kubernetes==8.0.1',
         'future==0.17.1',
         'six==1.11.0',
         'httplib2==0.12.0',
