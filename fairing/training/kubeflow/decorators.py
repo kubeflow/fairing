@@ -25,6 +25,7 @@ class DistributedTraining(Training):
         super(DistributedTraining, self).__init__(namespace)
         self.distribution = {
             'Worker': worker_count,
-            'PS': ps_count
+            'PS': ps_count,
+            'Chief': 1
         }
     
