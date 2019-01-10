@@ -25,24 +25,29 @@ DEFAULT_IMAGE_NAME = 'fairing-job'
 class DockerBuilder(BuilderInterface):
     """A builder using the local Docker client"""
 
-    def __init__(self, 
-                repository, 
-                image_name=DEFAULT_IMAGE_NAME, 
-                image_tag=None, 
-                base_image=None, 
-                dockerfile_path=None):
+    def __init__(self,
+                 repository,
+                 image_name=DEFAULT_IMAGE_NAME,
+                 image_tag=None,
+                 base_image=None,
+                 dockerfile_path=None,
+                 image_pull_policy='Always',
+                 restart_policy='Never'):
 
         self.repository = repository
         self.image_name = image_name
         self.base_image = base_image
         self.dockerfile_path = dockerfile_path
+        self.image_pull_policy = image_pull_policy
+        self.restart_policy = restart_policy
 
         if image_tag is None:
             self.image_tag = utils.get_unique_tag()
         else: 
             self.image_tag = image_tag
+
         self.full_image_name = utils.get_image_full_name(
-            self.repository, 
+            self.repository,
             self.image_name,
             self.image_tag
         )
@@ -55,8 +60,9 @@ class DockerBuilder(BuilderInterface):
             containers=[client.V1Container(
                 name='model',
                 image=self.full_image_name,
+                image_pull_policy=self.image_pull_policy,
             )],
-            restart_policy='Never'
+            restart_policy=self.restart_policy
         )
         
     def execute(self):

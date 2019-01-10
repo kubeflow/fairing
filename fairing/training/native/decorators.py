@@ -14,6 +14,7 @@ from .runtime import BasicNativeRuntime
 
 logger = logging.getLogger(__name__)
 
+
 class Training(base.TrainingDecoratorInterface):
     """A simple Kubernetes training.
     
@@ -21,7 +22,8 @@ class Training(base.TrainingDecoratorInterface):
         namespace {string} -- (optional) here the training should be deployed
     """
 
-    def __init__(self, namespace=None):
+    def __init__(self, namespace=None, job_name=None):
+        self.job_name = job_name
         self.namespace = namespace
         self.runs = 1
     
@@ -35,7 +37,7 @@ class Training(base.TrainingDecoratorInterface):
         runtime.execute(user_object)
 
     def _deploy(self, user_object):
-        deployment = NativeDeployment(self.namespace, self.runs)
+        deployment = NativeDeployment(self.namespace, self.job_name, self.runs)
         deployment.execute()
 
 

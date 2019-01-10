@@ -10,11 +10,11 @@ from kubernetes import client as k8s_client
 
 from fairing import config
 from fairing import utils
-from fairing.training import base
 from fairing.backend import kubernetes
 
 logger = logging.getLogger(__name__)
 DEFAULT_JOB_NAME = 'fairing-job'
+
 
 class NativeDeployment(object):
     """Handle all the k8s' template building for a training 
@@ -25,14 +25,17 @@ class NativeDeployment(object):
             will generate multiple jobs.
     """
 
-    def __init__(self, namespace, runs):
+    def __init__(self, namespace, job_name, runs):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
             self.namespace = namespace
         
         # Used as pod and job name
-        self.name = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
+        if job_name is None:
+            job_name = DEFAULT_JOB_NAME
+
+        self.name = "{}-{}".format(job_name, utils.get_unique_tag())
         self.job_spec = None
         self.runs = runs
 
