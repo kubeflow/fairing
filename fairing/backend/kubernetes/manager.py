@@ -114,6 +114,6 @@ class KubeManager(object):
         if tail:
             try:
                 for chunk in tail.stream(MAX_STREAM_BYTES):                    
-                    print(chunk.rstrip())
+                    print(chunk.rstrip().decode('utf-8'))
             finally:
                 tail.release_conn()
