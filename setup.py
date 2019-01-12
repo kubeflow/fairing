@@ -33,6 +33,7 @@ setuptools.setup(
         'future==0.17.1',
         'six==1.11.0',
         'requests',
+        'tornado==5.1.1',
         'httplib2==0.12.0',
         'oauth2client==4.0.0',
     ],
