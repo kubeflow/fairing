@@ -32,6 +32,7 @@ setuptools.setup(
         'kubernetes==8.0.1',
         'future==0.17.1',
         'six==1.11.0',
+        'requests',
         'httplib2==0.12.0',
         'oauth2client==4.0.0',
     ],
