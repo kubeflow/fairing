@@ -21,9 +21,10 @@ class Training(base.TrainingDecoratorInterface):
         namespace {string} -- (optional) here the training should be deployed
     """
 
-    def __init__(self, namespace=None):
+    def __init__(self, namespace=None, output=False):
         self.namespace = namespace
         self.runs = 1
+        self.output = output
     
     def _validate(self, user_object):
         """TODO: Verify that the training conforms to what is expected from 
@@ -35,7 +36,7 @@ class Training(base.TrainingDecoratorInterface):
         runtime.execute(user_object)
 
     def _deploy(self, user_object):
-        deployment = NativeDeployment(self.namespace, self.runs)
+        deployment = NativeDeployment(self.namespace, self.runs, self.output)
         deployment.execute()
 
 
