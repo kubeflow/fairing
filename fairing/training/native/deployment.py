@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 import logging
+import json
 
 from kubernetes import client as k8s_client
 
@@ -25,7 +26,7 @@ class NativeDeployment(object):
             will generate multiple jobs.
     """
 
-    def __init__(self, namespace, runs):
+    def __init__(self, namespace, runs, output):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
@@ -35,6 +36,7 @@ class NativeDeployment(object):
         self.name = "{}-{}".format(DEFAULT_JOB_NAME, utils.get_unique_tag())
         self.job_spec = None
         self.runs = runs
+        self.output = output
 
         self.builder = config.get_builder()
         self.backend = kubernetes.KubeManager()
@@ -52,6 +54,10 @@ class NativeDeployment(object):
         # pod_template_spec, pbt_deployment = pbt.transfort(pod_template_spec)
 
         self.job_spec = self.generate_job(pod_template_spec)
+        if self.output:
+            api = k8s_client.ApiClient()
+            job_output = api.sanitize_for_serialization(self.job_spec)
+            print(json.dumps(job_output))
 
         #TODO: if needed, can be an extra validation step for the final template
         #self.validate(job_spec)
@@ -84,6 +90,8 @@ class NativeDeployment(object):
             completions=self.runs)
         
         return k8s_client.V1Job(
+            api_version="batch/v1",
+            kind="Job",
             metadata=k8s_client.V1ObjectMeta(
                 name=self.name
             ),
