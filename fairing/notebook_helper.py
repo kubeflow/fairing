@@ -11,9 +11,12 @@ import re
 import ipykernel
 import requests
 import nbconvert
+from nbconvert.preprocessors import Preprocessor
+
 from fairing.utils import generate_context_tarball
 from notebook.notebookapp import list_running_servers
 from requests.compat import urljoin
+
 
 DEFAULT_CONVERTED_FILENAME="app.py"
 
@@ -38,12 +41,33 @@ def is_in_notebook():
     except RuntimeError:
         return False
     return True
+    
+class FilterMagicCommands(Preprocessor):
+    _magic_pattern = re.compile('^!|^%')
+    
+    def filter_magic_commands(self, src):
+        filtered = []
+        for line in src.splitlines():
+            match = self._magic_pattern.match(line)
+            if match is None:
+                filtered.append(line)
+        return '\n'.join(filtered)
+    
+    def preprocess_cell(self, cell, resources, index):
+        if cell['cell_type'] == 'code':
+            cell['source'] = self.filter_magic_commands(cell['source'])
+        return cell, resources
+        
+def convert_notebook(notebook_file):
+    exporter = nbconvert.PythonExporter()
+    exporter.register_preprocessor(FilterMagicCommands, enabled=True)
+    contents, _ = exporter.from_filename(notebook_file)
+    return contents
 
 def export_notebook_to_tar_gz(notebook_file, output_filename, converted_filename=DEFAULT_CONVERTED_FILENAME):
     if notebook_file is None:
         notebook_file = get_notebook_name()
-    exporter = nbconvert.PythonExporter()
-    contents, _ = exporter.from_filename(notebook_file)
+    contents = convert_notebook(notebook_file)
     with open(converted_filename, "w+") as f:
         f.write(contents)
     generate_context_tarball(converted_filename, output_filename)
