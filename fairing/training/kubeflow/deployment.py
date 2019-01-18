@@ -37,7 +37,7 @@ class KubeflowDeployment(deployment.NativeDeployment):
 
         tf_job = {}
         tf_job['kind'] = 'TFJob'
-        tf_job['apiVersion'] = 'kubeflow.org/v1alpha2'
+        tf_job['apiVersion'] = 'kubeflow.org/v1beta1'
         tf_job['metadata'] = k8s_client.V1ObjectMeta(name=self.name)
         tf_job['spec'] = spec
 

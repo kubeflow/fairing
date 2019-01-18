@@ -17,7 +17,7 @@ MAX_STREAM_BYTES = 1024
 TF_JOB_GROUP = "kubeflow.org"
 TF_JOB_KIND = "TFJob"
 TF_JOB_PLURAL = "tfjobs"
-TF_JOB_VERSION = "v1alpha2"
+TF_JOB_VERSION = "v1beta1"
 
 class KubeManager(object):
     """Handles communication with Kubernetes' client."""
