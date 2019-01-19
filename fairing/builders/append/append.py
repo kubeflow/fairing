@@ -76,6 +76,7 @@ class AppendBuilder(BuilderInterface):
         if self.resource_limits:
             base_spec.containers[0].resources = client.V1ResourceRequirements(
                 limits=self.resource_limits)
+        return base_spec
 
     def append(self):
         if notebook_helper.is_in_notebook():
