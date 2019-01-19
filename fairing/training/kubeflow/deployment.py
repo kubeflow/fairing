@@ -1,6 +1,7 @@
 from kubernetes import client as k8s_client
 
 from ..native import deployment
+from fairing.backend.kubernetes import TF_JOB_VERSION
 
 class KubeflowDeployment(deployment.NativeDeployment):
 
@@ -37,7 +38,7 @@ class KubeflowDeployment(deployment.NativeDeployment):
 
         tf_job = {}
         tf_job['kind'] = 'TFJob'
-        tf_job['apiVersion'] = 'kubeflow.org/v1alpha2'
+        tf_job['apiVersion'] = 'kubeflow.org/' + TF_JOB_VERSION
         tf_job['metadata'] = k8s_client.V1ObjectMeta(name=self.name)
         tf_job['spec'] = spec
 

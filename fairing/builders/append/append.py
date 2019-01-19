@@ -29,26 +29,30 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_IMAGE_NAME = 'fairing-job'
 DEFAULT_BASE_IMAGE = 'gcr.io/kubeflow-images-public/fairing:dev'
-DEFAULT_REGISTRY   = 'index.docker.io'
+DEFAULT_REGISTRY = 'index.docker.io'
 
 TEMP_TAR_GZ_FILENAME = '/tmp/fairing.layer.tar.gz'
 _THREADS = 8
 
+
 class AppendBuilder(BuilderInterface):
     def __init__(self,
-                repository,
-                image_name=DEFAULT_IMAGE_NAME,
-                base_image=DEFAULT_BASE_IMAGE,
-                notebook_file=None,
-                image_tag=None):
+                 repository,
+                 image_name=DEFAULT_IMAGE_NAME,
+                 base_image=DEFAULT_BASE_IMAGE,
+                 notebook_file=None,
+                 image_tag=None,
+                 resource_limits=None):
         self.repository = repository
         self.image_name = image_name
         self.base_image = base_image
         self.image_tag = image_tag
         self.notebook_file = notebook_file
+        self.resource_limits = resource_limits
 
         if repository.count("/") is 0:
-            self.repository = "{DEFAULT_REGISTRY}/{USER_REPOSITORY}".format(DEFAULT_REGISTRY=DEFAULT_REGISTRY, USER_REPOSITORY=self.repository)
+            self.repository = "{DEFAULT_REGISTRY}/{USER_REPOSITORY}".format(
+                DEFAULT_REGISTRY=DEFAULT_REGISTRY, USER_REPOSITORY=self.repository)
 
     def execute(self):
         """Will be called when the build needs to start"""
@@ -57,43 +61,47 @@ class AppendBuilder(BuilderInterface):
 
     def generate_pod_spec(self):
         """return a V1PodSpec initialized with the proper container"""
-        return client.V1PodSpec(
+        base_spec = client.V1PodSpec(
             containers=[client.V1Container(
                 name='model',
                 image=self.full_image_name(),
                 command=self.get_command(),
-                env= [client.V1EnvVar(
+                env=[client.V1EnvVar(
                     name='FAIRING_RUNTIME',
                     value='1',
                 )]
             )],
             restart_policy='Never'
         )
+        if self.resource_limits:
+            base_spec.containers[0].resources = client.V1ResourceRequirements(
+                limits=self.resource_limits)
 
     def append(self):
-      if notebook_helper.is_in_notebook():
-          notebook_helper.export_notebook_to_tar_gz(self.notebook_file, TEMP_TAR_GZ_FILENAME, converted_filename=self.get_python_entrypoint())
-      else:
-        utils.generate_context_tarball(".", TEMP_TAR_GZ_FILENAME)
-      transport = transport_pool.Http(httplib2.Http, size=_THREADS)
-      src = docker_name.Tag(self.base_image)
-      creds = docker_creds.DefaultKeychain.Resolve(src)
-      with v2_2_image.FromRegistry(src, creds, transport) as src_image:
-        with open(TEMP_TAR_GZ_FILENAME, 'rb') as f:
-          new_img = append.Layer(src_image, f.read())
-      if self.image_tag is None:
-        self.image_tag = new_img.digest().split(":")[1]
-      dst = docker_name.Tag(self.full_image_name())
-      creds = docker_creds.DefaultKeychain.Resolve(dst)
-      with docker_session.Push(dst, creds, transport, threads=_THREADS, mount=[src.as_repository()]) as session:
-        logger.warn("Uploading {}".format(self.full_image_name()))
-        session.upload(new_img)
-      os.remove(TEMP_TAR_GZ_FILENAME)
-      logger.warn("Pushed image {}".format(self.full_image_name()))
-    
+        if notebook_helper.is_in_notebook():
+            notebook_helper.export_notebook_to_tar_gz(
+                self.notebook_file, TEMP_TAR_GZ_FILENAME, converted_filename=self.get_python_entrypoint())
+        else:
+            utils.generate_context_tarball(".", TEMP_TAR_GZ_FILENAME)
+        transport = transport_pool.Http(httplib2.Http, size=_THREADS)
+        src = docker_name.Tag(self.base_image)
+        creds = docker_creds.DefaultKeychain.Resolve(src)
+        with v2_2_image.FromRegistry(src, creds, transport) as src_image:
+            with open(TEMP_TAR_GZ_FILENAME, 'rb') as f:
+                new_img = append.Layer(src_image, f.read())
+        if self.image_tag is None:
+            self.image_tag = new_img.digest().split(":")[1]
+        dst = docker_name.Tag(self.full_image_name())
+        creds = docker_creds.DefaultKeychain.Resolve(dst)
+        with docker_session.Push(dst, creds, transport, threads=_THREADS, mount=[src.as_repository()]) as session:
+            logger.warn("Uploading {}".format(self.full_image_name()))
+            session.upload(new_img)
+        os.remove(TEMP_TAR_GZ_FILENAME)
+        logger.warn("Pushed image {}".format(self.full_image_name()))
+
     def full_image_name(self):
         return '{}/{}:{}'.format(self.repository, self.image_name, self.image_tag)
-        
+
     def get_python_entrypoint(self):
         entrypoint = sys.argv[0]
         if self.notebook_file is not None:
