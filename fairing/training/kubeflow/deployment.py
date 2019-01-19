@@ -3,6 +3,7 @@ from kubernetes import client as k8s_client
 from ..native import deployment
 from fairing.backend.kubernetes import TF_JOB_VERSION
 
+
 class KubeflowDeployment(deployment.NativeDeployment):
 
     def __init__(self, namespace, runs, distribution):
@@ -11,11 +12,11 @@ class KubeflowDeployment(deployment.NativeDeployment):
 
     def deploy(self):
         self.backend.create_tf_job(self.namespace, self.job_spec)
-    
+
     def generate_job(self, pod_template_spec):
         """Returns a TFJob template"""
         self.set_container_name(pod_template_spec)
-        
+
         worker_replica_spec = {}
         worker_replica_spec['replicas'] = self.distribution['Worker']
         worker_replica_spec['template'] = pod_template_spec
@@ -28,7 +29,7 @@ class KubeflowDeployment(deployment.NativeDeployment):
         chief_replica_spec['replicas'] = self.distribution.get('Chief', 0)
         chief_replica_spec['template'] = pod_template_spec
 
-        spec = {} 
+        spec = {}
         spec['tfReplicaSpecs'] = {}
         spec['tfReplicaSpecs']['Worker'] = worker_replica_spec
         if chief_replica_spec['replicas'] > 0:
@@ -43,12 +44,12 @@ class KubeflowDeployment(deployment.NativeDeployment):
         tf_job['spec'] = spec
 
         return tf_job
-    
+
     def set_container_name(self, pod_template_spec):
         """Sets the name of the main container to `tensorflow`.
             This is required for TfJobs"""
         pod_template_spec.spec.containers[0].name = 'tensorflow'
 
     def get_logs(self):
-        selector='tf-replica-index=0,tf-replica-type=worker'
+        selector = 'tf-replica-index=0,tf-replica-type=worker'
         self.backend.log(self.name, self.namespace, selector)
