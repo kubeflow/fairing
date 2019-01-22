@@ -26,7 +26,7 @@ class NativeDeployment(object):
             will generate multiple jobs.
     """
 
-    def __init__(self, namespace, runs, output):
+    def __init__(self, namespace, runs, output=None):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:

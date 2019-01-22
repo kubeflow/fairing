@@ -5,4 +5,4 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from kubernetes import client, config
-from .manager import KubeManager
+from .manager import KubeManager, TF_JOB_VERSION

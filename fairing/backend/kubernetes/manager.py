@@ -19,6 +19,7 @@ TF_JOB_KIND = "TFJob"
 TF_JOB_PLURAL = "tfjobs"
 TF_JOB_VERSION = "v1beta1"
 
+
 class KubeManager(object):
     """Handles communication with Kubernetes' client."""
 
@@ -32,7 +33,7 @@ class KubeManager(object):
         """Creates a V1Job in the specified namespace"""
         api_instance = client.BatchV1Api()
         api_instance.create_namespaced_job(namespace, job)
-    
+
     def create_tf_job(self, namespace, job):
         """Create the provided TFJob in the specified namespace"""
         api_instance = client.CustomObjectsApi()
@@ -74,13 +75,13 @@ class KubeManager(object):
         w = watch.Watch()
         try:
             for event in w.stream(v1.list_namespaced_pod,
-                            namespace=namespace,
-                            label_selector=selector):
+                                  namespace=namespace,
+                                  label_selector=selector):
                 pod = event['object']
                 logger.debug("Event: %s %s %s",
-                            event['type'],
-                            pod.metadata.name,
-                            pod.status.phase)
+                             event['type'],
+                             pod.metadata.name,
+                             pod.status.phase)
                 if pod.status.phase == 'Pending':
                     logger.warn('Waiting for job to start...')
                     continue
@@ -113,7 +114,7 @@ class KubeManager(object):
             logger.error("error getting status for {} {}".format(name, str(e)))
         if tail:
             try:
-                for chunk in tail.stream(MAX_STREAM_BYTES):                    
-                    print(chunk.rstrip())
+                for chunk in tail.stream(MAX_STREAM_BYTES):
+                    print(chunk.rstrip().decode('utf8'))
             finally:
                 tail.release_conn()
