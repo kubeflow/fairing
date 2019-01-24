@@ -34,13 +34,18 @@ import logging
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-
 import fairing
-from fairing.training import kubeflow
-from fairing import builders
 
-DOCKER_REPOSITORY_NAME = '<your-repository-name>'
-fairing.config.set_builder(builders.DockerBuilder(DOCKER_REPOSITORY_NAME))
+fairing.config.set_builder(
+    name='docker', 
+    registry='gcr.io/mrick-gcp',
+    base_image='tensorflow/tensorflow'
+)
+fairing.config.set_deployer(
+    name='tfjob',
+    worker_count=3,
+    ps_count=1    
+)
 
 MAX_STEPS = 1000
 LEARNING_RATE = 0.001
@@ -49,10 +54,7 @@ DATA_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                         'tensorflow/input_data')
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
-
-@kubeflow.DistributedTraining(worker_count=3, ps_count=1, namespace='kubeflow')
-class MyModel(object):
-
+class TensorflowModel(object):
     def build(self):
         tf_config_json = os.environ.get("TF_CONFIG", "{}")
         tf_config = json.loads(tf_config_json)
@@ -187,6 +189,8 @@ class MyModel(object):
             self.init_op = tf.global_variables_initializer()
 
     def train(self):
+        self.build()
+
         def feed_dict(train):
             """Make a TensorFlow feed_dict: maps data onto Tensor placeholders."""
             if train:
@@ -238,5 +242,5 @@ class MyModel(object):
 
 
 if __name__ == '__main__':
-    model = MyModel()
-    model.train()
+    fairing.config.set_model(TensorflowModel())
+    fairing.run()

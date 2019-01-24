@@ -5,9 +5,7 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from .builder import BuilderInterface
+from .deployer import DeployerInterface
 
-from .docker import DockerBuilder
-from .cluster import ClusterBuilder
-from .append import AppendBuilder
-from .base_builder import BaseBuilder
+from .job.job import Job
+from .tfjob.tfjob import TfJob

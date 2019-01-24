@@ -1,25 +1,25 @@
 # Fairing
 
-Easily train ML models on Kubernetes, directly from your python code.  
-Fairing allows you to express how you want your model to be trained using python decorators.  
+Easily train ML models on Kubernetes, directly from your python code.
 
 ## Table of Contents
 
-- [Requirements](#requirements)
-- [Getting `fairing`](#getting-fairing)
-- [Usage with Kubeflow](#usage-with-kubeflow)
-  - [Simple TfJob](#simple-tfjob)
-  - [Distributed Training](#distributed-training)
-- [Usage with native Kubernetes](#usage-with-kubernetes)
-  - [Simple Training](#simple-training)
-- [From a Jupyter Notebook](#from-a-jupyter-notebook)
+- [Fairing](#fairing)
+  - [Table of Contents](#table-of-contents)
+  - [Requirements](#requirements)
+  - [Getting `fairing`](#getting-fairing)
+  - [Overview](#overview)
+  - [Usage with Kubeflow](#usage-with-kubeflow)
+    - [Simple TfJob](#simple-tfjob)
+    - [Distributed Training](#distributed-training)
+    - [Usage with native Kubernetes](#usage-with-native-kubernetes)
+      - [Simple Training](#simple-training)
+    - [From a Jupyter Notebook](#from-a-jupyter-notebook)
 
 ## Requirements
 
-If you are going to use `fairing` on your local machine (as opposed to from a Jupyter Notebook deployed inside a Kubernetes cluster for example), you will need 
-to have access to a deployed Kubernetes cluster, and have the `kubeconfig` for this cluster on your machine.
-
-You will also need to have docker installed locally.
+- a kubeconfig
+- a docker image registry that you are authenticated to push to
 
 ## Getting `fairing`
 

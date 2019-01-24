@@ -26,21 +26,11 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-import fairing
 
-fairing.config.set_builder(
-    name='cluster',
-    base_image='tensorflow/tensorflow',
-    registry='gcr.io/mrick-gcp'
-)
-# fairing.config.set_deployer(
-#     name='tfjob',
-#     worker_count=3,
-#     ps_count=1    
-# )
-fairing.config.set_deployer(
-    name='job'
-)
+import fairing
+fairing.config.set_builder('append', registry='<your-registry-name')
+fairing.config.set_deployer('job')
+
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
 BATCH_SIZE = 100
@@ -54,9 +44,8 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-class TensorflowModel():
-    def train(self, **kwargs):
-        tf.logging.set_verbosity(tf.logging.ERROR)
+class MyModel(object):
+    def train(self):
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
         self.images_placeholder = tf.placeholder(
             tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
@@ -91,6 +80,7 @@ class TensorflowModel():
                 self.summary_writer.add_summary(summary_str, step)
                 self.summary_writer.flush()
 
+
 if __name__ == '__main__':
-    fairing.config.set_model(TensorflowModel())
-    fairing.config.run()
+    fairing.config.set_model(MyModel())
+    fairing.run()
