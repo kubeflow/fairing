@@ -28,8 +28,7 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 import fairing
 
-fairing.config.set_builder(name='append', base_image='tensorflow/tensorflow')
-fairing.config.set_deployer(name='job')
+fairing.config.set_builder(base_image='tensorflow/tensorflow')
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000

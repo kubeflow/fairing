@@ -27,11 +27,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
 import fairing
-from fairing import builders
-from fairing.training import native
-
-DOCKER_REPOSITORY_NAME = '<your-repository-name>'
-fairing.config.set_builder(builders.KnativeBuilder(repository=DOCKER_REPOSITORY_NAME))
+fairing.config.set_builder(name='cluster', registry='<your-registry-here>')
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -85,5 +81,5 @@ class MyModel(object):
 
 
 if __name__ == '__main__':
-    model = MyModel()
-    model.train()
+    fairing.config.set_model(MyModel())
+    fairing.config.run()

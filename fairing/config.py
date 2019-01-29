@@ -12,6 +12,10 @@ from fairing import preprocessors
 from fairing import builders
 from fairing import deployers
 
+DEFAULT_PREPROCESSOR='python'
+DEFAULT_BUILDER='append'
+DEFAULT_DEPLOYER='job'
+
 preprocessor_map = {
     'python': preprocessors.BasePreProcessor,
     'notebook': preprocessors.ConvertNotebookPreprocessor,
@@ -32,16 +36,16 @@ deployer_map = {
 
 class Config(object):
     def __init__(self):
-        self._preprocessor = preprocessor_map.get('python')()
+        pass
 
-    def set_preprocessor(self, name, **kwargs):
+    def set_preprocessor(self, name=DEFAULT_PREPROCESSOR, **kwargs):
         preprocessor = preprocessor_map.get(name)
         self._preprocessor = preprocessor(**kwargs)
     
     def get_preprocessor(self):
         return self._preprocessor
 
-    def set_builder(self, name, **kwargs):
+    def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
         builder = builder_map.get(name)
         self._builder = builder(preprocessor=self._preprocessor, **kwargs)
         if not isinstance(self._builder, builders.BuilderInterface):
@@ -52,7 +56,7 @@ class Config(object):
     def get_builder(self):
         return self._builder
         
-    def set_deployer(self, name, **kwargs):
+    def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
         deployer = deployer_map.get(name)
         self._deployer = deployer(**kwargs)
         if not isinstance(self._deployer, deployers.DeployerInterface):

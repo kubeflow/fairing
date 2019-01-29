@@ -28,19 +28,8 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 import fairing
 
-fairing.config.set_builder(
-    name='cluster',
-    base_image='tensorflow/tensorflow',
-    registry='gcr.io/mrick-gcp'
-)
-# fairing.config.set_deployer(
-#     name='tfjob',
-#     worker_count=3,
-#     ps_count=1    
-# )
-fairing.config.set_deployer(
-    name='job'
-)
+fairing.config.set_builder(base_image='tensorflow/tensorflow',registry='<your-registry-here>')
+
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
 BATCH_SIZE = 100
