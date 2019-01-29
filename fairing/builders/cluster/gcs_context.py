@@ -14,7 +14,7 @@ from fairing.builders.cluster.context_source import ContextSourceInterface
 
 class GCSContextSource(ContextSourceInterface):
     def __init__(self,
-                 gcp_project=gcp.guess_project_name(),
+                 gcp_project=None,
                  credentials_file=os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'),
                  namespace='default'):
                 self.gcp_project = gcp_project
@@ -23,6 +23,8 @@ class GCSContextSource(ContextSourceInterface):
                 self.namespace = namespace
 
     def prepare(self, context_filename):
+        if self.gcp_project is None:
+            self.gcp_project = gcp.guess_project_name()
         self.uploaded_context_url = self.upload_context(context_filename)
         self.created_secret = self.create_secret()
 

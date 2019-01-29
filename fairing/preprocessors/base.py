@@ -25,8 +25,18 @@ class BasePreProcessor(object):
         self._context_tar_path = None
         self._context_hash = None
 
-        if len(self.input_files) == 1 and self.executable is None:
+        self.set_default_executable()
+            
+    def set_default_executable(self):
+        if self.executable is not None:
+            return
+        if len(self.input_files) == 1:
             self.executable = self.input_files[0]
+            return
+        python_files = [item for item in self.input_files if item.endswith(".py")]
+        if len(python_files) == 1:
+            self.executable = python_files[0]
+            return
 
     def preprocess(self, input_files):
         return input_files

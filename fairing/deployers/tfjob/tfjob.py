@@ -54,8 +54,12 @@ class TfJob(Job):
         pod_template_spec.spec.containers[0].name = 'tensorflow'
 
     def get_logs(self):
+        name = self.created_tfjob['metadata']['name']
+        namespace = self.created_tfjob['metadata']['namespace']
+        
         labels = {
             'tf-replica-index': '0',
-            'tf-replica-type': 'worker'
+            'tf-replica-type': 'worker',
+            'tf_job_name=': name
         }
-        self.backend.log(self.created_tfjob.metadata.name, self.created_tfjob.metadata.namespace, labels)
+        self.backend.log(name, namespace, labels)

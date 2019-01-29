@@ -20,9 +20,6 @@ naming summary tags so that they are grouped meaningfully in TensorBoard.
 
 It demonstrates the functionality of every TensorBoard dashboard.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import argparse
 import os
@@ -36,7 +33,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 import fairing
 
-fairing.config.set_builder(name='docker', registry='gcr.io/mrick-gcp',base_image='tensorflow/tensorflow')
+fairing.config.set_builder(name='docker',registry='gcr.io/mrick-gcp',base_image='tensorflow/tensorflow')
 fairing.config.set_deployer(name='tfjob', worker_count=3, ps_count=1)
 
 MAX_STEPS = 1000
@@ -235,4 +232,4 @@ class TensorflowModel(object):
 
 if __name__ == '__main__':
     fairing.config.set_model(TensorflowModel())
-    fairing.run()
+    fairing.config.run()

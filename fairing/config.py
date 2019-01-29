@@ -36,7 +36,10 @@ deployer_map = {
 
 class Config(object):
     def __init__(self):
-        pass
+        self._preprocessor = None
+        self._builder = None
+        self._deployer = None
+        self._model = None
 
     def set_preprocessor(self, name=DEFAULT_PREPROCESSOR, **kwargs):
         preprocessor = preprocessor_map.get(name)
@@ -46,8 +49,10 @@ class Config(object):
         return self._preprocessor
 
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
+        if self._preprocessor is None:
+            self.set_preprocessor()
         builder = builder_map.get(name)
-        self._builder = builder(preprocessor=self._preprocessor, **kwargs)
+        self._builder = builder(preprocessor=self.get_preprocessor(), **kwargs)
         if not isinstance(self._builder, builders.BuilderInterface):
             raise TypeError(
                 'builder must be a BuilderInterface, but got %s' 
