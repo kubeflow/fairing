@@ -11,7 +11,7 @@ class FullNotebookPreProcessor(BasePreProcessor):
                  command="ipython",
                  executable=None,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map=None):
+                 output_map={}):
 
         super().__init__(
             executable=executable,

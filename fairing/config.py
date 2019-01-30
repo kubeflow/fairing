@@ -12,6 +12,8 @@ from fairing import preprocessors
 from fairing import builders
 from fairing import deployers
 
+from fairing.notebook import notebook_util
+
 DEFAULT_PREPROCESSOR='python'
 DEFAULT_BUILDER='append'
 DEFAULT_DEPLOYER='job'
@@ -41,7 +43,12 @@ class Config(object):
         self._deployer = None
         self._model = None
 
-    def set_preprocessor(self, name=DEFAULT_PREPROCESSOR, **kwargs):
+    def set_preprocessor(self, name=None, **kwargs):
+        if name is None:
+            if notebook_util.is_in_notebook():
+                name = 'notebook'
+            else:
+                name = DEFAULT_PREPROCESSOR
         preprocessor = preprocessor_map.get(name)
         self._preprocessor = preprocessor(**kwargs)
     
@@ -59,6 +66,8 @@ class Config(object):
                 % type(self._builder))
     
     def get_builder(self):
+        if self._builder is None:
+            self.set_builder()
         return self._builder
         
     def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
@@ -70,6 +79,8 @@ class Config(object):
                 % type(self._deployer))
 
     def get_deployer(self):
+        if self._deployer is None:
+            self.set_deployer()
         return self._deployer
         
     def set_model(self, model):
@@ -79,11 +90,9 @@ class Config(object):
         return self._model
 
     def run(self):
-        if self._builder is None or self._deployer is None:
-            return self._model.train()
-        self._builder.build()
+        self.get_builder().build()
         pod_spec = self._builder.generate_pod_spec()
-        self._deployer.deploy(pod_spec)
+        self.get_deployer().deploy(pod_spec)
 
 
 config = Config()

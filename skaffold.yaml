@@ -1,0 +1,12 @@
+apiVersion: skaffold/v1alpha5
+kind: Config
+build:
+  artifacts:
+  - image: gcr.io/mrick-gcp/fairing-notebook
+    sync:
+      "fairing/**": "/home/jovyan/work/fairing/fairing"
+      "examples/**": "/home/jovyan/work/fairing/examples"
+deploy:
+  kubectl:
+    manifests:
+    - integration/notebook_pod.yaml

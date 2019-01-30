@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: notebook
+  namespace: kubeflow
+spec:
+  serviceAccountName: jupyter-notebook
+  containers:
+  - name: notebook
+    image: gcr.io/mrick-gcp/fairing-notebook
+    ports:
+    - containerPort: 8888
+    env:
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: "/etc/secrets/user-gcp-sa.json"
+    volumeMounts:
+    - name: user-gcp-sa
+      mountPath: "/etc/secrets"
+      readOnly: true
+  volumes:
+  - name: user-gcp-sa
+    secret:
+      secretName: user-gcp-sa

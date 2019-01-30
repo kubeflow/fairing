@@ -38,8 +38,8 @@ class BasePreProcessor(object):
             self.executable = python_files[0]
             return
 
-    def preprocess(self, input_files):
-        return input_files
+    def preprocess(self):
+        return self.input_files
 
     def context_map(self):
         c_map = self.fairing_runtime_files()
@@ -61,7 +61,7 @@ class BasePreProcessor(object):
         return self._context_hash
 
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
-        self.input_files = self.preprocess(self.input_files)
+        self.input_files = self.preprocess()
         with tarfile.open(output_file, "w:gz") as tar:
             for src, dst in self.context_map().items():
                 tar.add(src, filter=reset_tar_mtime, arcname=dst)

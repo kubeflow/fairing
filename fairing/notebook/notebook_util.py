@@ -9,6 +9,7 @@ import json
 import os.path
 import ipykernel
 import requests
+import re
 
 from notebook.notebookapp import list_running_servers
 from requests.compat import urljoin

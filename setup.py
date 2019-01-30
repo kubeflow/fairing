@@ -1,6 +1,9 @@
 import setuptools
 import json
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setuptools.setup(
     name='fairing',
     version='0.0.3',
@@ -26,7 +29,6 @@ setuptools.setup(
     install_requires=[
         'docker==3.4.1',
         'notebook==5.6.0',
-        'jupyter==1.0.0',
         'numpy==1.15.0',
         'kubernetes==8.0.1',
         'future==0.17.1',
@@ -38,6 +40,7 @@ setuptools.setup(
         'google-auth==1.6.2',
         'httplib2==0.12.0',
         'oauth2client==4.0.0',
+        'prompt-toolkit==1.0.15'
     ],
     extras_require={
         'dev': [

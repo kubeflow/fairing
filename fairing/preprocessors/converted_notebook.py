@@ -5,6 +5,7 @@ from fairing.constants import constants
 from pathlib import Path
 
 from .base import BasePreProcessor
+from fairing.notebook import notebook_util
 
 
 class FilterMagicCommands(NbPreProcessor):
@@ -31,20 +32,27 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                  command="python",
                  executable=None,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map=None):
+                 output_map={}):
 
-        super().__init__(
-            executable=executable,
-            input_files=[notebook_file],
-            command=command,
-            output_map=output_map,
-            path_prefix=path_prefix)
+                    super().__init__(
+                        executable=executable,
+                        input_files=[],
+                        command=command,
+                        output_map=output_map,
+                        path_prefix=path_prefix)
+        
+                    if notebook_file is None and notebook_util.is_in_notebook():
+                        notebook_file = notebook_util.get_notebook_name()
+                        
+                    self.notebook_file = notebook_file
+                    self.notebook_preprocessor = notebook_preprocessor
 
-        def preprocess(self, context_map):
-            exporter = nbconvert.PythonExporter()
-            exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
-            contents, _ = exporter.from_filename(self.notebook_file)
-            converted_notebook = Path(self.notebook_file).with_suffix('.py')
-            with open(converted_notebook, 'w') as f:
-                f.write(contents)
-            return converted_notebook
+    def preprocess(self):
+        exporter = nbconvert.PythonExporter()
+        exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
+        contents, _ = exporter.from_filename(self.notebook_file)
+        converted_notebook = Path(self.notebook_file).with_suffix('.py')
+        with open(converted_notebook, 'w') as f:
+            f.write(contents)
+        self.executable = converted_notebook
+        return [converted_notebook]
