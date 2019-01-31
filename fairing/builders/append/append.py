@@ -47,7 +47,6 @@ class AppendBuilder(BaseBuilder):
         """Will be called when the build needs to start"""
         transport = transport_pool.Http(httplib2.Http)
         src = docker_name.Tag(self.base_image, strict=False)
-        print("build", self.__dict__)
         logger.warn("Building image...")
         start = timer()
         new_img = self._build(transport, src)

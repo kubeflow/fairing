@@ -18,6 +18,8 @@ class GCSUploader(object):
 
 
 def guess_project_name(credentials_file=os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')):
+    if credentials_file is None:
+        raise Exception('No credential file provided. Please set GOOGLE_APPLICATION_CREDENTIALS environment variable to point to a credentials file.')
     with open(credentials_file, 'rb') as f:
         data = f.read()
     parsed_creds_file = json.loads(data)
