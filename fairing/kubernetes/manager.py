@@ -79,7 +79,7 @@ class KubeManager(object):
                              pod.metadata.name,
                              pod.status.phase)
                 if pod.status.phase == 'Pending':
-                    logger.warn('Waiting for job to start...')
+                    logger.warn('Waiting for {} to start...'.format(pod.metadata.name))
                     continue
                 elif (pod.status.phase == 'Running'
                       and pod.status.container_statuses[0].ready):

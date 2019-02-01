@@ -15,6 +15,7 @@ class TfJob(Job):
 
     def create_resource(self):
         self.created_tfjob = self.backend.create_tf_job(self.namespace, self.deployment_spec)
+        return self.created_tfjob['metadata']['name']
 
     def generate_deployment_spec(self, pod_template_spec):
         """Returns a TFJob template"""
