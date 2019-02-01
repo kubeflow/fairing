@@ -93,6 +93,7 @@ class Config(object):
         self.get_builder().build()
         pod_spec = self._builder.generate_pod_spec()
         self.get_deployer().deploy(pod_spec)
+        self.reset()
 
     def reset(self):
         self._builder = None

@@ -78,6 +78,6 @@ class TensorflowModel():
 
 if __name__ == '__main__':
     import fairing
-    fairing.config.set_builder(base_image='tensorflow/tensorflow')
+    fairing.config.set_builder(name='cluster')
     fairing.config.set_model(TensorflowModel())
     fairing.config.run()

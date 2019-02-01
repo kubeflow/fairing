@@ -9,7 +9,7 @@ from fairing.notebook import notebook_util
 class FullNotebookPreProcessor(BasePreProcessor):
     def __init__(self,
                  notebook_file=None,
-                 command=["jupyter", "nbconvert", "--to", "notebook", "--execute"],
+                 command=["jupyter", "nbconvert", "--stdout", "--to", "notebook", "--execute"],
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map={}):
         

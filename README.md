@@ -1,106 +1,91 @@
 # Fairing
 
-Easily train ML models on Kubernetes, directly from your python code.
-
-## Table of Contents
-
-- [Fairing](#fairing)
-  - [Table of Contents](#table-of-contents)
-  - [Requirements](#requirements)
-  - [Getting `fairing`](#getting-fairing)
-  - [Overview](#overview)
-  - [Usage with Kubeflow](#usage-with-kubeflow)
-    - [Simple TfJob](#simple-tfjob)
-    - [Distributed Training](#distributed-training)
-    - [Usage with native Kubernetes](#usage-with-native-kubernetes)
-      - [Simple Training](#simple-training)
-    - [From a Jupyter Notebook](#from-a-jupyter-notebook)
+Easily train ML models on Kubernetes, directly from your python code, or a Jupyter notebook.
 
 ## Requirements
 
 - a kubeconfig
-- a docker image registry that you are authenticated to push to
+- a docker config
 
-## Getting `fairing`
+If you already have Docker and kubectl configured, you're all set! If you are using [Kubeflow](https://github.com/kubeflow/kubeflow), you can take advantage of advanced features.
+
+## Installing `fairing`
 
 ```bash
 pip install fairing
 ```
 
-Or, in a Jupyter Notebook, create a new cell and execute: `!pip install fairing`.
-
 ## Overview
 
-`fairing` provides various class decorator allowing you to specify how you want your model to be packaged and trained.  
-Your model needs to be defined as a class to work with `fairing`. 
+`fairing` provides functions to seemlessly train models remotely on Kubernetes clusters.
 
-This limitation is needed in order to enable usage of more complex training strategies and simplify usage from within a Jupyter Notebook.
+Features
+* Build images in seconds (without Docker)
+* Run training jobs on Kubernetes without writing Dockerfiles or Kubernetes Manifests
 
-Following are a series of example that should help you understand how fairing works.
+### Example
 
-## Usage with Kubeflow
-
-### Simple TfJob
-
-Instead of creating native `Job`s, `fairing` can leverage Kubeflow's `TfJob`s assuming you have Kubeflow installed in your cluster.
+Create a simple Tensorflow model that prints out the hostname of the machine
 
 ```python
+import os
 import fairing
-from fairing import builders
-from fairing.training import kubeflow
+import tensorflow as tf
 
-DOCKER_REPOSITORY_NAME = '<your-repository-name>'
-fairing.config.set_builder(builders.DockerBuilder(DOCKER_REPOSITORY_NAME))
 
-@kubeflow.Training()
-class MyModel(object):
+class SimpleModel():
     def train(self):
-       # training logic
+        hostname = tf.constant(os.environ['HOSTNAME'])
+        sess = tf.Session()
+        print('Hostname: ', sess.run(hostname).decode('utf-8'))
 ```
-
-Complete example: [examples/kubeflow/main.py](./examples/kubeflow/main.py)
-
-### Distributed Training
-
-Using Kubeflow, we can also ask `fairing` to start [distributed trainings](https://www.tensorflow.org/deploy/distributed) instead:
 
 ```python
-import fairing
-from fairing.training import kubeflow
-from fairing import builders
-
-DOCKER_REPOSITORY_NAME = '<your-repository-name>'
-fairing.config.set_builder(builders.DockerBuilder(DOCKER_REPOSITORY_NAME))
-
-@kubeflow.DistributedTraining(worker_count=3, ps_count=1)
-class MyModel(object):
-    ...
+fairing.config.set_model(SimpleModel())
 ```
 
-Specify the number of desired parameter servers with `ps_count` and the number of workers with `worker_count`.
-Another instance of type chief will always be created.
-
-See [https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config](https://github.com/Azure/kubeflow-labs/tree/master/7-distributed-tensorflow#modifying-your-model-to-use-tfjobs-tf_config) to understand how you need to modify your model to support distributed training with Kubeflow.
-
-Complete example: [examples/distributed-training/main.py](./examples/distributed-training/main.py)
-
-### Usage with native Kubernetes
-
-#### Simple Training
-
+If you have `GOOGLE_APPLICATION_CREDENTIALS` set, you can skip the next step. Otherwise, set the builder
 ```python
-from fairing.train import Train
+fairing.config.set_builder(name='append', registry='<your-registry-here>')
+````
 
-@Train(repository='<your-repo-name>')
-class MyModel(object):
-    def train(self):
-      # Training logic goes here
-
+Now, run the training job remotely with
+```
+fairing.config.run()
 ```
 
-Complete example: [examples/simple-training/main.py](./examples/simple-training/main.py)
+What happened? Fairing
 
-### From a Jupyter Notebook
+- Packaged your code in a docker container (without using docker)
+- Deployed a Kubernetes workload with the training job
+- Streamed those logs back to you in real time
 
-To make `fairing` work from a Jupyter Notebook deployed with Kubeflow, a few more requirements are needed (such as Knative Build deployed).
-Refer [to the dedicated documentation and example](examples/kubeflow-jupyter-notebook/).
+#### Configuring Fairing
+
+There are three configurable parts of fairing. 
+
+The **preprocessor** defines how a set of inputs gets mapped to a context for the docker image build. It can convert input files, exclude some, and change the entrypoint.
+
+The **builder** defines how and where an image gets built. There are different strategies that will make sense for different environments and use cases.
+
+The **deployer** defines how a training job gets launched. It uses the image produced by the builder to run the training job on Kubernetes.
+
+| Builders |  |
+|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Append | Append the code as a new layer on an existing docker image. The base image won't be pulled and only the delta will be pushed to the registry. Very fast. |
+| Cluster | Launch a build job in the Kubernetes cluster itself. Build and push a container in a container. |
+| Docker | Uses a local docker daemon to build and push the image. |
+
+
+| Deployers |  |
+|:---------:|:-------------------------------------------------------------------------:|
+| Job | Uses a Kubernetes Job resource to launch the training job |
+| TfJob | Uses a Kubeflow Tensorflow Job custom resource to launch the training job |
+
+
+
+| Preprocessors |  |
+|:-------------:|:--------------------------------------------------------------------------------:|
+| python | Takes input files and copies them directly into the container. |
+| notebook | Converts a notebook into a runnable python file. Strips out the non-python code. |
+| full_notebook | Runs a full notebook as-is |

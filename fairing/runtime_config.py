@@ -31,5 +31,8 @@ class RuntimeConfig(object):
     def run(self):
         return self._model.train()
 
+    def reset(self):
+        pass
+
 
 config = RuntimeConfig()

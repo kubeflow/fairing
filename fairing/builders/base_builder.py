@@ -60,6 +60,9 @@ class BaseBuilder(BuilderInterface):
                 name='model',
                 image=self.image_tag,
                 command=self.preprocessor.get_command(),
+                security_context=client.V1SecurityContext(
+                    run_as_user=0,
+                ),
                 image_pull_policy='Always',
                 env=[client.V1EnvVar(
                     name='FAIRING_RUNTIME',
