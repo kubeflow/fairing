@@ -30,6 +30,7 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                  notebook_file=None,
                  notebook_preprocessor=FilterMagicCommands,
                  executable=None,
+                 command=["python"],
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map={}):
 

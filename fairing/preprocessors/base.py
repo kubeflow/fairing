@@ -57,7 +57,9 @@ class BasePreProcessor(object):
         return output_file, utils.crc(self._context_tar_path)
 
     def get_command(self):
-        return self.command.append(os.path.join(self.path_prefix, self.executable))
+        cmd = self.command.copy()
+        cmd.append(os.path.join(self.path_prefix, self.executable))
+        return cmd
 
     def fairing_runtime_files(self):
         fairing_dir = os.path.dirname(fairing.__file__)

@@ -39,11 +39,11 @@ class Job(DeployerInterface):
         self.runs = runs
         self.output = output
         self.labels = labels
-        self.job_id = str(uuid.uuid1())
-        self.labels['fairing-id'] = self.job_id
         self.backend = kubernetes.KubeManager()
 
     def deploy(self, pod_spec):
+        self.job_id = str(uuid.uuid1())
+        self.labels['fairing-id'] = self.job_id
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)
         if self.output:
