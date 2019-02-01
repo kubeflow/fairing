@@ -11,7 +11,7 @@ class BasePreProcessor(object):
     def __init__(
         self,
         input_files=glob.glob("**", recursive=True),
-        command="python",
+        command=["python"],
         executable=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
         output_map={}
@@ -21,9 +21,6 @@ class BasePreProcessor(object):
         self.output_map = output_map
         self.path_prefix = path_prefix
         self.command = command
-
-        self._context_tar_path = None
-        self._context_hash = None
 
         self.set_default_executable()
             
@@ -50,15 +47,6 @@ class BasePreProcessor(object):
             c_map[k] = v
 
         return c_map
-    
-    def get_context_hash(self):
-        if self._context_tar_path is None:
-            self._context_tar_path = self.context_tar_gz()
-        
-        if self._context_hash is None:
-            self._context_hash = utils.crc(self._context_tar_path)
-        
-        return self._context_hash
 
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
         self.input_files = self.preprocess()
@@ -66,10 +54,10 @@ class BasePreProcessor(object):
             for src, dst in self.context_map().items():
                 tar.add(src, filter=reset_tar_mtime, arcname=dst)
         self._context_tar_path = output_file
-        return output_file
+        return output_file, utils.crc(self._context_tar_path)
 
     def get_command(self):
-        return [self.command, os.path.join(self.path_prefix, self.executable)]
+        return self.command.append(os.path.join(self.path_prefix, self.executable))
 
     def fairing_runtime_files(self):
         fairing_dir = os.path.dirname(fairing.__file__)

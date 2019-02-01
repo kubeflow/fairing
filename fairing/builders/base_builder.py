@@ -58,8 +58,9 @@ class BaseBuilder(BuilderInterface):
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='model',
-                image=self.full_image_name(),
+                image=self.image_tag,
                 command=self.preprocessor.get_command(),
+                image_pull_policy='Always',
                 env=[client.V1EnvVar(
                     name='FAIRING_RUNTIME',
                     value='1',
@@ -68,10 +69,8 @@ class BaseBuilder(BuilderInterface):
             restart_policy='Never'
         )
     
-    def full_image_name(self):
-        if self.image_tag is not None:
-            return self.image_tag
-        return '{}/{}:{}'.format(self.registry, self.image_name, self.preprocessor.get_context_hash())
+    def full_image_name(self, tag):
+        return '{}/{}:{}'.format(self.registry, self.image_name, tag)
 
     def build(self):
         raise NotImplementedError()

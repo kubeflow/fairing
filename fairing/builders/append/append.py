@@ -55,23 +55,25 @@ class AppendBuilder(BaseBuilder):
         self.timed_push(transport, src, new_img)
 
     def _build(self, transport, src):
+        self.context_file, self.context_hash = self.preprocessor.context_tar_gz()
+        self.image_tag = self.full_image_name(self.context_hash)
         creds = docker_creds.DefaultKeychain.Resolve(src)
         with v2_2_image.FromRegistry(src, creds, transport) as src_image:
-            with open(self.preprocessor.context_tar_gz(), 'rb') as f:
+            with open(self.context_file, 'rb') as f:
                 new_img = append.Layer(src_image, f.read())
         return new_img
 
     def push(self, transport, src, img):
-        dst = docker_name.Tag(self.full_image_name(), strict=False)
+        dst = docker_name.Tag(self.full_image_name(self.context_hash), strict=False)
         creds = docker_creds.DefaultKeychain.Resolve(dst)
         with docker_session.Push(dst, creds, transport, mount=[src.as_repository()]) as session:
-            logger.warn("Uploading {}".format(self.full_image_name()))
+            logger.warn("Uploading {}".format(self.image_tag))
             session.upload(img)
-        os.remove(self.preprocessor.context_tar_gz())
+        os.remove(self.context_file)
 
     def timed_push(self, transport, src, img):
-        logger.warn("Pushing image...")
+        logger.warn("Pushing image {}...".format(self.image_tag))
         start = timer()
         self.push(transport, src, img)
         end = timer()
-        logger.warn("Pushed image {} in {}s.".format(self.full_image_name(),end-start))
+        logger.warn("Pushed image {} in {}s.".format(self.image_tag,end-start))

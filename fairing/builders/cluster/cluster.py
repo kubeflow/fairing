@@ -49,7 +49,8 @@ class ClusterBuilder(BaseBuilder):
             base_image=self.base_image
         )
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
-        context_path = self.preprocessor.context_tar_gz()
+        context_path, context_hash = self.preprocessor.context_tar_gz()
+        self.image_tag = self.full_image_name(context_hash)
         self.context_source.prepare(context_path)
         labels = {'fairing-builder': 'kaniko'}
         build_pod = client.V1Pod(
@@ -59,7 +60,7 @@ class ClusterBuilder(BaseBuilder):
                 generate_name="fairing-builder-",
                 labels=labels,
             ),
-            spec=self.context_source.generate_pod_spec(self.full_image_name())
+            spec=self.context_source.generate_pod_spec(self.image_tag)
         )
         created_pod = client.CoreV1Api().create_namespaced_pod("default", build_pod)
         self.manager.log(name=created_pod.metadata.name, namespace=created_pod.metadata.namespace, selectors=labels)

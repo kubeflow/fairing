@@ -53,11 +53,11 @@ class Config(object):
         self._preprocessor = preprocessor(**kwargs)
     
     def get_preprocessor(self):
+        if self._preprocessor is None:
+            self.set_preprocessor()
         return self._preprocessor
 
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
-        if self._preprocessor is None:
-            self.set_preprocessor()
         builder = builder_map.get(name)
         self._builder = builder(preprocessor=self.get_preprocessor(), **kwargs)
         if not isinstance(self._builder, builders.BuilderInterface):
@@ -93,6 +93,12 @@ class Config(object):
         self.get_builder().build()
         pod_spec = self._builder.generate_pod_spec()
         self.get_deployer().deploy(pod_spec)
+
+    def reset(self):
+        self._builder = None
+        self._deployer = None
+        self._model = None
+        self._preprocessor = None
 
 
 config = Config()

@@ -7,6 +7,7 @@ standard_library.install_aliases()
 import logging
 import json
 
+import uuid
 from kubernetes import client as k8s_client
 
 import fairing
@@ -38,7 +39,8 @@ class Job(DeployerInterface):
         self.runs = runs
         self.output = output
         self.labels = labels
-        
+        self.job_id = str(uuid.uuid1())
+        self.labels['fairing-id'] = self.job_id
         self.backend = kubernetes.KubeManager()
 
     def deploy(self, pod_spec):
@@ -91,7 +93,7 @@ class Job(DeployerInterface):
     def get_logs(self):
         self.backend.log(self._created_job.metadata.name, self._created_job.metadata.namespace, self.labels)
         logger.warn("Cleaning up job {}...".format(self._created_job.metadata.name))
-        k8s_client.BatchV1Api().delete_namespaced_job(
-            self._created_job.metadata.name,
-            self._created_job.metadata.namespace,
-            k8s_client.V1DeleteOptions(propagation_policy='Foreground'))
+        # k8s_client.BatchV1Api().delete_namespaced_job(
+        #     self._created_job.metadata.name,
+        #     self._created_job.metadata.namespace,
+        #     k8s_client.V1DeleteOptions(propagation_policy='Foreground'))

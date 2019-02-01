@@ -29,7 +29,6 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
     def __init__(self,
                  notebook_file=None,
                  notebook_preprocessor=FilterMagicCommands,
-                 command="python",
                  executable=None,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map={}):
@@ -37,7 +36,6 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                     super().__init__(
                         executable=executable,
                         input_files=[],
-                        command=command,
                         output_map=output_map,
                         path_prefix=path_prefix)
         

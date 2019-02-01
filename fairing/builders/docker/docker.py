@@ -50,21 +50,23 @@ class DockerBuilder(BaseBuilder):
             dockerfile_path=self.dockerfile_path,
             base_image=self.base_image)
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
-        logger.warn('Building docker image {}...'.format(self.full_image_name()))
-        with open(self.preprocessor.context_tar_gz(), 'rb') as fileobj:
+        context_file, context_hash = self.preprocessor.context_tar_gz()
+        self.image_tag = self.full_image_name(context_hash)
+        logger.warn('Building docker image {}...'.format(self.image_tag))
+        with open(context_file, 'rb') as fileobj:
             bld = self.docker_client.build(
                 path='.',
                 custom_context=True,
                 fileobj=fileobj,
-                tag=self.full_image_name(),
+                tag=self.image_tag,
                 encoding='utf-8'
             )
         for line in bld:
             self._process_stream(line)
 
     def publish(self):
-        logger.warn('Publishing image {}...'.format(self.full_image_name()))       
-        for line in self.docker_client.push(self.full_image_name(), stream=True):
+        logger.warn('Publishing image {}...'.format(self.image_tag))       
+        for line in self.docker_client.push(self.image_tag, stream=True):
             self._process_stream(line)
 
     def _process_stream(self, line):
