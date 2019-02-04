@@ -1,6 +1,7 @@
 
 
 class RuntimeConfig(object):
+    """A passthrough config shim that runs in the fairing runtime"""
     def __init__(self):
         pass
 

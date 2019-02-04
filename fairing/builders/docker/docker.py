@@ -27,17 +27,13 @@ class DockerBuilder(BaseBuilder):
 
     def __init__(self,
                  registry=None,
-                 image_name=constants.DEFAULT_IMAGE_NAME,
-                 image_tag=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None,
                  dockerfile_path=None):
                     super().__init__(
                         registry=registry,
-                        image_name=image_name,
                         base_image=base_image,
                         preprocessor=preprocessor,
-                        image_tag=image_tag
                     )
 
     def build(self):

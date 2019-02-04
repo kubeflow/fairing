@@ -28,19 +28,23 @@ from containerregistry.transport import transport_pool
 logger = logging.getLogger(__name__)
 
 class AppendBuilder(BaseBuilder):
+    """Builds a docker image by appending a new layer tarball to an existing
+    base image. Does not require docker and runs in userspace.
+    
+    
+     Args:
+        registry {str} -- Registry to push image to. Required. Example: gcr.io/kubeflow-images (default: {None})
+        base_image {str} -- Base image to use for the image build (default: {constants.DEFAULT_BASE_IMAGE})
+        preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs before sending them to docker build (default: {BasePreProcessor})    
+    """
     def __init__(self,
                  registry=None,
-                 image_name=constants.DEFAULT_IMAGE_NAME,
                  base_image=constants.DEFAULT_BASE_IMAGE,
-                 image_tag=None,
-                 preprocessor=None,
-                 dockerfile_path=None):
+                 preprocessor=None):
                     super().__init__(
                         registry=registry,
-                        image_name=image_name,
                         base_image=base_image,
                         preprocessor=preprocessor,
-                        image_tag=image_tag
                     )
 
     def build(self):

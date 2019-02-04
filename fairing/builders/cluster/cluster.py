@@ -25,20 +25,25 @@ from fairing import utils
 logger = logging.getLogger(__name__)
 
 class ClusterBuilder(BaseBuilder):
+    """Builds a docker image in a Kubernetes cluster.
+    
+    
+     Args:
+        registry (str): Required. Registry to push image to.  Example: gcr.io/kubeflow-images
+        base_image (str): Base image to use for the image build
+        preprocessor (BasePreProcessor): Preprocessor to use to modify inputs before sending them to docker build   
+        context_source (ContextSourceInterface): How to make the docker build context available to the cluster build
+    """
     def __init__(self,
                  registry=None,
-                 image_name=constants.DEFAULT_IMAGE_NAME,
                  context_source=gcs_context.GCSContextSource(),
-                 image_tag=None,
                  preprocessor=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  dockerfile_path=None):
                 super().__init__(
                         registry=registry,
-                        image_name=image_name,
                         preprocessor=preprocessor,
                         base_image=base_image,
-                        image_tag=image_tag
                     )
                 self.manager = KubeManager()
                 self.context_source = context_source

@@ -10,6 +10,7 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class DeployerInterface(object):
+    """Deploys a training job to the cluster"""
 
     def deploy(self, pod_template_spec):
         """Deploys the training job"""

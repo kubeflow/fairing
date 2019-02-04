@@ -30,9 +30,7 @@ class BaseBuilder(BuilderInterface):
 
     def __init__(self,
                  registry=None,
-                 image_name=constants.DEFAULT_IMAGE_NAME,
                  base_image=constants.DEFAULT_BASE_IMAGE,
-                 image_tag=None,
                  preprocessor=None,
                  dockerfile_path=None):
         
@@ -41,12 +39,11 @@ class BaseBuilder(BuilderInterface):
             # TODO(r2d4): Add more heuristics here...
             self.registry = 'gcr.io/{}'.format(gcp.guess_project_name())
 
-        self.image_name = image_name
         self.base_image = base_image
         self.dockerfile_path = dockerfile_path
         self.preprocessor = preprocessor
-
-        self.image_tag = image_tag
+        self.image_name = None
+        self.image_tag = None
         self.docker_client = None
 
         if self.registry.count("/") is 0:
@@ -76,4 +73,5 @@ class BaseBuilder(BuilderInterface):
         return '{}/{}:{}'.format(self.registry, self.image_name, tag)
 
     def build(self):
+        """Runs the build"""
         raise NotImplementedError()

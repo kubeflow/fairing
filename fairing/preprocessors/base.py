@@ -8,6 +8,7 @@ import tarfile
 import glob
 
 class BasePreProcessor(object):
+    """Prepares a context that gets sent to the builder for the docker build and sets the entrypoint"""
     def __init__(
         self,
         input_files=glob.glob("**", recursive=True),
