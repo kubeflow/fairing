@@ -26,6 +26,8 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
+import fairing
+
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
 BATCH_SIZE = 100
@@ -77,7 +79,6 @@ class TensorflowModel():
                 self.summary_writer.flush()
 
 if __name__ == '__main__':
-    import fairing
     fairing.config.set_builder(name='cluster')
     fairing.config.set_model(TensorflowModel())
     fairing.config.run()
