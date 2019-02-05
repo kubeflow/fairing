@@ -12,9 +12,9 @@ import six
 class BuilderInterface(object):
 
     @abc.abstractmethod
-    def execute(self):
+    def build(self):
         """Will be called when the build needs to start"""
-        raise NotImplementedError('BuilderInterface.execute')
+        raise NotImplementedError('BuilderInterface.build')
         
     @abc.abstractmethod
     def generate_pod_spec(self): 

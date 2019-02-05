@@ -1,10 +1,13 @@
 import setuptools
 import json
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setuptools.setup(
     name='fairing',
     version='0.0.3',
-    author="William Buchwalter",
+    author="William Buchwalter,Matt Rickard",
     description="Easily train ML models on Kubernetes, directly from your python code.",
     url="https://github.com/kubeflow/fairing",
     packages=setuptools.find_packages(),
@@ -23,20 +26,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
-    install_requires=[
-        'docker==3.4.1',
-        'redis==2.10.6',
-        'notebook==5.6.0',
-        'jupyter==1.0.0',
-        'numpy==1.15.0',
-        'kubernetes==8.0.1',
-        'future==0.17.1',
-        'six==1.11.0',
-        'requests',
-        'tornado==5.1.1',
-        'httplib2==0.12.0',
-        'oauth2client==4.0.0',
-    ],
+    install_requires=requirements,
     extras_require={
         'dev': [
             'pytest',

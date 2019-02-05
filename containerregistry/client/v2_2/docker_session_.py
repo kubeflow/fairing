@@ -48,7 +48,7 @@ class Push(object):
                creds,
                transport,
                mount = None,
-               threads = 1):
+               threads = 8):
     """Constructor.
 
     If multiple threads are used, the caller *must* ensure that the provided
