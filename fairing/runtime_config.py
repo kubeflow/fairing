@@ -13,19 +13,19 @@ class RuntimeConfig(object):
 
     def set_builder(self, name, **kwargs):
         self._builder = name
-    
+
     def get_builder(self):
         return self._builder
-        
+
     def set_deployer(self, name, **kwargs):
         self._deployer = name
 
     def get_deployer(self, **kwargs):
         return self._deployer
-        
+
     def set_model(self, model):
         self._model = model
-    
+
     def get_model(self):
         return self._model
 

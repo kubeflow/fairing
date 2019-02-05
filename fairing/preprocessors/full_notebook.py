@@ -1,5 +1,3 @@
-import nbconvert
-from nbconvert.preprocessors import Preprocessor as NbPreProcessor
 from fairing.constants import constants
 
 from .base import BasePreProcessor

@@ -1,23 +1,17 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
 import logging
 import json
-
 import uuid
+
 from kubernetes import client as k8s_client
 
-import fairing
 from fairing import utils
+from fairing.kubernetes.manager import KubeManager
+from fairing.deployers.deployer import DeployerInterface
 
-from fairing.deployers import DeployerInterface
-from fairing import kubernetes
 
 logger = logging.getLogger(__name__)
 DEFAULT_JOB_NAME = 'fairing-job'
+
 
 class Job(DeployerInterface):
     """Handle all the k8s' template building for a training 
@@ -33,13 +27,13 @@ class Job(DeployerInterface):
             self.namespace = utils.get_default_target_namespace()
         else:
             self.namespace = namespace
-        
+
         # Used as pod and job name
         self.deployment_spec = None
         self.runs = runs
         self.output = output
         self.labels = labels
-        self.backend = kubernetes.KubeManager()
+        self.backend = KubeManager()
 
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
@@ -54,7 +48,7 @@ class Job(DeployerInterface):
         name = self.create_resource()
         logger.warn("Training job {} launched.".format(name))
         self.get_logs()
-        
+
     def create_resource(self):
         self._created_job = self.backend.create_job(self.namespace, self.deployment_spec)
         return self._created_job.metadata.name
@@ -63,14 +57,14 @@ class Job(DeployerInterface):
         """Generate a V1PodTemplateSpec initiazlied with correct metadata
             and with the provided pod_spec"""
         if not isinstance(pod_spec, k8s_client.V1PodSpec):
-             raise TypeError('pod_spec must be a V1PodSpec, but got %s' 
-                % type(pod_spec))
+            raise TypeError('pod_spec must be a V1PodSpec, but got %s'
+                            % type(pod_spec))
         return k8s_client.V1PodTemplateSpec(
             metadata=k8s_client.V1ObjectMeta(name="fairing-deployer", labels=self.labels),
             spec=pod_spec)
         
     def generate_deployment_spec(self, pod_template_spec):
-        """Generate a V1Job initialized with correct completion and 
+        """Generate a V1Job initialized with correct completion and
          parallelism (for HP search) and with the provided V1PodTemplateSpec"""
         if not isinstance(pod_template_spec, k8s_client.V1PodTemplateSpec):
             raise TypeError( """pod_template_spec must be a V1PodTemplateSpec,

@@ -1,8 +1,8 @@
 from kubernetes import client as k8s_client
 
-from fairing.deployers import DeployerInterface
 from fairing import kubernetes
-from fairing.deployers import Job
+from fairing.deployers.job.job import Job
+
 
 class TfJob(Job):
     def __init__(self, namespace=None, worker_count=1, ps_count=0, runs=1):
