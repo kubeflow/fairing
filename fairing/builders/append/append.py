@@ -1,20 +1,8 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-
 from timeit import default_timer as timer
 import httplib2
 import os
-import sys
 import logging
 
-from kubernetes import client
-
-import fairing
-from fairing import utils
 from fairing.builders.base_builder import BaseBuilder
 from fairing.constants import constants
 
@@ -27,25 +15,29 @@ from containerregistry.transport import transport_pool
 
 logger = logging.getLogger(__name__)
 
+
 class AppendBuilder(BaseBuilder):
     """Builds a docker image by appending a new layer tarball to an existing
     base image. Does not require docker and runs in userspace.
-    
-    
+
+
      Args:
-        registry {str} -- Registry to push image to. Required. Example: gcr.io/kubeflow-images (default: {None})
-        base_image {str} -- Base image to use for the image build (default: {constants.DEFAULT_BASE_IMAGE})
-        preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs before sending them to docker build (default: {BasePreProcessor})    
+        registry {str} -- Registry to push image to. Required.
+                          Example: gcr.io/kubeflow-images (default: {None})
+        base_image {str} -- Base image to use for the image build (default:
+                          {constants.DEFAULT_BASE_IMAGE})
+        preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs
+                          before sending them to docker build
     """
     def __init__(self,
                  registry=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None):
-                    super().__init__(
-                        registry=registry,
-                        base_image=base_image,
-                        preprocessor=preprocessor,
-                    )
+        super().__init__(
+            registry=registry,
+            base_image=base_image,
+            preprocessor=preprocessor,
+        )
 
     def build(self):
         """Will be called when the build needs to start"""
@@ -59,7 +51,8 @@ class AppendBuilder(BaseBuilder):
         self.timed_push(transport, src, new_img)
 
     def _build(self, transport, src):
-        self.context_file, self.context_hash = self.preprocessor.context_tar_gz()
+        file, hash = self.preprocessor.context_tar_gz()
+        self.context_file, self.context_hash = file, hash
         self.image_tag = self.full_image_name(self.context_hash)
         creds = docker_creds.DefaultKeychain.Resolve(src)
         with v2_2_image.FromRegistry(src, creds, transport) as src_image:
@@ -68,9 +61,11 @@ class AppendBuilder(BaseBuilder):
         return new_img
 
     def push(self, transport, src, img):
-        dst = docker_name.Tag(self.full_image_name(self.context_hash), strict=False)
+        dst = docker_name.Tag(
+            self.full_image_name(self.context_hash), strict=False)
         creds = docker_creds.DefaultKeychain.Resolve(dst)
-        with docker_session.Push(dst, creds, transport, mount=[src.as_repository()]) as session:
+        with docker_session.Push(
+             dst, creds, transport, mount=[src.as_repository()]) as session:
             logger.warn("Uploading {}".format(self.image_tag))
             session.upload(img)
         os.remove(self.context_file)
@@ -80,4 +75,5 @@ class AppendBuilder(BaseBuilder):
         start = timer()
         self.push(transport, src, img)
         end = timer()
-        logger.warn("Pushed image {} in {}s.".format(self.image_tag,end-start))
+        logger.warn(
+            "Pushed image {} in {}s.".format(self.image_tag, end-start))

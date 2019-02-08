@@ -1,26 +1,21 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-
 import os
 
 from fairing.cloud import gcp
 from fairing import utils
-from fairing.kubernetes import client, KubeManager
+from fairing.constants import constants
+from fairing.kubernetes.manager import client, KubeManager
 from fairing.builders.cluster.context_source import ContextSourceInterface
+
 
 class GCSContextSource(ContextSourceInterface):
     def __init__(self,
                  gcp_project=None,
-                 credentials_file=os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'),
+                 credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV),
                  namespace='default'):
-                self.gcp_project = gcp_project
-                self.credentials_file = credentials_file
-                self.manager = KubeManager()
-                self.namespace = namespace
+        self.gcp_project = gcp_project
+        self.credentials_file = credentials_file
+        self.manager = KubeManager()
+        self.namespace = namespace
 
     def prepare(self, context_filename):
         if self.gcp_project is None:
@@ -72,7 +67,7 @@ class GCSContextSource(ContextSourceInterface):
                           "--destination=" + image_name,
                           "--context=" + self.uploaded_context_url],
                     env=[client.V1EnvVar(
-                        name='GOOGLE_APPLICATION_CREDENTIALS',
+                        name=constants.GOOGLE_CREDS_ENV,
                         value='/secret/kaniko-secret',
                     )],
                 )],

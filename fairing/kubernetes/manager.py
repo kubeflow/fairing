@@ -1,23 +1,15 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
-from future import standard_library
-standard_library.install_aliases()
+from kubernetes import client, config, watch
+from fairing.utils import is_running_in_k8s
 
 import logging
 logger = logging.getLogger(__name__)
-from pprint import pprint
-
-from kubernetes import client, config, watch
-from fairing.utils import is_running_in_k8s
 
 MAX_STREAM_BYTES = 1024
 TF_JOB_GROUP = "kubeflow.org"
 TF_JOB_KIND = "TFJob"
 TF_JOB_PLURAL = "tfjobs"
 TF_JOB_VERSION = "v1beta1"
+
 
 class KubeManager(object):
     """Handles communication with Kubernetes' client."""

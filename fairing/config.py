@@ -1,38 +1,40 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
+from fairing.preprocessors.base import BasePreProcessor
+from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
+from fairing.preprocessors.full_notebook import FullNotebookPreProcessor
+
+from fairing.builders.append.append import AppendBuilder
+from fairing.builders.docker.docker import DockerBuilder
+from fairing.builders.cluster.cluster import ClusterBuilder
+from fairing.builders.builder import BuilderInterface
+
+from fairing.deployers.job.job import Job
+from fairing.deployers.tfjob.tfjob import TfJob
+from fairing.deployers.deployer import DeployerInterface
+
+from fairing.notebook import notebook_util
 
 import logging
 logging.basicConfig(format='%(message)s')
 
-from fairing import preprocessors
-from fairing import builders
-from fairing import deployers
-
-from fairing.notebook import notebook_util
-
-DEFAULT_PREPROCESSOR='python'
-DEFAULT_BUILDER='append'
-DEFAULT_DEPLOYER='job'
+DEFAULT_PREPROCESSOR = 'python'
+DEFAULT_BUILDER = 'append'
+DEFAULT_DEPLOYER = 'job'
 
 preprocessor_map = {
-    'python': preprocessors.BasePreProcessor,
-    'notebook': preprocessors.ConvertNotebookPreprocessor,
-    'full_notebook': preprocessors.FullNotebookPreProcessor,
+    'python': BasePreProcessor,
+    'notebook': ConvertNotebookPreprocessor,
+    'full_notebook': FullNotebookPreProcessor,
 }
 
 builder_map = {
-    'append': builders.AppendBuilder,
-    'docker': builders.DockerBuilder,
-    'cluster': builders.ClusterBuilder,
+    'append': AppendBuilder,
+    'docker': DockerBuilder,
+    'cluster': ClusterBuilder,
 }
 
 deployer_map = {
-    'job': deployers.Job,
-    'tfjob': deployers.TfJob
+    'job': Job,
+    'tfjob': TfJob
 }
 
 
@@ -60,7 +62,7 @@ class Config(object):
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
         builder = builder_map.get(name)
         self._builder = builder(preprocessor=self.get_preprocessor(), **kwargs)
-        if not isinstance(self._builder, builders.BuilderInterface):
+        if not isinstance(self._builder, BuilderInterface):
             raise TypeError(
                 'builder must be a BuilderInterface, but got %s' 
                 % type(self._builder))
@@ -73,7 +75,7 @@ class Config(object):
     def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
         deployer = deployer_map.get(name)
         self._deployer = deployer(**kwargs)
-        if not isinstance(self._deployer, deployers.DeployerInterface):
+        if not isinstance(self._deployer, DeployerInterface):
             raise TypeError(
                 'backend must be a DeployerInterface, but got %s' 
                 % type(self._deployer))

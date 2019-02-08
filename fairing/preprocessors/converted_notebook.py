@@ -10,7 +10,7 @@ from fairing.notebook import notebook_util
 
 class FilterMagicCommands(NbPreProcessor):
     _magic_pattern = re.compile('^!|^%')
-    
+
     def filter_magic_commands(self, src):
         filtered = []
         for line in src.splitlines():
@@ -18,7 +18,7 @@ class FilterMagicCommands(NbPreProcessor):
             if match is None:
                 filtered.append(line)
         return '\n'.join(filtered)
-    
+
     def preprocess_cell(self, cell, resources, index):
         if cell['cell_type'] == 'code':
             cell['source'] = self.filter_magic_commands(cell['source'])
@@ -34,17 +34,17 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map={}):
 
-                    super().__init__(
-                        executable=executable,
-                        input_files=[],
-                        output_map=output_map,
-                        path_prefix=path_prefix)
-        
-                    if notebook_file is None and notebook_util.is_in_notebook():
-                        notebook_file = notebook_util.get_notebook_name()
-                        
-                    self.notebook_file = notebook_file
-                    self.notebook_preprocessor = notebook_preprocessor
+        super().__init__(
+            executable=executable,
+            input_files=[],
+            output_map=output_map,
+            path_prefix=path_prefix)
+
+        if notebook_file is None and notebook_util.is_in_notebook():
+            notebook_file = notebook_util.get_notebook_name()
+
+        self.notebook_file = notebook_file
+        self.notebook_preprocessor = notebook_preprocessor
 
     def preprocess(self):
         exporter = nbconvert.PythonExporter()

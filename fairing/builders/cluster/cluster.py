@@ -1,12 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-
-import time
-import os
 import logging
 
 
@@ -16,23 +7,23 @@ from fairing.builders.base_builder import BaseBuilder
 from fairing.builders import dockerfile
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
-from fairing.kubernetes import client
 from fairing.builders.cluster import gcs_context
-
-
-from fairing import utils
 
 logger = logging.getLogger(__name__)
 
+
 class ClusterBuilder(BaseBuilder):
     """Builds a docker image in a Kubernetes cluster.
-    
-    
+
+
      Args:
-        registry (str): Required. Registry to push image to.  Example: gcr.io/kubeflow-images
+        registry (str): Required. Registry to push image to
+                        Example: gcr.io/kubeflow-images
         base_image (str): Base image to use for the image build
-        preprocessor (BasePreProcessor): Preprocessor to use to modify inputs before sending them to docker build   
-        context_source (ContextSourceInterface): How to make the docker build context available to the cluster build
+        preprocessor (BasePreProcessor): Preprocessor to use to modify inputs
+                                         before sending them to docker build
+        context_source (ContextSourceInterface): context available to the
+                                                 cluster build
     """
     def __init__(self,
                  registry=None,
@@ -40,13 +31,13 @@ class ClusterBuilder(BaseBuilder):
                  preprocessor=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  dockerfile_path=None):
-                super().__init__(
-                        registry=registry,
-                        preprocessor=preprocessor,
-                        base_image=base_image,
-                    )
-                self.manager = KubeManager()
-                self.context_source = context_source
+        super().__init__(
+                registry=registry,
+                preprocessor=preprocessor,
+                base_image=base_image,
+            )
+        self.manager = KubeManager()
+        self.context_source = context_source
 
     def build(self):
         dockerfile_path = dockerfile.write_dockerfile(
@@ -67,9 +58,17 @@ class ClusterBuilder(BaseBuilder):
             ),
             spec=self.context_source.generate_pod_spec(self.image_tag)
         )
-        created_pod = client.CoreV1Api().create_namespaced_pod("default", build_pod)
-        self.manager.log(name=created_pod.metadata.name, namespace=created_pod.metadata.namespace, selectors=labels)
+        created_pod = client. \
+            CoreV1Api(). \
+            create_namespaced_pod("default", build_pod)
+        self.manager.log(
+            name=created_pod.metadata.name,
+            namespace=created_pod.metadata.namespace,
+            selectors=labels)
 
         # clean up created pod and secret
         self.context_source.cleanup()
-        client.CoreV1Api().delete_namespaced_pod(created_pod.metadata.name, created_pod.metadata.namespace, client.V1DeleteOptions())
+        client.CoreV1Api().delete_namespaced_pod(
+            created_pod.metadata.name,
+            created_pod.metadata.namespace,
+            client.V1DeleteOptions())

@@ -1,29 +1,13 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
-from future import standard_library
-standard_library.install_aliases()
-
-import shutil
-import json
 import logging
-import sys
-import os
 
-from docker import APIClient
 from kubernetes import client
 
-from fairing import utils
-from fairing.builders import BuilderInterface
-from fairing.builders import dockerfile
+from fairing.builders.builder import BuilderInterface
 from fairing.constants import constants
-from fairing.notebook import notebook_util
-
 from fairing.cloud import gcp
 
 logger = logging.getLogger(__name__)
+
 
 class BaseBuilder(BuilderInterface):
     """A builder using the local Docker client"""
@@ -33,7 +17,7 @@ class BaseBuilder(BuilderInterface):
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None,
                  dockerfile_path=None):
-        
+
         self.registry = registry
         if self.registry is None:
             # TODO(r2d4): Add more heuristics here...
@@ -46,9 +30,10 @@ class BaseBuilder(BuilderInterface):
         self.image_tag = None
         self.docker_client = None
 
-        if self.registry.count("/") is 0:
+        if self.registry.count("/") == 0:
             self.registry = "{DEFAULT_REGISTRY}/{USER_REPOSITORY}".format(
-                DEFAULT_REGISTRY=constants.DEFAULT_REGISTRY, USER_REPOSITORY=self.registry)
+                DEFAULT_REGISTRY=constants.DEFAULT_REGISTRY, 
+                USER_REPOSITORY=self.registry)
 
     def generate_pod_spec(self):
         """return a V1PodSpec initialized with the proper container"""
@@ -68,9 +53,10 @@ class BaseBuilder(BuilderInterface):
             )],
             restart_policy='Never'
         )
-    
+
     def full_image_name(self, tag):
-        return '{}/{}:{}'.format(self.registry, self.image_name, tag)
+        image_name = constants.DEFAULT_IMAGE_NAME
+        return '{}/{}:{}'.format(self.registry, image_name, tag)
 
     def build(self):
         """Runs the build"""

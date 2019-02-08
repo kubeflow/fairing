@@ -1,26 +1,14 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
-from future import standard_library
-standard_library.install_aliases()
-
-import shutil
 import json
 import logging
-import sys
-
 
 from docker import APIClient
-from kubernetes import client
 
-from fairing import utils
 from fairing.builders.base_builder import BaseBuilder
 from fairing.builders import dockerfile
 from fairing.constants import constants
 
 logger = logging.getLogger(__name__)
+
 
 class DockerBuilder(BaseBuilder):
     """A builder using the local Docker client"""
@@ -30,11 +18,11 @@ class DockerBuilder(BaseBuilder):
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None,
                  dockerfile_path=None):
-                    super().__init__(
-                        registry=registry,
-                        base_image=base_image,
-                        preprocessor=preprocessor,
-                    )
+        super().__init__(
+            registry=registry,
+            base_image=base_image,
+            preprocessor=preprocessor,
+        )
 
     def build(self):
         self.docker_client = APIClient(version='auto')
