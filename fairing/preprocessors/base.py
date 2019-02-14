@@ -28,11 +28,11 @@ class BasePreProcessor(object):
             
     def set_default_executable(self):
         if self.executable is not None:
-            return
+            return self.executable
         if len(self.input_files) == 1:
             self.executable = self.input_files[0]
             return
-        python_files = [item for item in self.input_files if item.endswith(".py")]
+        python_files = [item for item in self.input_files if item.endswith(".py") and item is not '__init__.py']
         if len(python_files) == 1:
             self.executable = python_files[0]
             return

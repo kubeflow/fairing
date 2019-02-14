@@ -22,7 +22,7 @@ class Job(DeployerInterface):
             will generate multiple jobs.
     """
 
-    def __init__(self, namespace=None, runs=1, output=None, labels={'fairing-deployer': 'job'}):
+    def __init__(self, namespace=None, runs=1, output=None, cleanup=True, labels={'fairing-deployer': 'job'}):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
@@ -34,6 +34,7 @@ class Job(DeployerInterface):
         self.output = output
         self.labels = labels
         self.backend = KubeManager()
+        self.cleanup = cleanup
 
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
@@ -86,8 +87,9 @@ class Job(DeployerInterface):
 
     def get_logs(self):
         self.backend.log(self._created_job.metadata.name, self._created_job.metadata.namespace, self.labels)
-        logger.warn("Cleaning up job {}...".format(self._created_job.metadata.name))
-        k8s_client.BatchV1Api().delete_namespaced_job(
-            self._created_job.metadata.name,
-            self._created_job.metadata.namespace,
-            k8s_client.V1DeleteOptions(propagation_policy='Foreground'))
+        if self.cleanup:
+            logger.warn("Cleaning up job {}...".format(self._created_job.metadata.name))
+            k8s_client.BatchV1Api().delete_namespaced_job(
+                self._created_job.metadata.name,
+                self._created_job.metadata.namespace,
+                k8s_client.V1DeleteOptions(propagation_policy='Foreground'))
