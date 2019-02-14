@@ -1,6 +1,7 @@
 from fairing.preprocessors.base import BasePreProcessor
 from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
 from fairing.preprocessors.full_notebook import FullNotebookPreProcessor
+from fairing.preprocessors.function import FunctionPreProcessor
 
 from fairing.builders.append.append import AppendBuilder
 from fairing.builders.docker.docker import DockerBuilder
@@ -24,6 +25,7 @@ preprocessor_map = {
     'python': BasePreProcessor,
     'notebook': ConvertNotebookPreprocessor,
     'full_notebook': FullNotebookPreProcessor,
+    'function': FunctionPreProcessor,
 }
 
 builder_map = {
@@ -40,68 +42,55 @@ deployer_map = {
 
 class Config(object):
     def __init__(self):
-        self._preprocessor = None
-        self._builder = None
-        self._deployer = None
-        self._model = None
+        if notebook_util.is_in_notebook():
+            self._preprocessor_name = 'notebook'
+        else:
+            self._preprocessor_name = DEFAULT_PREPROCESSOR
+        self._preprocessor_kwargs = None
+
+        self._builder_name = DEFAULT_BUILDER
+        self._builder_kwargs = None
+        
+        self._deployer_name = DEFAULT_DEPLOYER
+        self._deployer_kwargs = None
 
     def set_preprocessor(self, name=None, **kwargs):
-        if name is None:
-            if notebook_util.is_in_notebook():
-                name = 'notebook'
-            else:
-                name = DEFAULT_PREPROCESSOR
-        preprocessor = preprocessor_map.get(name)
-        self._preprocessor = preprocessor(**kwargs)
+        self._preprocessor_name = name
+        self._preprocessor_kwargs = kwargs
     
     def get_preprocessor(self):
-        if self._preprocessor is None:
-            self.set_preprocessor()
-        return self._preprocessor
+        fn = preprocessor_map.get(self._preprocessor_name)
+        return fn(**self._preprocessor_kwargs)
 
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
-        builder = builder_map.get(name)
-        self._builder = builder(preprocessor=self.get_preprocessor(), **kwargs)
-        if not isinstance(self._builder, BuilderInterface):
-            raise TypeError(
-                'builder must be a BuilderInterface, but got %s' 
-                % type(self._builder))
-    
-    def get_builder(self):
-        if self._builder is None:
-            self.set_builder()
-        return self._builder
+        self._builder_name = name
+        self._builder_kwargs = kwargs
+   
+    def get_builder(self, preprocessor):
+        fn = builder_map.get(self._builder_name)
+        return fn(preprocessor=preprocessor, **self._builder_kwargs)
         
     def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
-        deployer = deployer_map.get(name)
-        self._deployer = deployer(**kwargs)
-        if not isinstance(self._deployer, DeployerInterface):
-            raise TypeError(
-                'backend must be a DeployerInterface, but got %s' 
-                % type(self._deployer))
+        self._deployer_name = name
+        self._deployer_kwargs = kwargs
 
     def get_deployer(self):
-        if self._deployer is None:
-            self.set_deployer()
-        return self._deployer
-        
-    def set_model(self, model):
-        self._model = model
-    
-    def get_model(self):
-        return self._model
+        fn = deployer_map.get(self._deployer_name)
+        return fn(**self._deployer_kwargs)
 
     def run(self):
-        self.get_builder().build()
-        pod_spec = self._builder.generate_pod_spec()
-        self.get_deployer().deploy(pod_spec)
-        self.reset()
+        preprocessor = self.get_preprocessor()
+        builder = self.get_builder(preprocessor)
+        deployer = self.get_deployer()
 
-    def reset(self):
-        self._builder = None
-        self._deployer = None
-        self._model = None
-        self._preprocessor = None
+        builder.build()
+        pod_spec = builder.generate_pod_spec()
+        deployer.deploy(pod_spec)
 
+    def fn(self, fn):
+        def ret_fn():
+            self.set_preprocessor('function', function_name=fn.__name__)
+            self.run()
+        return ret_fn
 
 config = Config()

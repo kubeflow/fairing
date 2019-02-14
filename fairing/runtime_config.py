@@ -34,6 +34,8 @@ class RuntimeConfig(object):
 
     def reset(self):
         pass
-
+    
+    def fn(self, func):
+        return func
 
 config = RuntimeConfig()
