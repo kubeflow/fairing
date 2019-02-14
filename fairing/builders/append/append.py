@@ -2,14 +2,19 @@ from timeit import default_timer as timer
 import httplib2
 import os
 import logging
+import io
+import tarfile
 
 from fairing.builders.base_builder import BaseBuilder
 from fairing.constants import constants
+
+from docker import APIClient
 
 from containerregistry.client import docker_creds
 from containerregistry.client import docker_name
 from containerregistry.client.v2_2 import append
 from containerregistry.client.v2_2 import docker_image as v2_2_image
+from containerregistry.client.v2_2.save_ import tarball
 from containerregistry.client.v2_2 import docker_session
 from containerregistry.transport import transport_pool
 
@@ -28,14 +33,17 @@ class AppendBuilder(BaseBuilder):
                           {constants.DEFAULT_BASE_IMAGE})
         preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs
                           before sending them to docker build
+        push {bool} -- Whether or not to push the image to the registry
     """
     def __init__(self,
                  registry=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
+                 push=True,
                  preprocessor=None):
         super().__init__(
             registry=registry,
             base_image=base_image,
+            push=push,
             preprocessor=preprocessor,
         )
 
@@ -48,7 +56,15 @@ class AppendBuilder(BaseBuilder):
         new_img = self._build(transport, src)
         end = timer()
         logger.warn("Image successfully built in {}s.".format(end-start))
-        self.timed_push(transport, src, new_img)
+        dst = docker_name.Tag(
+            self.full_image_name(self.context_hash), strict=False)
+        if self.push:
+            self.timed_push(transport, src, new_img, dst)
+        else:
+            # TODO(r2d4):
+            # Load image into local daemon. This wouldn't provide any speedup
+            # over using the docker daemon directly.
+            pass
 
     def _build(self, transport, src):
         file, hash = self.preprocessor.context_tar_gz()
@@ -60,9 +76,8 @@ class AppendBuilder(BaseBuilder):
                 new_img = append.Layer(src_image, f.read())
         return new_img
 
-    def push(self, transport, src, img):
-        dst = docker_name.Tag(
-            self.full_image_name(self.context_hash), strict=False)
+
+    def push(self, transport, src, img, dst):
         creds = docker_creds.DefaultKeychain.Resolve(dst)
         with docker_session.Push(
              dst, creds, transport, mount=[src.as_repository()]) as session:
@@ -70,7 +85,7 @@ class AppendBuilder(BaseBuilder):
             session.upload(img)
         os.remove(self.context_file)
 
-    def timed_push(self, transport, src, img):
+    def timed_push(self, transport, src, img, dst):
         logger.warn("Pushing image {}...".format(self.image_tag))
         start = timer()
         self.push(transport, src, img)

@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM ubuntu:18.04 as builder
-RUN apt-get update && \
-    apt-get -y -q --no-install-recommends install curl ca-certificates
+FROM alpine:3.7 as builder
+RUN apk update && \
+    apk add --no-cache curl ca-certificates
 
 ENV DOCKER_CREDENTIAL_GCR_VERSION=1.4.3
 RUN curl -LO https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v${DOCKER_CREDENTIAL_GCR_VERSION}/docker-credential-gcr_linux_amd64-${DOCKER_CREDENTIAL_GCR_VERSION}.tar.gz && \

@@ -24,15 +24,18 @@ class ClusterBuilder(BaseBuilder):
                                          before sending them to docker build
         context_source (ContextSourceInterface): context available to the
                                                  cluster build
+        push {bool} -- Whether or not to push the image to the registry
     """
     def __init__(self,
                  registry=None,
                  context_source=gcs_context.GCSContextSource(),
                  preprocessor=None,
+                 push=True,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  dockerfile_path=None):
         super().__init__(
                 registry=registry,
+                push=push,
                 preprocessor=preprocessor,
                 base_image=base_image,
             )
@@ -56,7 +59,7 @@ class ClusterBuilder(BaseBuilder):
                 generate_name="fairing-builder-",
                 labels=labels,
             ),
-            spec=self.context_source.generate_pod_spec(self.image_tag)
+            spec=self.context_source.generate_pod_spec(self.image_tag, self.push)
         )
         created_pod = client. \
             CoreV1Api(). \
