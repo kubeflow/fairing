@@ -1,8 +1,7 @@
 approvers:
-  - wbuchwalter
-  - r2d4
-  - jlewi
-reviewers:
-  - richardsliu
   - karthikv2k
+  - r2d4
   - rpasricha
+reviewers:
+  - jlewi
+  - richardsliu
