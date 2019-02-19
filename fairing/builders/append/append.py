@@ -77,7 +77,7 @@ class AppendBuilder(BaseBuilder):
         return new_img
 
 
-    def push(self, transport, src, img, dst):
+    def _push(self, transport, src, img, dst):
         creds = docker_creds.DefaultKeychain.Resolve(dst)
         with docker_session.Push(
              dst, creds, transport, mount=[src.as_repository()]) as session:
@@ -88,7 +88,7 @@ class AppendBuilder(BaseBuilder):
     def timed_push(self, transport, src, img, dst):
         logger.warn("Pushing image {}...".format(self.image_tag))
         start = timer()
-        self.push(transport, src, img)
+        self._push(transport, src, img)
         end = timer()
         logger.warn(
             "Pushed image {} in {}s.".format(self.image_tag, end-start))
