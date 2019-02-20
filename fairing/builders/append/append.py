@@ -88,7 +88,7 @@ class AppendBuilder(BaseBuilder):
     def timed_push(self, transport, src, img, dst):
         logger.warn("Pushing image {}...".format(self.image_tag))
         start = timer()
-        self._push(transport, src, img)
+        self._push(transport, src, img, dst)
         end = timer()
         logger.warn(
             "Pushed image {} in {}s.".format(self.image_tag, end-start))

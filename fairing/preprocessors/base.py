@@ -9,7 +9,16 @@ import glob
 
 
 class BasePreProcessor(object):
-    """Prepares a context that gets sent to the builder for the docker build and sets the entrypoint"""
+    """
+    Prepares a context that gets sent to the builder for the docker build and sets the entrypoint
+    
+    input_files -  the source files to be processed
+    executable - the file to execute using command (e.g. main.py)
+    output_map - a list of files to be added without preprocessing
+    path_prefix - the prefix of the path where the files will be added in the container
+    command - the command to pass to the builder
+
+    """
     def __init__(
         self,
         input_files=glob.glob("**", recursive=True),
@@ -28,11 +37,11 @@ class BasePreProcessor(object):
             
     def set_default_executable(self):
         if self.executable is not None:
-            return
+            return self.executable
         if len(self.input_files) == 1:
             self.executable = self.input_files[0]
             return
-        python_files = [item for item in self.input_files if item.endswith(".py")]
+        python_files = [item for item in self.input_files if item.endswith(".py") and item is not '__init__.py']
         if len(python_files) == 1:
             self.executable = python_files[0]
             return
