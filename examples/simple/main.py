@@ -2,11 +2,14 @@ import os
 import fairing
 import tensorflow as tf
 
-class SimpleModel():
-    def train(self):
-        hostname = tf.constant(os.environ['HOSTNAME'])
-        sess = tf.Session()
-        print('Hostname: ', sess.run(hostname).decode('utf-8'))
+fairing.config.set_builder('docker', push=False)
+fairing.config.set_deployer('job')
 
-fairing.config.set_model(SimpleModel())
-fairing.config.run()
+def train():
+    hostname = tf.constant(os.environ['HOSTNAME'])
+    sess = tf.Session()
+    print('Hostname: ', sess.run(hostname).decode('utf-8'))
+
+if __name__ == '__main__':
+    train = fairing.config.fn(train)
+    train()
