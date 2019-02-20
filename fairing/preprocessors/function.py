@@ -10,6 +10,12 @@ FUNCTION_SHIM = 'function_shim.py'
 
 
 class FunctionPreProcessor(BasePreProcessor):
+    """
+    FunctionPreProcessor preprocesses a single function.
+    It sets as the command a function_shim that calls the function directly.
+
+    args: function_name - the name of the function to be called
+    """
     def __init__(self,
                  function_name,
                  executable=None,
