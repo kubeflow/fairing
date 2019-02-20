@@ -17,9 +17,11 @@ class DockerBuilder(BaseBuilder):
                  registry=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None,
+                 push=True,
                  dockerfile_path=None):
         super().__init__(
             registry=registry,
+            push=push,
             base_image=base_image,
             preprocessor=preprocessor,
         )
@@ -27,7 +29,8 @@ class DockerBuilder(BaseBuilder):
     def build(self):
         self.docker_client = APIClient(version='auto')
         self._build()
-        self.publish()
+        if self.push:
+            self.publish()
 
     def _build(self):
         dockerfile_path = dockerfile.write_dockerfile(

@@ -73,8 +73,9 @@ class KubeManager(object):
                 if pod.status.phase == 'Pending':
                     logger.warn('Waiting for {} to start...'.format(pod.metadata.name))
                     continue
-                elif (pod.status.phase == 'Running'
-                      and pod.status.container_statuses[0].ready):
+                elif ((pod.status.phase == 'Running'
+                      and pod.status.container_statuses[0].ready)
+                      or pod.status.phase == 'Succeeded'):
                     logger.info("Pod started running %s",
                                 pod.status.container_statuses[0].ready)
                     tail = v1.read_namespaced_pod_log(pod.metadata.name,

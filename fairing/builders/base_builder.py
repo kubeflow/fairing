@@ -15,13 +15,20 @@ class BaseBuilder(BuilderInterface):
     def __init__(self,
                  registry=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
+                 push=True,
                  preprocessor=None,
                  dockerfile_path=None):
 
         self.registry = registry
+        self.push = push
         if self.registry is None:
             # TODO(r2d4): Add more heuristics here...
-            self.registry = 'gcr.io/{}'.format(gcp.guess_project_name())
+            
+            # If no push and no registry provided, use any registry name
+            if not self.push:
+                self.registry = 'local/fairing-image'
+            else:
+                self.registry = 'gcr.io/{}'.format(gcp.guess_project_name())
 
         self.base_image = base_image
         self.dockerfile_path = dockerfile_path
@@ -32,7 +39,7 @@ class BaseBuilder(BuilderInterface):
 
         if self.registry.count("/") == 0:
             self.registry = "{DEFAULT_REGISTRY}/{USER_REPOSITORY}".format(
-                DEFAULT_REGISTRY=constants.DEFAULT_REGISTRY, 
+                DEFAULT_REGISTRY=constants.DEFAULT_REGISTRY,
                 USER_REPOSITORY=self.registry)
 
     def generate_pod_spec(self):
@@ -45,7 +52,6 @@ class BaseBuilder(BuilderInterface):
                 security_context=client.V1SecurityContext(
                     run_as_user=0,
                 ),
-                image_pull_policy='Always',
                 env=[client.V1EnvVar(
                     name='FAIRING_RUNTIME',
                     value='1',

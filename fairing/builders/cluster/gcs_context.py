@@ -54,7 +54,12 @@ class GCSContextSource(ContextSourceInterface):
             self.created_secret.metadata.namespace,
             client.V1DeleteOptions())
 
-    def generate_pod_spec(self, image_name):
+    def generate_pod_spec(self, image_name, push):
+        args = ["--dockerfile=Dockerfile",
+                          "--destination=" + image_name,
+                          "--context=" + self.uploaded_context_url]
+        if not push:
+            args.append("--no-push")
         return client.V1PodSpec(
                 containers=[client.V1Container(
                     name='kaniko',
