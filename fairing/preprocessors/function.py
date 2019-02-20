@@ -18,7 +18,6 @@ class FunctionPreProcessor(BasePreProcessor):
     """
     def __init__(self,
                  function_name,
-                 executable=None,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map={}):
 
