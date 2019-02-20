@@ -11,5 +11,5 @@ def train():
     print('Hostname: ', sess.run(hostname).decode('utf-8'))
 
 if __name__ == '__main__':
-    train = fairing.config.fn(train)
-    train()
+    remote_train = fairing.config.fn(train)
+    remote_train()
