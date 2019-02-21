@@ -28,7 +28,7 @@ class ClusterBuilder(BaseBuilder):
     """
     def __init__(self,
                  registry=None,
-                 context_source=gcs_context.GCSContextSource(),
+                 context_source=None,
                  preprocessor=None,
                  push=True,
                  base_image=constants.DEFAULT_BASE_IMAGE,
@@ -40,6 +40,8 @@ class ClusterBuilder(BaseBuilder):
                 base_image=base_image,
             )
         self.manager = KubeManager()
+        if context_source is None:
+            context_source = gcs_context.GCSContextSource()
         self.context_source = context_source
 
     def build(self):
