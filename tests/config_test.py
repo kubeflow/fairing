@@ -13,15 +13,6 @@ from fairing.builders.docker.docker import DockerBuilder
 from fairing.deployers.job.job import Job
 from fairing.deployers.tfjob.tfjob import TfJob
 
-def test_set_preprocessor_default():
-    """
-    Assert that the default preprocessor is set when no explicit argument is
-    provided.
-    """
-    config.reset()
-    config.set_preprocessor()
-    assert isinstance(config.get_preprocessor(), BasePreProcessor)
-
 def test_set_preprocessor():
     """Assert that a custom preprocessor can be provided."""
     config.reset()
@@ -43,25 +34,10 @@ def test_set_builder_default():
     """
     config.reset()
     config.set_builder(push=False)
-    assert isinstance(config.get_builder(), AppendBuilder)
+    assert isinstance(config.get_builder(config.get_preprocessor()), AppendBuilder)
 
 def test_set_builder():
     """Assert that a custom builder can be provided."""
     config.reset()
     config.set_builder('docker', push=False)
-    assert isinstance(config.get_builder(), DockerBuilder)
-
-def test_set_deployer_default():
-    """
-    Assert that the default deployer is set when no explicit argument is
-    provided.
-    """
-    config.reset()
-    config.set_deployer()
-    assert isinstance(config.get_deployer(), Job)
-
-def test_set_deployer():
-    """Assert that a custom deployer can be provided."""
-    config.reset()
-    config.set_deployer('tfjob')
-    assert isinstance(config.get_deployer(), TfJob)
+    assert isinstance(config.get_builder(config.get_preprocessor()), DockerBuilder)

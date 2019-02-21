@@ -42,17 +42,21 @@ deployer_map = {
 
 class Config(object):
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         if notebook_util.is_in_notebook():
             self._preprocessor_name = 'notebook'
         else:
             self._preprocessor_name = DEFAULT_PREPROCESSOR
-        self._preprocessor_kwargs = None
+        self._preprocessor_kwargs = {}
 
         self._builder_name = DEFAULT_BUILDER
-        self._builder_kwargs = None
+        self._builder_kwargs = {}
         
         self._deployer_name = DEFAULT_DEPLOYER
-        self._deployer_kwargs = None
+        self._deployer_kwargs = {}
+        
 
     def set_preprocessor(self, name=None, **kwargs):
         self._preprocessor_name = name
