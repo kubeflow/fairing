@@ -1,0 +1,10 @@
+language: python
+# Python versions to test
+python:
+    - "3.5"
+# Command to install dependencies
+install:
+    - python setup.py install
+# Command to run tests
+script:
+    - pytest
