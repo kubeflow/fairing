@@ -93,7 +93,7 @@ class Config(object):
 
     def fn(self, fn):
         def ret_fn():
-            self.set_preprocessor('function', function_name=fn.__name__)
+            self.set_preprocessor('function', function_obj=fn)
             self.run()
         return ret_fn
 
