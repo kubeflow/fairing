@@ -17,6 +17,7 @@ from containerregistry.client.v2_2 import docker_image as v2_2_image
 from containerregistry.client.v2_2.save_ import tarball
 from containerregistry.client.v2_2 import docker_session
 from containerregistry.transport import transport_pool
+from containerregistry.transform.v2_2 import metadata
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,10 @@ class AppendBuilder(BaseBuilder):
         creds = docker_creds.DefaultKeychain.Resolve(src)
         with v2_2_image.FromRegistry(src, creds, transport) as src_image:
             with open(self.context_file, 'rb') as f:
-                new_img = append.Layer(src_image, f.read())
+                new_img = append.Layer(src_image, f.read(),
+                    overrides=metadata.Overrides(cmd=self.preprocessor.get_command(),
+                                                 user='0',
+                                                 env={"FAIRING_RUNTIME": "1"}))
         return new_img
 
 

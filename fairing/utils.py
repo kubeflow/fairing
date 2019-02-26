@@ -1,5 +1,6 @@
 import os
 import zlib
+import uuid
 
 
 def get_image(repository, name):
@@ -29,3 +30,6 @@ def crc(file_name):
     for eachLine in open(file_name, "rb"):
         prev = zlib.crc32(eachLine, prev)
     return "%X" % (prev & 0xFFFFFFFF)
+
+def random_tag():
+    return str(uuid.uuid4()).split('-')[0]
