@@ -10,6 +10,7 @@ from fairing.builders.builder import BuilderInterface
 
 from fairing.deployers.job.job import Job
 from fairing.deployers.tfjob.tfjob import TfJob
+from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.deployer import DeployerInterface
 
 from fairing.notebook import notebook_util
@@ -36,7 +37,8 @@ builder_map = {
 
 deployer_map = {
     'job': Job,
-    'tfjob': TfJob
+    'tfjob': TfJob,
+    'gcp': GCPJob
 }
 
 
