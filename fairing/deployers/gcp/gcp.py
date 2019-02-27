@@ -1,15 +1,18 @@
-import subprocess
-import requests
-
 from fairing import utils
 from fairing.deployers.deployer import DeployerInterface
 from fairing.cloud.gcp import guess_project_name
+
+from oauth2client.client import GoogleCredentials
+from googleapiclient import discovery
+from googleapiclient import errors
 
 class GCPJob(DeployerInterface):
     """Handle submitting training job to GCP."""
     def __init__(self, project_id=None, region=None):
         self._project_id = project_id or guess_project_name()
         self._region = region or 'us-central1'
+
+        self._ml = discovery.build('ml', 'v1')
 
     def deploy(self, pod_template_spec):
         """Deploys the training job"""
@@ -30,24 +33,16 @@ class GCPJob(DeployerInterface):
             }
         }
 
-        auth = subprocess.run(['gcloud', 'auth', 'print-access-token'],
-                              stdout=subprocess.PIPE).stdout[:-1].decode('utf-8')
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer {}'.format(auth)
-        }
-
         try:
-            r = requests.post('https://ml.googleapis.com/v1/projects/{}/jobs'.format(self._project_id),
-                              json=request_dict,
-                              headers=headers)
-            r.raise_for_status()
+            response = self._ml.projects().jobs().create(
+                parent='projects/{}'.format(self._project_id),
+                body=request_dict
+            ).execute()
             print('Job submitted successfully.')
-            print(r.json())
             self.get_logs()
-        except requests.exceptions.RequestException as err:
+        except errors.HttpError as err:
             print('There was an error submitting the job.')
-            print(err)
+            print(err._get_reason())
 
     def get_logs(self):
         """Streams the logs for the training job"""
