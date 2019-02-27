@@ -27,6 +27,8 @@ def get_notebook_name():
 def is_in_notebook():
     try:
         ipykernel.get_connection_info()
-    except RuntimeError:
+    # Temporary fix for #84
+    # TODO: remove blanket Exception catching after fixing #84
+    except Exception:
         return False
     return True
