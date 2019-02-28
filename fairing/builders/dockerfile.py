@@ -10,6 +10,7 @@ def write_dockerfile(
         base_image=None):
     content = '\n'.join([
         "FROM {}".format(base_image),
+        "WORKDIR {PATH_PREFIX}".format(PATH_PREFIX=path_prefix),
         "ENV FAIRING_RUNTIME 1",
         "COPY {PATH_PREFIX} {PATH_PREFIX}".format(PATH_PREFIX=path_prefix),
         "RUN if [ -e requirements.txt ];" +
