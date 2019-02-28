@@ -35,6 +35,7 @@ class DockerBuilder(BaseBuilder):
     def _build(self):
         dockerfile_path = dockerfile.write_dockerfile(
             dockerfile_path=self.dockerfile_path,
+            path_prefix=self.preprocessor.path_prefix,
             base_image=self.base_image)
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_file, context_hash = self.preprocessor.context_tar_gz()
