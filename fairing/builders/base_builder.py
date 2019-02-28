@@ -57,7 +57,6 @@ class BaseBuilder(BuilderInterface):
                     value='1',
                 )]
             )],
-            restart_policy='Never'
         )
 
     def full_image_name(self, tag):
