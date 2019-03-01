@@ -17,10 +17,6 @@ class Serving(Job):
     def __init__(self, serving_class, namespace=None, runs=1, ):
         super(Serving, self).__init__(namespace, runs)
         self.serving_class = serving_class
-
-    def create_resource(self):
-        self.created_tfjob = self.backend.create_tf_job(self.namespace, self.deployment_spec)
-        return self.created_tfjob['metadata']['name']
         
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
@@ -42,7 +38,7 @@ class Serving(Job):
         self.deployment = apps_v1.create_namespaced_deployment(self.namespace, self.deployment_spec)
         self.service = v1_api.create_namespaced_service(self.namespace, self.service_spec)
 
-        logger.warn("Training job {} launched.".format(self.deployment.metadata.name))
+        logger.warn("Endpoint {} launched.".format(self.deployment.metadata.name))
         self.get_logs()
 
     def generate_deployment_spec(self, pod_template_spec):
@@ -78,5 +74,5 @@ class Serving(Job):
             )
         )
 
-    def get_logs(self):      
+    def get_logs(self):
         self.backend.watch_service_for_external_ip(self.service.metadata.name, self.service.metadata.namespace, self.labels)
