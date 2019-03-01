@@ -1,0 +1,20 @@
+steps:
+# Pull cached image from previous build
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: ['-c', 'docker pull gcr.io/$PROJECT_ID/fairing-test:latest || exit 0']
+
+# Build test image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+      'build',
+      '-f', 'Dockerfile.test',
+      '-t', 'gcr.io/$PROJECT_ID/fairing-test:latest',
+      '--cache-from', 'gcr.io/$PROJECT_ID/fairing-test:latest',
+      '.'
+  ]
+
+# Run tests
+- name: 'gcr.io/$PROJECT_ID/fairing-test:latest'
+
+images: ['gcr.io/$PROJECT_ID/fairing-test:latest']
