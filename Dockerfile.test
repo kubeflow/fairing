@@ -1,0 +1,25 @@
+FROM python:3.5
+
+WORKDIR /opt/fairing
+
+# Install dependencies
+COPY setup.py requirements.txt /opt/fairing/
+RUN pip install -e .
+
+# Install gcloud
+RUN mkdir -p /builder && \
+	wget -qO- https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz | tar zxv -C /builder && \
+	CLOUDSDK_PYTHON="python2.7" /builder/google-cloud-sdk/install.sh --usage-reporting=false \
+		--bash-completion=false \
+		--disable-installation-options && \
+	rm -rf ~/.config/gcloud
+ENV PATH=/builder/google-cloud-sdk/bin/:$PATH
+
+# Install test dependencies
+RUN pip install pytest
+
+# Install Fairing
+COPY . /opt/fairing
+RUN python setup.py install
+
+CMD pytest

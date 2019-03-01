@@ -1,0 +1,7 @@
+steps:
+# Build test image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-f', 'Dockerfile.test', '-t', 'fairing-tests', '.']
+
+# Run tests
+- name: 'fairing-tests'
