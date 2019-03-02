@@ -54,7 +54,8 @@ Now, run the training job remotely with
 fairing.config.run()
 ```
 
-What happened? Fairing
+What happened?
+Fairing
 
 - Packaged your code in a docker container (without using docker)
 - Deployed a Kubernetes workload with the training job
