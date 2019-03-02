@@ -19,11 +19,10 @@ import numpy as np
 MODEL_FILE = 'trained_ames_model.dat'
 
 fairing.config.set_builder('docker',
-registry='gcr.io/mrick-gcp',
-base_image="seldonio/seldon-core-s2i-python3:0.4")
+  registry='gcr.io/mrick-gcp',
+  base_image="seldonio/seldon-core-s2i-python3:0.4")
 
 fairing.config.set_deployer('serving', serving_class="HousingServe")
-fairing.config.run()
 
 class HousingServe(object):
   def __init__(self, model_file=MODEL_FILE):
@@ -38,5 +37,6 @@ class HousingServe(object):
 
 
 if __name__ == '__main__':
+  fairing.config.run()
   serve = HousingServe()
   print(serve.predict(np.ndarray([1, 37]), None))
