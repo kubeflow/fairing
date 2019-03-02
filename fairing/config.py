@@ -9,6 +9,7 @@ from fairing.builders.cluster.cluster import ClusterBuilder
 from fairing.builders.builder import BuilderInterface
 
 from fairing.deployers.job.job import Job
+from fairing.deployers.serving.serving import Serving
 from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.deployer import DeployerInterface
@@ -38,7 +39,8 @@ builder_map = {
 deployer_map = {
     'job': Job,
     'tfjob': TfJob,
-    'gcp': GCPJob
+    'gcp': GCPJob,
+    'serving': Serving,
 }
 
 
@@ -58,7 +60,6 @@ class Config(object):
         
         self._deployer_name = DEFAULT_DEPLOYER
         self._deployer_kwargs = {}
-        
 
     def set_preprocessor(self, name=None, **kwargs):
         self._preprocessor_name = name

@@ -11,7 +11,7 @@ import glob
 class BasePreProcessor(object):
     """
     Prepares a context that gets sent to the builder for the docker build and sets the entrypoint
-    
+
     input_files -  the source files to be processed
     executable - the file to execute using command (e.g. main.py)
     output_map - a list of files to be added without preprocessing
@@ -68,6 +68,8 @@ class BasePreProcessor(object):
         return output_file, utils.crc(self._context_tar_path)
 
     def get_command(self):
+        if self.command is None or self.executable is None:
+            return []
         cmd = self.command.copy()
         cmd.append(os.path.join(self.path_prefix, self.executable))
         return cmd
