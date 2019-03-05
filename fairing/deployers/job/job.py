@@ -10,7 +10,8 @@ from fairing.deployers.deployer import DeployerInterface
 
 
 logger = logging.getLogger(__name__)
-DEFAULT_JOB_NAME = 'fairing-job'
+DEFAULT_JOB_NAME = 'fairing-job-'
+DEFAULT_LABELS = {'fairing-deployer': 'job'}
 
 
 class Job(DeployerInterface):
@@ -22,19 +23,23 @@ class Job(DeployerInterface):
             will generate multiple jobs.
     """
 
-    def __init__(self, namespace=None, runs=1, output=None, cleanup=True, labels={'fairing-deployer': 'job'}):
+    def __init__(self, namespace=None, runs=1, output=None,
+                 cleanup=True, labels=DEFAULT_LABELS, job_name=DEFAULT_JOB_NAME,
+                 stream_log=True):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
             self.namespace = namespace
 
         # Used as pod and job name
+        self.job_name = job_name
         self.deployment_spec = None
         self.runs = runs
         self.output = output
         self.labels = labels
         self.backend = KubeManager()
         self.cleanup = cleanup
+        self.stream_log = stream_log
 
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
@@ -48,7 +53,9 @@ class Job(DeployerInterface):
 
         name = self.create_resource()
         logger.warn("Training job {} launched.".format(name))
-        self.get_logs()
+
+        if self.stream_log:
+            self.get_logs()
 
     def create_resource(self):
         self._created_job = self.backend.create_job(self.namespace, self.deployment_spec)
@@ -80,16 +87,20 @@ class Job(DeployerInterface):
             api_version="batch/v1",
             kind="Job",
             metadata=k8s_client.V1ObjectMeta(
-                generate_name="fairing-deployer-"
+                generate_name=self.job_name
             ),
             spec=job_spec
         )
 
     def get_logs(self):
         self.backend.log(self._created_job.metadata.name, self._created_job.metadata.namespace, self.labels)
+
         if self.cleanup:
-            logger.warn("Cleaning up job {}...".format(self._created_job.metadata.name))
-            k8s_client.BatchV1Api().delete_namespaced_job(
-                self._created_job.metadata.name,
-                self._created_job.metadata.namespace,
-                k8s_client.V1DeleteOptions(propagation_policy='Foreground'))
+            self.do_cleanup()
+
+    def do_cleanup(self):
+        logger.warn("Cleaning up job {}...".format(self._created_job.metadata.name))
+        k8s_client.BatchV1Api().delete_namespaced_job(
+            self._created_job.metadata.name,
+            self._created_job.metadata.namespace,
+            k8s_client.V1DeleteOptions(propagation_policy='Foreground'))

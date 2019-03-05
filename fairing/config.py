@@ -67,6 +67,9 @@ class Config(object):
     
     def get_preprocessor(self):
         fn = preprocessor_map.get(self._preprocessor_name)
+        if fn is None:
+            raise Exception('Builder name not found: {}\nAvailable deployer: {}'.format(
+                self._preprocessor_name, list(preprocessor_map.keys())))
         return fn(**self._preprocessor_kwargs)
 
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
@@ -75,6 +78,9 @@ class Config(object):
    
     def get_builder(self, preprocessor):
         fn = builder_map.get(self._builder_name)
+        if fn is None:
+            raise Exception('Builder name not found: {}\nAvailable deployer: {}'.format(
+                self._builder_name, list(builder_map.keys())))
         return fn(preprocessor=preprocessor, **self._builder_kwargs)
         
     def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
@@ -83,6 +89,9 @@ class Config(object):
 
     def get_deployer(self):
         fn = deployer_map.get(self._deployer_name)
+        if fn is None:
+            raise Exception('Deployer name not found: {}\nAvailable deployer: {}'.format(
+                self._deployer_name, list(deployer_map.keys())))
         return fn(**self._deployer_kwargs)
 
     def run(self):
@@ -93,6 +102,15 @@ class Config(object):
         builder.build()
         pod_spec = builder.generate_pod_spec()
         deployer.deploy(pod_spec)
+
+    def deploy(self, pod_spec):
+        self.get_deployer().deploy(pod_spec)
+
+    def get_model(self):
+        return self._model
+
+    def set_model(self, model):
+        self._model = model
 
     def fn(self, fn):
         def ret_fn():

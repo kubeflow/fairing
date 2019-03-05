@@ -33,8 +33,6 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 import fairing
 
-fairing.config.set_builder(name='docker',registry='gcr.io/mrick-gcp',base_image='tensorflow/tensorflow')
-fairing.config.set_deployer(name='tfjob', worker_count=3, ps_count=1)
 
 MAX_STEPS = 1000
 LEARNING_RATE = 0.001
@@ -42,6 +40,7 @@ DROPOUT = 0.9
 DATA_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                         'tensorflow/input_data')
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
+
 
 class TensorflowModel(object):
     def build(self):
@@ -231,5 +230,7 @@ class TensorflowModel(object):
 
 
 if __name__ == '__main__':
+    fairing.config.set_builder(name='docker', registry='gcr.io/mrick-gcp', base_image='tensorflow/tensorflow')
+    fairing.config.set_deployer(name='tfjob', namespace='default', worker_count=1, ps_count=1)
     fairing.config.set_model(TensorflowModel())
     fairing.config.run()

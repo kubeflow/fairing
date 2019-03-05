@@ -14,12 +14,14 @@ class BaseBuilder(BuilderInterface):
 
     def __init__(self,
                  registry=None,
+                 image_name=None,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  push=True,
                  preprocessor=None,
                  dockerfile_path=None):
 
         self.registry = registry
+        self.image_name = image_name
         self.push = push
         if self.registry is None:
             # TODO(r2d4): Add more heuristics here...
@@ -33,14 +35,8 @@ class BaseBuilder(BuilderInterface):
         self.base_image = base_image
         self.dockerfile_path = dockerfile_path
         self.preprocessor = preprocessor
-        self.image_name = None
         self.image_tag = None
         self.docker_client = None
-
-        if self.registry.count("/") == 0:
-            self.registry = "{DEFAULT_REGISTRY}/{USER_REPOSITORY}".format(
-                DEFAULT_REGISTRY=constants.DEFAULT_REGISTRY,
-                USER_REPOSITORY=self.registry)
 
     def generate_pod_spec(self):
         """return a V1PodSpec initialized with the proper container"""
@@ -60,8 +56,7 @@ class BaseBuilder(BuilderInterface):
         )
 
     def full_image_name(self, tag):
-        image_name = constants.DEFAULT_IMAGE_NAME
-        return '{}/{}:{}'.format(self.registry, image_name, tag)
+        return '{}/{}:{}'.format(self.registry, self.image_name, tag)
 
     def build(self):
         """Runs the build"""
