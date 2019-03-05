@@ -1,16 +1,18 @@
 from kubernetes import client as k8s_client
 
-from fairing import kubernetes
 from fairing.deployers.job.job import Job
+from fairing.kubernetes.manager import TF_JOB_VERSION
+DEFAULT_JOB_NAME = 'fairing-tfjob-'
 
 
 class TfJob(Job):
-    def __init__(self, namespace=None, worker_count=1, ps_count=0, runs=1):
-        super(TfJob, self).__init__(namespace, runs)
+    def __init__(self, namespace=None, worker_count=1, ps_count=0,
+                 chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True):
+        super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
-            'Chief': 1
+            'Chief': chief_count
         }
 
     def create_resource(self):
@@ -43,8 +45,8 @@ class TfJob(Job):
 
         tf_job = {}
         tf_job['kind'] = 'TFJob'
-        tf_job['apiVersion'] = 'kubeflow.org/' + kubernetes.TF_JOB_VERSION
-        tf_job['metadata'] = k8s_client.V1ObjectMeta(generate_name="fairing-deployer-")
+        tf_job['apiVersion'] = 'kubeflow.org/' + TF_JOB_VERSION
+        tf_job['metadata'] = k8s_client.V1ObjectMeta(generate_name=self.job_name)
         tf_job['spec'] = spec
 
         return tf_job

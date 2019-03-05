@@ -38,11 +38,13 @@ class AppendBuilder(BaseBuilder):
     """
     def __init__(self,
                  registry=None,
+                 image_name=constants.DEFAULT_IMAGE_NAME,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  push=True,
                  preprocessor=None):
         super().__init__(
             registry=registry,
+            image_name=image_name,
             base_image=base_image,
             push=push,
             preprocessor=preprocessor,

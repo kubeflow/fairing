@@ -15,12 +15,14 @@ class DockerBuilder(BaseBuilder):
 
     def __init__(self,
                  registry=None,
+                 image_name=constants.DEFAULT_IMAGE_NAME,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None,
                  push=True,
                  dockerfile_path=None):
         super().__init__(
             registry=registry,
+            image_name=image_name,
             push=push,
             base_image=base_image,
             preprocessor=preprocessor,

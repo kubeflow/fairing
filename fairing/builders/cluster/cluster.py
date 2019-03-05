@@ -28,6 +28,7 @@ class ClusterBuilder(BaseBuilder):
     """
     def __init__(self,
                  registry=None,
+                 image_name=constants.DEFAULT_IMAGE_NAME,
                  context_source=None,
                  preprocessor=None,
                  push=True,
@@ -35,6 +36,7 @@ class ClusterBuilder(BaseBuilder):
                  dockerfile_path=None):
         super().__init__(
                 registry=registry,
+                image_name=image_name,
                 push=push,
                 preprocessor=preprocessor,
                 base_image=base_image,
