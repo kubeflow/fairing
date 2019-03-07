@@ -5,6 +5,7 @@ python:
 # Command to install dependencies
 install:
     - python setup.py install
+    - pip install --upgrade pytest
 # Command to run tests
 script:
     - pytest
