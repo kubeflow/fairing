@@ -61,9 +61,9 @@ class BasePreProcessor(object):
 
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
         self.input_files = self.preprocess()
-        with tarfile.open(output_file, "w:gz") as tar:
+        with tarfile.open(output_file, "w:gz", dereference=True) as tar:
             for src, dst in self.context_map().items():
-                tar.add(src, filter=reset_tar_mtime, arcname=dst)
+                tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
         self._context_tar_path = output_file
         return output_file, utils.crc(self._context_tar_path)
 
