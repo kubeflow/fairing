@@ -14,7 +14,11 @@ steps:
       '.'
   ]
 
-# Run tests
+# Authenticate with Kubeflow cluster and run tests
 - name: 'gcr.io/$PROJECT_ID/fairing-test:latest'
+  entrypoint: 'bash'
+  args:
+      - '-c'
+      - 'gcloud container clusters get-credentials kubeflow --zone us-central1-a && pytest'
 
 images: ['gcr.io/$PROJECT_ID/fairing-test:latest']

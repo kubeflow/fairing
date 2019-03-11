@@ -34,7 +34,7 @@ class BasePreProcessor(object):
         self.command = command
 
         self.set_default_executable()
-            
+
     def set_default_executable(self):
         if self.executable is not None:
             return self.executable
@@ -61,9 +61,13 @@ class BasePreProcessor(object):
 
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
         self.input_files = self.preprocess()
+        added_files = set()
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
             for src, dst in self.context_map().items():
-                tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
+                # Skip if the file has already been added (to avoid duplicates)
+                if dst not in added_files:
+                    tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
+                    added_files.add(dst)
         self._context_tar_path = output_file
         return output_file, utils.crc(self._context_tar_path)
 

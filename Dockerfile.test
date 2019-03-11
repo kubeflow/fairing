@@ -24,4 +24,4 @@ RUN pip install -e .
 COPY . /opt/fairing
 RUN python setup.py install
 
-CMD pytest
+ENTRYPOINT pytest
