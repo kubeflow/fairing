@@ -7,6 +7,11 @@ import io
 def train_fn():
     print('train_fn')
 
+# Update module to work with function preprocessor
+# TODO: Remove when the function preprocessor works with functions from
+# other modules.
+train_fn.__module__ = '__main__'
+
 def test_kubeflow_submission():
     gcp_project = fairing.cloud.gcp.guess_project_name()
     docker_registry = 'gcr.io/{}/fairing-job'.format(gcp_project)
