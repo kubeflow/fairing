@@ -12,7 +12,7 @@ If you already have Docker and kubectl configured, you're all set! If you are us
 ## Installing `fairing`
 
 ```bash
-pip install fairing
+pip install git+https://github.com/kubeflow/fairing@master
 ```
 
 ## Overview
@@ -38,10 +38,10 @@ class SimpleModel():
         hostname = tf.constant(os.environ['HOSTNAME'])
         sess = tf.Session()
         print('Hostname: ', sess.run(hostname).decode('utf-8'))
-```
 
-```python
-fairing.config.set_model(SimpleModel())
+if __name__ == '__main__':
+    model = SimpleModel()
+    model.train()    
 ```
 
 If you have `GOOGLE_APPLICATION_CREDENTIALS` set, you can skip the next step. Otherwise, set the builder
