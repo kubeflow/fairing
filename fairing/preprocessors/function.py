@@ -21,12 +21,10 @@ class FunctionPreProcessor(BasePreProcessor):
     def __init__(self,
                  function_obj,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map={}):
-
+                 output_map=None):
         super().__init__(
             output_map=output_map,
             path_prefix=path_prefix)
-
 
         fairing_dir = os.path.dirname(fairing.__file__)
         self.output_map[os.path.join(fairing_dir, "functions", FUNCTION_SHIM)] = \

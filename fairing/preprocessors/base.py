@@ -25,11 +25,11 @@ class BasePreProcessor(object):
         command=["python"],
         executable=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
-        output_map={}
+        output_map=None
     ):
         self.executable = executable
         self.input_files = input_files
-        self.output_map = output_map
+        self.output_map = output_map if output_map else {}
         self.path_prefix = path_prefix
         self.command = command
 
