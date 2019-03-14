@@ -232,5 +232,4 @@ class TensorflowModel(object):
 if __name__ == '__main__':
     fairing.config.set_builder(name='docker', registry='gcr.io/mrick-gcp', base_image='tensorflow/tensorflow')
     fairing.config.set_deployer(name='tfjob', namespace='default', worker_count=1, ps_count=1)
-    fairing.config.set_model(TensorflowModel())
     fairing.config.run()
