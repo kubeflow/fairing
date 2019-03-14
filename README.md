@@ -22,7 +22,7 @@ To use Kubeflow Fairing, you need:
 If you already have Docker and kubectl configured, you're all set! If you are using
 [Kubeflow](https://www.kubeflow.org/), you can take advantage of advanced features,
 such as using [TFJob](https://www.kubeflow.org/docs/components/tftraining/) to train
-TensorFlow models.
+a TensorFlow model.
 
 ## Installing Fairing
 
