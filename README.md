@@ -38,7 +38,7 @@ This example creates a simple TensorFlow model, and then uses Kubeflow Fairing t
 package the model training code as a container image, and run the training job on
 Kubernetes.
 
-1. Create a simple TensorFlow model that prints out the hostname of the machine.
+1. Create a simple TensorFlow model that prints the machine's hostname.
 
 ```python
 import os
@@ -57,17 +57,18 @@ if __name__ == '__main__':
     model.train()    
 ```
 
-2. Configure the builder If you have the `GOOGLE_APPLICATION_CREDENTIALS`
-environmental variable set, you can skip the next step. Otherwise, use the
-set_builder() method to define how to build the container image and where it
-should be stored.
+2. Configure the container image builder. If you are using Google Cloud
+Platform and you have [set the _GOOGLE_APPLICATION_CREDENTIALS_
+environmental variable][gcp-auth], you can skip this step. Otherwise, use
+the `set_builder()` to configure the method to use to build the container
+image and the location of the registry to store the container image in.
 
 ```python
 fairing.config.set_builder(name='append', registry='<your-registry-here>')
 ````
 
 - `name`: The builder name: **append**, **cluster**, or **docker**. 
-- `registry`: THe location of your container image registry.
+- `registry`: The location of your container image registry.
 
 3. Run the training job remotely on Kubernetes.
 
@@ -117,3 +118,5 @@ image produced by the builder to run the training job on Kubernetes.
 - **Job:** Uses a Kubernetes Job resource to launch your training job.
 - **TfJob:** Uses the TFJob component of Kubeflow to launch your
   Tensorflow training job.
+
+[gcp-auth]: https://cloud.google.com/docs/authentication/getting-started#auth-cloud-implicit-python
