@@ -77,7 +77,6 @@ class KubeManager(object):
         except client.rest.ApiException as e:
             logger.error("error getting status for {} {}".format(name, str(e)))
                                   
-
     def log(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()

@@ -11,7 +11,7 @@ from fairing.deployers.deployer import DeployerInterface
 
 logger = logging.getLogger(__name__)
 DEFAULT_JOB_NAME = 'fairing-job-'
-DEFAULT_LABELS = {'fairing-deployer': 'job'}
+DEPLOPYER_TYPE = 'job'
 
 
 class Job(DeployerInterface):
@@ -24,8 +24,8 @@ class Job(DeployerInterface):
     """
 
     def __init__(self, namespace=None, runs=1, output=None,
-                 cleanup=True, labels=DEFAULT_LABELS, job_name=DEFAULT_JOB_NAME,
-                 stream_log=True):
+                 cleanup=True, labels=None, job_name=DEFAULT_JOB_NAME,
+                 stream_log=True, deployer_type=DEPLOPYER_TYPE):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
@@ -36,10 +36,15 @@ class Job(DeployerInterface):
         self.deployment_spec = None
         self.runs = runs
         self.output = output
-        self.labels = labels
         self.backend = KubeManager()
         self.cleanup = cleanup
         self.stream_log = stream_log
+        self.set_labels(labels, deployer_type)
+
+    def set_labels(self, labels, deployer_type):
+        self.labels = {'fairing-deployer': deployer_type}
+        if labels:
+            self.labels.update(labels)
 
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())

@@ -23,6 +23,12 @@ class RuntimeConfig(object):
     def get_deployer(self, **kwargs):
         return self._deployer
 
+    def get_model(self):
+        return self._model
+
+    def set_model(self, model):
+        self._model = model
+
     def run(self):
         pass
 
