@@ -34,8 +34,8 @@ pip install git+https://github.com/kubeflow/fairing@master
 
 ## Example
 
-This example creates a simple TensorFlow model, and then uses Kubeflow Fairing to
-package the model training code as a container image, and run the training job on
+This example demonstrates how to create a simple TensorFlow model and train it locally.
+Then it illustrates how to use Kubeflow Fairing to package the model and run it on
 Kubernetes.
 
 1. Create a simple TensorFlow model that prints the machine's hostname.
@@ -57,11 +57,11 @@ if __name__ == '__main__':
     model.train()    
 ```
 
-2. Configure the container image builder. If you are using Google Cloud
-   Platform and you have [set the _GOOGLE_APPLICATION_CREDENTIALS_
-   environmental variable][gcp-auth], you can skip this step. Otherwise, use
-   set_builder()`to configure the builder method to use to build the container
-   image and the location of the registry to store the container image in.
+2. Configure the strategy that Kubeflow Fairing will use to package the model.
+   If you are using Google Cloud Platform and you have [set the _GOOGLE_
+   APPLICATION_CREDENTIALS_environmental variable][gcp-auth], you can skip this
+   step. Otherwise, use `set_builder()` to configure the builder method to use
+   to build the container image and the location of the registry to store it in.
 
 ```python
 fairing.config.set_builder(name='append', registry='<your-registry-here>')
