@@ -96,7 +96,8 @@ change the entrypoint for the training job.
 - **full_notebook:** Runs a full notebook as-is, including bash scripts
   or non-Python code.
 
-The **builder** {: #builder} defines how and where a container image is built. There
+### Builders {: #builder }
+The **builder**  defines how and where a container image is built. There
 are different strategies that will make sense for different environments
 and use cases.
 
