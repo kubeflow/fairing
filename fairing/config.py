@@ -106,12 +106,6 @@ class Config(object):
     def deploy(self, pod_spec):
         self.get_deployer().deploy(pod_spec)
 
-    def get_model(self):
-        return self._model
-
-    def set_model(self, model):
-        self._model = model
-
     def fn(self, fn):
         def ret_fn():
             self.set_preprocessor('function', function_obj=fn)

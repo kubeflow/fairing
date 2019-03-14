@@ -3,13 +3,15 @@ from kubernetes import client as k8s_client
 from fairing.deployers.job.job import Job
 from fairing.kubernetes.manager import TF_JOB_VERSION
 DEFAULT_JOB_NAME = 'fairing-tfjob-'
+DEPLOPYER_TYPE = 'tfjob'
 
 
 class TfJob(Job):
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
-                 chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True,
+                 chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True, labels=None,
                  mount_credentials=False):
-        super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log)
+        super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
+                                    deployer_type=DEPLOYER_TYPE, labels=labels)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
