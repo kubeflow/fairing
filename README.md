@@ -24,7 +24,7 @@ If you already have Docker and kubectl configured, you're all set! If you are us
 such as using [TFJob](https://www.kubeflow.org/docs/components/tftraining/) to train
 a TensorFlow model.
 
-## Installing Fairing
+## Installing Kubeflow Fairing
 
 To install Kubeflow Fairing from PyPI:
 
@@ -83,7 +83,7 @@ In this example, Kubeflow Fairing:
 - Deployed your training job as a Kubernetes workload.
 - Streamed the logs from the training job back to you in real time.
 
-## Configuring Fairing
+## Configuring Kubeflow Fairing
 
 There are three configurable parts of Kubeflow Fairing: the preprocessor,
 builder, and deployer. 
