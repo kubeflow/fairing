@@ -7,13 +7,15 @@ DEFAULT_JOB_NAME = 'fairing-tfjob-'
 
 class TfJob(Job):
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
-                 chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True):
+                 chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True,
+                 mount_credentials=False):
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
             'Chief': chief_count
         }
+        self.mount_credentials = mount_credentials
 
     def create_resource(self):
         self.created_tfjob = self.backend.create_tf_job(self.namespace, self.deployment_spec)
@@ -23,30 +25,33 @@ class TfJob(Job):
         """Returns a TFJob template"""
         self.set_container_name(pod_template_spec)
 
-        # Set appropriate secrets and volumes to enable kubeflow-user service
-        # account.
-        env_var = k8s_client.V1EnvVar(
-            name='GOOGLE_APPLICATION_CREDENTIALS',
-            value='/etc/secrets/user-gcp-sa.json')
-        if pod_template_spec.spec.containers[0].env:
-            pod_template_spec.spec.containers[0].env.append(env_var)
-        else:
-            pod_template_spec.spec.containers[0].env = [env_var]
+        # TODO: Extract config options into a global config set, in order to
+        # enable platform-specific options.
+        if self.mount_credentials:
+            # Set appropriate secrets and volumes to enable kubeflow-user service
+            # account.
+            env_var = k8s_client.V1EnvVar(
+                name='GOOGLE_APPLICATION_CREDENTIALS',
+                value='/etc/secrets/user-gcp-sa.json')
+            if pod_template_spec.spec.containers[0].env:
+                pod_template_spec.spec.containers[0].env.append(env_var)
+            else:
+                pod_template_spec.spec.containers[0].env = [env_var]
 
-        volume_mount = k8s_client.V1VolumeMount(
-            name='user-gcp-sa', mount_path='/etc/secrets', read_only=True)
-        if pod_template_spec.spec.containers[0].volume_mounts:
-            pod_template_spec.spec.containers[0].volume_mounts.append(volume_mount)
-        else:
-            pod_template_spec.spec.containers[0].volume_mounts = [volume_mount]
+            volume_mount = k8s_client.V1VolumeMount(
+                name='user-gcp-sa', mount_path='/etc/secrets', read_only=True)
+            if pod_template_spec.spec.containers[0].volume_mounts:
+                pod_template_spec.spec.containers[0].volume_mounts.append(volume_mount)
+            else:
+                pod_template_spec.spec.containers[0].volume_mounts = [volume_mount]
 
-        volume = k8s_client.V1Volume(
-            name='user-gcp-sa',
-            secret=k8s_client.V1SecretVolumeSource(secret_name='user_gcp_sa'))
-        if pod_template_spec.spec.volumes:
-            pod_template_spec.spec.volumes.append(volume)
-        else:
-            pod_template_spec.spec.volumes = [volume]
+            volume = k8s_client.V1Volume(
+                name='user-gcp-sa',
+                secret=k8s_client.V1SecretVolumeSource(secret_name='user_gcp_sa'))
+            if pod_template_spec.spec.volumes:
+                pod_template_spec.spec.volumes.append(volume)
+            else:
+                pod_template_spec.spec.volumes = [volume]
 
         worker_replica_spec = {}
         worker_replica_spec['replicas'] = self.distribution['Worker']
