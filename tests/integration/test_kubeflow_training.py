@@ -5,7 +5,7 @@ import io
 
 # Dummy training function to be submitted
 def train_fn():
-    print('train_fn')
+    print('hello world')
 
 # Update module to work with function preprocessor
 # TODO: Remove when the function preprocessor works with functions from
@@ -28,5 +28,5 @@ def test_kubeflow_submission():
     output = sys.stdout.getvalue()
     sys.stdout = sys.__stdout__
 
-    assert 'train_fn' in output
+    assert 'hello world' in output
 
