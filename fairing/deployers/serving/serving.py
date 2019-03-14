@@ -6,6 +6,8 @@ from kubernetes import client as k8s_client
 from fairing.deployers.job.job import Job
 
 logger = logging.getLogger(__name__)
+DEPLOPYER_TYPE = 'serving'
+
 
 class Serving(Job):
     """
@@ -14,8 +16,8 @@ class Serving(Job):
     serving_class: the name of the class that holds the predict function.
     
     """
-    def __init__(self, serving_class, namespace=None, runs=1, ):
-        super(Serving, self).__init__(namespace, runs)
+    def __init__(self, serving_class, namespace=None, runs=1, labels=None):
+        super(Serving, self).__init__(namespace, runs, deployer_type=DEPLOPYER_TYPE, labels=labels)
         self.serving_class = serving_class
         
     def deploy(self, pod_spec):
