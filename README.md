@@ -60,7 +60,7 @@ if __name__ == '__main__':
 2. Configure the container image builder. If you are using Google Cloud
    Platform and you have [set the _GOOGLE_APPLICATION_CREDENTIALS_
    environmental variable][gcp-auth], you can skip this step. Otherwise, use
-   set_builder()` to configure the [builder](#builder) method to use to build the container
+   set_builder()`to configure the builder method to use to build the container
    image and the location of the registry to store the container image in.
 
 ```python
@@ -84,7 +84,8 @@ In this example, Kubeflow Fairing:
 
 ## Configuring Fairing
 
-There are three configurable parts of Kubeflow Fairing. 
+There are three configurable parts of Kubeflow Fairing: the preprocessor,
+builder, and deployer. 
 
 The **preprocessor** defines how a set of inputs gets mapped to a context
 for the docker image build. It can convert input files, exclude some, and
@@ -96,7 +97,6 @@ change the entrypoint for the training job.
 - **full_notebook:** Runs a full notebook as-is, including bash scripts
   or non-Python code.
 
-### Builders {: #builder }
 The **builder**  defines how and where a container image is built. There
 are different strategies that will make sense for different environments
 and use cases.
