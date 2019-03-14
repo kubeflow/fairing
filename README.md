@@ -58,10 +58,10 @@ if __name__ == '__main__':
 ```
 
 2. Configure the container image builder. If you are using Google Cloud
-Platform and you have [set the _GOOGLE_APPLICATION_CREDENTIALS_
-environmental variable][gcp-auth], you can skip this step. Otherwise, use
-the `set_builder()` to configure the method to use to build the container
-image and the location of the registry to store the container image in.
+   Platform and you have [set the _GOOGLE_APPLICATION_CREDENTIALS_
+   environmental variable][gcp-auth], you can skip this step. Otherwise, use
+   set_builder()` to configure the [builder](#builder) method to use to build the container
+   image and the location of the registry to store the container image in.
 
 ```python
 fairing.config.set_builder(name='append', registry='<your-registry-here>')
@@ -96,7 +96,7 @@ change the entrypoint for the training job.
 - **full_notebook:** Runs a full notebook as-is, including bash scripts
   or non-Python code.
 
-The **builder** defines how and where a container image is built. There
+The **builder** {: #builder} defines how and where a container image is built. There
 are different strategies that will make sense for different environments
 and use cases.
 
