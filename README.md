@@ -1,15 +1,15 @@
 # Kubeflow Fairing
 
-Easily train machine learning (ML) models on Kubernetes clusters or Kubeflow, directly
-from Python code or a Jupyter Notebook.
+Easily package, deploy, and run your machine learning (ML) training jobs on Kubernetes,
+directly from Python code or a Jupyter notebook. 
 
 ## Features
 
 Kubeflow Fairing provides functions to seemlessly train models remotely on Kubernetes
 clusters.
 
-- Build images in seconds (without Docker)
-- Run training jobs on Kubernetes or Kubeflow without writing Dockerfiles or
+- Build images in seconds, without Docker
+- Run training jobs on Kubernetes or Kubeflow, without writing Dockerfiles or
   Kubernetes manifests
 
 ## Requirements
@@ -60,14 +60,15 @@ if __name__ == '__main__':
 2. Configure the strategy that Kubeflow Fairing will use to package the model.
    If you are using Google Cloud Platform and you have [set the _GOOGLE_
    APPLICATION_CREDENTIALS_environmental variable][gcp-auth], you can skip this
-   step. Otherwise, use `set_builder()` to configure the builder method to use
-   to build the container image and the location of the registry to store it in.
+   step. Otherwise, use `set_builder()` to configure the builder method with
+   the strategy you want to use to build the container image and the location
+   of the registry to store the container image in.
 
 ```python
 fairing.config.set_builder(name='append', registry='<your-registry-here>')
 ````
 
-- `name`: The builder name: **append**, **cluster**, or **docker**. 
+- `name`: The builder strategy name: **append**, **cluster**, or **docker**. 
 - `registry`: The location of your container image registry.
 
 3. Run the training job remotely on Kubernetes.
