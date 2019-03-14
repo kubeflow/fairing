@@ -1,31 +1,44 @@
-# Fairing
+# Kubeflow Fairing
 
-Easily train ML models on Kubernetes, directly from your python code, or a Jupyter notebook.
+Easily train machine learning (ML) models on Kubernetes clusters or Kubeflow, directly
+from Python code or a Jupyter Notebook.
+
+## Features
+
+Kubeflow Fairing provides functions to seemlessly train models remotely on Kubernetes
+clusters.
+
+- Build images in seconds (without Docker)
+- Run training jobs on Kubernetes or Kubeflow without writing Dockerfiles or
+  Kubernetes manifests
 
 ## Requirements
+
+To use Kubeflow Fairing, you need:
 
 - a kubeconfig
 - a docker config
 
-If you already have Docker and kubectl configured, you're all set! If you are using [Kubeflow](https://github.com/kubeflow/kubeflow), you can take advantage of advanced features.
+If you already have Docker and kubectl configured, you're all set! If you are using
+[Kubeflow](https://www.kubeflow.org/), you can take advantage of advanced features,
+such as using [TFJob](https://www.kubeflow.org/docs/components/tftraining/) to train
+TensorFlow models.
 
-## Installing `fairing`
+## Installing Fairing
+
+To install Kubeflow Fairing from PyPI:
 
 ```bash
 pip install git+https://github.com/kubeflow/fairing@master
 ```
 
-## Overview
+## Example
 
-`fairing` provides functions to seemlessly train models remotely on Kubernetes clusters.
+This example creates a simple TensorFlow model, and then uses Kubeflow Fairing to
+package the model training code as a container image, and run the training job on
+Kubernetes.
 
-Features
-* Build images in seconds (without Docker)
-* Run training jobs on Kubernetes without writing Dockerfiles or Kubernetes Manifests
-
-### Example
-
-Create a simple Tensorflow model that prints out the hostname of the machine
+1. Create a simple TensorFlow model that prints out the hostname of the machine.
 
 ```python
 import os
@@ -44,49 +57,63 @@ if __name__ == '__main__':
     model.train()    
 ```
 
-If you have `GOOGLE_APPLICATION_CREDENTIALS` set, you can skip the next step. Otherwise, set the builder
+2. Configure the builder If you have the `GOOGLE_APPLICATION_CREDENTIALS`
+environmental variable set, you can skip the next step. Otherwise, use the
+set_builder() method to define how to build the container image and where it
+should be stored.
+
 ```python
 fairing.config.set_builder(name='append', registry='<your-registry-here>')
 ````
 
-Now, run the training job remotely with
+- `name`: The builder name: **append**, **cluster**, or **docker**. 
+- `registry`: THe location of your container image registry.
+
+3. Run the training job remotely on Kubernetes.
+
 ```
 fairing.config.run()
 ```
 
-What happened?
-Fairing
+In this example, Kubeflow Fairing:
 
-- Packaged your code in a docker container (without using docker)
-- Deployed a Kubernetes workload with the training job
-- Streamed those logs back to you in real time
+- Packaged your code in a docker container, without using docker.
+- Deployed your training job as a Kubernetes workload.
+- Streamed the logs from the training job back to you in real time.
 
-#### Configuring Fairing
+## Configuring Fairing
 
-There are three configurable parts of fairing. 
+There are three configurable parts of Kubeflow Fairing. 
 
-The **preprocessor** defines how a set of inputs gets mapped to a context for the docker image build. It can convert input files, exclude some, and change the entrypoint.
+The **preprocessor** defines how a set of inputs gets mapped to a context
+for the docker image build. It can convert input files, exclude some, and
+change the entrypoint for the training job.
 
-The **builder** defines how and where an image gets built. There are different strategies that will make sense for different environments and use cases.
+- **python:** Copies the input files directly into the container image.
+- **notebook:** Converts a notebook into a runnable python file. Strips
+  out the non-python code.
+- **full_notebook:** Runs a full notebook as-is, including bash scripts
+  or non-Python code.
 
-The **deployer** defines how a training job gets launched. It uses the image produced by the builder to run the training job on Kubernetes.
+The **builder** defines how and where a container image is built. There
+are different strategies that will make sense for different environments
+and use cases.
 
-| Builders |  |
-|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Append | Append the code as a new layer on an existing docker image. The base image won't be pulled and only the delta will be pushed to the registry. Very fast. |
-| Cluster | Launch a build job in the Kubernetes cluster itself. Build and push a container in a container. |
-| Docker | Uses a local docker daemon to build and push the image. |
+- **append:** Creates a Dockerfile by appending the your code as a new
+  layer on an existing docker image. This builder requires less to time
+  to create a container image for your training job, because the base
+  image is not pulled to create the image and only the differences are
+  pushed to the container image registry. 
+- **cluster:** Builds the container image for your training job in the
+  Kubernetes cluster. This option is useful for building jobs in
+  environments where a Docker daemon is not present, for example a
+  hosted notebook.
+- **docker:** Uses a local docker daemon to build and push the container
+  image for your training job to your container image registry.
 
+The **deployer** defines how a training job gets launched. It uses the
+image produced by the builder to run the training job on Kubernetes.
 
-| Deployers |  |
-|:---------:|:-------------------------------------------------------------------------:|
-| Job | Uses a Kubernetes Job resource to launch the training job |
-| TfJob | Uses a Kubeflow Tensorflow Job custom resource to launch the training job |
-
-
-
-| Preprocessors |  |
-|:-------------:|:--------------------------------------------------------------------------------:|
-| python | Takes input files and copies them directly into the container. |
-| notebook | Converts a notebook into a runnable python file. Strips out the non-python code. |
-| full_notebook | Runs a full notebook as-is |
+- **Job:** Uses a Kubernetes Job resource to launch your training job.
+- **TfJob:** Uses the TFJob component of Kubeflow to launch your
+  Tensorflow training job.
