@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
 2. Configure the strategy that Kubeflow Fairing will use to package the model.
    If you are using Google Cloud Platform and you have [set the _GOOGLE_
-   APPLICATION_CREDENTIALS_environmental variable][gcp-auth], you can skip this
+   APPLICATION_CREDENTIALS_ environmental variable][gcp-auth], you can skip this
    step. Otherwise, use `set_builder()` to configure the builder method with
    the strategy you want to use to build the container image and the location
    of the registry to store the container image in.
