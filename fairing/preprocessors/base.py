@@ -6,6 +6,7 @@ import os
 import fairing
 import tarfile
 import glob
+import logging
 
 
 class BasePreProcessor(object):
@@ -28,7 +29,7 @@ class BasePreProcessor(object):
         output_map=None
     ):
         self.executable = executable
-        self.input_files = input_files
+        self.input_files = set(input_files)
         self.output_map = output_map if output_map else {}
         self.path_prefix = path_prefix
         self.command = command
@@ -39,7 +40,7 @@ class BasePreProcessor(object):
         if self.executable is not None:
             return self.executable
         if len(self.input_files) == 1:
-            self.executable = self.input_files[0]
+            self.executable = list(self.input_files)[0]
             return
         python_files = [item for item in self.input_files if item.endswith(".py") and item is not '__init__.py']
         if len(python_files) == 1:
@@ -50,24 +51,35 @@ class BasePreProcessor(object):
         return self.input_files
 
     def context_map(self):
-        c_map = self.fairing_runtime_files()
-        for f in self.input_files:
-            c_map[f] = os.path.join(self.path_prefix, f)
+        # Create context mapping from destination --> source to avoid duplicates
+        # in context archive.
+        c_map = {}
+        for src, dst in self.fairing_runtime_files().items():
+            if dst not in c_map:
+                c_map[dst] = src
+            else:
+                logging.warning('{} already exists in Fairing context, skipping...'.format(src))
 
-        for k, v in self.output_map.items():
-            c_map[k] = v
+        for f in self.input_files:
+            dst = os.path.join(self.path_prefix, f)
+            if dst not in c_map:
+                c_map[dst] = f
+            else:
+                logging.warning('{} already exists in Fairing context, skipping...'.format(f))
+
+        for src, dst in self.output_map.items():
+            if dst not in c_map:
+                c_map[dst] = src
+            else:
+                logging.warning('{} already exists in Fairing context, skipping...'.format(f))
 
         return c_map
 
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
         self.input_files = self.preprocess()
-        added_files = set()
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
-            for src, dst in self.context_map().items():
-                # Skip if the file has already been added (to avoid duplicates)
-                if dst not in added_files:
-                    tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
-                    added_files.add(dst)
+            for dst, src in self.context_map().items():
+                tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
         self._context_tar_path = output_file
         return output_file, utils.crc(self._context_tar_path)
 
