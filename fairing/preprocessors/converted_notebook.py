@@ -32,7 +32,7 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                  executable=None,
                  command=["python"],
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map={}):
+                 output_map=None):
 
         super().__init__(
             executable=executable,

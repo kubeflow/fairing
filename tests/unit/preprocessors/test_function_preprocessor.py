@@ -7,6 +7,7 @@ from fairing.preprocessors.function import FunctionPreProcessor
 def test_simple_function():
     def foo():
         return "bar"
+    foo.__module__ = '__main__'
     fnp = FunctionPreProcessor(foo)
     context_file, _ = fnp.context_tar_gz()
     tar = tarfile.open(context_file)

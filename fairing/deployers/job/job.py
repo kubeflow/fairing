@@ -109,4 +109,4 @@ class Job(DeployerInterface):
         k8s_client.BatchV1Api().delete_namespaced_job(
             self._created_job.metadata.name,
             self._created_job.metadata.namespace,
-            k8s_client.V1DeleteOptions(propagation_policy='Foreground'))
+            body=k8s_client.V1DeleteOptions(propagation_policy='Foreground'))
