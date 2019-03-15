@@ -28,7 +28,8 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 import fairing
 
-fairing.config.set_builder(base_image='tensorflow/tensorflow:1.13.1-py3')
+fairing.config.set_builder('append', base_image='tensorflow/tensorflow:1.13.1-py3')
+fairing.config.run()
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -80,5 +81,4 @@ def train():
             summary_writer.flush()
 
 if __name__ == '__main__':
-    train = fairing.config.fn(train)
     train()

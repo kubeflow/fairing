@@ -28,8 +28,9 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 
 import fairing
-fairing.config.set_builder('append', registry='<your-registry-name>',
+fairing.config.set_builder('docker', registry='<your-registry-name>',
                            base_image='tensorflow/tensorflow:1.13.1-py3')
+fairing.config.run()
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -81,5 +82,4 @@ def train():
 
 
 if __name__ == '__main__':
-    train = fairing.config.fn(train)
     train()
