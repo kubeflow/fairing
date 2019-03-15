@@ -28,7 +28,8 @@ from tensorflow.examples.tutorials.mnist import mnist
 
 import fairing
 
-fairing.config.set_builder(base_image='tensorflow/tensorflow')
+fairing.config.set_builder('append', base_image='tensorflow/tensorflow:1.13.1-py3')
+fairing.config.run()
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -43,43 +44,41 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
-class TensorflowModel():
-    def train(self, **kwargs):
-        tf.logging.set_verbosity(tf.logging.ERROR)
-        self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
-        self.images_placeholder = tf.placeholder(
-            tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
-        self.labels_placeholder = tf.placeholder(tf.int32, shape=(BATCH_SIZE))
+def train():
+    tf.logging.set_verbosity(tf.logging.ERROR)
+    data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
+    images_placeholder = tf.placeholder(
+        tf.float32, shape=(BATCH_SIZE, mnist.IMAGE_PIXELS))
+    labels_placeholder = tf.placeholder(tf.int32, shape=(BATCH_SIZE))
 
-        logits = mnist.inference(self.images_placeholder,
-                                 HIDDEN_1,
-                                 HIDDEN_2)
+    logits = mnist.inference(images_placeholder,
+                             HIDDEN_1,
+                             HIDDEN_2)
 
-        self.loss = mnist.loss(logits, self.labels_placeholder)
-        self.train_op = mnist.training(self.loss, LEARNING_RATE)
-        self.summary = tf.summary.merge_all()
-        init = tf.global_variables_initializer()
-        saver = tf.train.Saver()
-        self.sess = tf.Session()
-        self.summary_writer = tf.summary.FileWriter(LOG_DIR, self.sess.graph)
-        self.sess.run(init)
+    loss = mnist.loss(logits, labels_placeholder)
+    train_op = mnist.training(loss, LEARNING_RATE)
+    summary = tf.summary.merge_all()
+    init = tf.global_variables_initializer()
+    saver = tf.train.Saver()
+    sess = tf.Session()
+    summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
+    sess.run(init)
 
-        data_set = self.data_sets.train
-        for step in xrange(MAX_STEPS):
-            images_feed, labels_feed = data_set.next_batch(BATCH_SIZE, False)
-            feed_dict = {
-                self.images_placeholder: images_feed,
-                self.labels_placeholder: labels_feed,
-            }
+    data_set = data_sets.train
+    for step in xrange(MAX_STEPS):
+        images_feed, labels_feed = data_set.next_batch(BATCH_SIZE, False)
+        feed_dict = {
+            images_placeholder: images_feed,
+            labels_placeholder: labels_feed,
+        }
 
-            _, loss_value = self.sess.run([self.train_op, self.loss],
-                                     feed_dict=feed_dict)
-            if step % 100 == 0:
-                print("At step {}, loss = {}".format(step, loss_value))
-                summary_str = self.sess.run(self.summary, feed_dict=feed_dict)
-                self.summary_writer.add_summary(summary_str, step)
-                self.summary_writer.flush()
+        _, loss_value = sess.run([train_op, loss],
+                                 feed_dict=feed_dict)
+        if step % 100 == 0:
+            print("At step {}, loss = {}".format(step, loss_value))
+            summary_str = sess.run(summary, feed_dict=feed_dict)
+            summary_writer.add_summary(summary_str, step)
+            summary_writer.flush()
 
 if __name__ == '__main__':
-    fairing.config.set_model(TensorflowModel())
-    fairing.config.run()
+    train()
