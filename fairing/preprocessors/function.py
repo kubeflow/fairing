@@ -14,6 +14,7 @@ from fairing.functions.function_shim import get_execution_obj_type, ObjectType
 FUNCTION_SHIM = 'function_shim.py'
 SERIALIZED_FN_FILE = 'pickled_fn.p'
 
+# TODO(@karthikv2k): Ref #122 Find a better way to support deployer specific preprocessing
 OUPUT_FILE = """import cloudpickle
 {OBJ_NAME} = cloudpickle.load(open("{SERIALIZED_FN_FILE}", "rb"))
 """
@@ -64,6 +65,7 @@ class FunctionPreProcessor(BasePreProcessor):
         payload_file_in_context = os.path.join(path_prefix, SERIALIZED_FN_FILE)
         self.output_map[temp_payload_file] = payload_file_in_context
 
+        # TODO(@karthikv2k): Ref #122 Find a better way to support deployer specific preprocessing
         _, temp_payload_wrraper_file = tempfile.mkstemp()            
         with open(temp_payload_wrraper_file, "w") as f:
             contents  = OUPUT_FILE.format(OBJ_NAME=function_obj.__name__, SERIALIZED_FN_FILE=SERIALIZED_FN_FILE)
