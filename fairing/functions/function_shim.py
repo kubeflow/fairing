@@ -23,11 +23,6 @@ def get_execution_obj_type(obj):
     if isinstance(obj, types.MethodType):
         return ObjectType.NOT_SUPPORTED
 
-    # Check if a class is provided (Python 2)
-    if (hasattr(types, 'ClassType') and isinstance(obj, types.ClassType)
-        and hasattr(obj, 'train')):
-        return ObjectType.CLASS
-
     # Check if a class is provided (Python 3)
     if isinstance(obj, type) and hasattr(obj, 'train'):
         return ObjectType.CLASS

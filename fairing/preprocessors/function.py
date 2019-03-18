@@ -15,7 +15,7 @@ FUNCTION_SHIM = 'function_shim.py'
 SERIALIZED_FN_FILE = 'pickled_fn.p'
 
 # TODO(@karthikv2k): Ref #122 Find a better way to support deployer specific preprocessing
-OUPUT_FILE = """import cloudpickle
+OUTPUT_FILE = """import cloudpickle
 {OBJ_NAME} = cloudpickle.load(open("{SERIALIZED_FN_FILE}", "rb"))
 """
 
@@ -66,13 +66,13 @@ class FunctionPreProcessor(BasePreProcessor):
         self.output_map[temp_payload_file] = payload_file_in_context
 
         # TODO(@karthikv2k): Ref #122 Find a better way to support deployer specific preprocessing
-        _, temp_payload_wrraper_file = tempfile.mkstemp()            
-        with open(temp_payload_wrraper_file, "w") as f:
-            contents  = OUPUT_FILE.format(OBJ_NAME=function_obj.__name__, SERIALIZED_FN_FILE=SERIALIZED_FN_FILE)
+        _, temp_payload_wrapper_file = tempfile.mkstemp()            
+        with open(temp_payload_wrapper_file, "w") as f:
+            contents  = OUTPUT_FILE.format(OBJ_NAME=function_obj.__name__, SERIALIZED_FN_FILE=SERIALIZED_FN_FILE)
             f.write(contents)
         # Adding the serialized file to the context
         payload_wrapper_file_in_context = os.path.join(path_prefix, function_obj.__name__ + ".py")
-        self.output_map[temp_payload_wrraper_file] = payload_wrapper_file_in_context
+        self.output_map[temp_payload_wrapper_file] = payload_wrapper_file_in_context
 
         self.command = ["python", os.path.join(self.path_prefix, FUNCTION_SHIM),
                         "--serialized_fn_file", payload_file_in_context]
