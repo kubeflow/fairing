@@ -1,16 +1,7 @@
 # Kubeflow Fairing
 
-Easily package, deploy, and run your machine learning (ML) training jobs on Kubernetes,
+Easily build, train, and deploy your machine learning (ML) training jobs on Kubeflow or Kubernetes,
 directly from Python code or a Jupyter notebook. 
-
-## Features
-
-Kubeflow Fairing provides functions to seemlessly train models remotely on Kubernetes
-clusters.
-
-- Build images in seconds, without Docker
-- Run training jobs on Kubernetes or Kubeflow, without writing Dockerfiles or
-  Kubernetes manifests
 
 ## Requirements
 
