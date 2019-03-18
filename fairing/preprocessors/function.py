@@ -28,10 +28,12 @@ class FunctionPreProcessor(BasePreProcessor):
     def __init__(self,
                  function_obj,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map=None):
+                 output_map=None,
+                 input_files=[]):
         super().__init__(
             output_map=output_map,
-            path_prefix=path_prefix)
+            path_prefix=path_prefix,
+            input_files=input_files)
 
         if get_execution_obj_type(function_obj) ==  ObjectType.NOT_SUPPORTED:
             raise RuntimeError("Object must of type function or a class")

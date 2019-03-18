@@ -71,7 +71,7 @@ class BasePreProcessor(object):
             if dst not in c_map:
                 c_map[dst] = src
             else:
-                logging.warning('{} already exists in Fairing context, skipping...'.format(f))
+                logging.warning('{} already exists in Fairing context, skipping...'.format(src))
 
         return c_map
 
