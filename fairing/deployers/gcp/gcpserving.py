@@ -5,7 +5,8 @@ from fairing.cloud.gcp import guess_project_name
 from googleapiclient import discovery
 from googleapiclient import errors
 
-class GCPServingJob:
+# TODO: Integrate with DeployerInterface
+class GCPServingDeployer:
     """Handle deploying a trained model to GCP."""
     def __init__(self, project_id=None):
         self._project_id = project_id or guess_project_name()
@@ -58,5 +59,4 @@ class GCPServingJob:
         print('Version created successfully. Access the version at the following URL:')
         print('https://console.cloud.google.com/mlengine/models/{}/versions/{}?project={}'.format(
             model_name, version_name, self._project_id))
-
 
