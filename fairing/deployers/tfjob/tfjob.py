@@ -3,7 +3,7 @@ from kubernetes import client as k8s_client
 from fairing.deployers.job.job import Job
 from fairing.kubernetes.manager import TF_JOB_VERSION
 DEFAULT_JOB_NAME = 'fairing-tfjob-'
-DEPLOPYER_TYPE = 'tfjob'
+DEPLOYER_TYPE = 'tfjob'
 
 
 class TfJob(Job):

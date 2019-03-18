@@ -22,7 +22,7 @@ class BasePreProcessor(object):
     """
     def __init__(
         self,
-        input_files=glob.glob("**", recursive=True),
+        input_files=[],
         command=["python"],
         executable=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
@@ -71,7 +71,7 @@ class BasePreProcessor(object):
             if dst not in c_map:
                 c_map[dst] = src
             else:
-                logging.warning('{} already exists in Fairing context, skipping...'.format(f))
+                logging.warning('{} already exists in Fairing context, skipping...'.format(src))
 
         return c_map
 
