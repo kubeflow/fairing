@@ -1,5 +1,4 @@
 .metaparticle
-examples/*/Dockerfile
 *.bak
 .vscode
 
