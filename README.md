@@ -17,7 +17,7 @@ a TensorFlow model.
 
 ## Installing Kubeflow Fairing
 
-To install Kubeflow Fairing from PyPI:
+To install Kubeflow Fairing:
 
 ```bash
 pip install git+https://github.com/kubeflow/fairing@master
