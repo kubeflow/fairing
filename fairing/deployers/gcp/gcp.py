@@ -7,10 +7,19 @@ from googleapiclient import discovery
 from googleapiclient import errors
 
 class GCPJob(DeployerInterface):
-    """Handle submitting training job to GCP."""
-    def __init__(self, project_id=None, region=None):
+    """Handle submitting training job to GCP.
+    Attributes:
+        project_id: Google Cloud project ID to use.
+        region: region in which the job has to be deployed.
+            Ref: https://cloud.google.com/compute/docs/regions-zones/
+        scale_tier: machine type to use for the job. 
+            Ref: https://cloud.google.com/ml-engine/docs/tensorflow/machine-types 
+    """
+
+    def __init__(self, project_id=None, region=None, scale_tier="BASIC"):
         self._project_id = project_id or guess_project_name()
         self._region = region or 'us-central1'
+        self.scale_tier = scale_tier
 
         self._ml = discovery.build('ml', 'v1')
 
@@ -25,7 +34,7 @@ class GCPJob(DeployerInterface):
         request_dict = {
             'jobId': self._job_name,
             'trainingInput': {
-                'scaleTier': 'BASIC',
+                'scaleTier': self.scale_tier,
                 'masterConfig': {
                     'imageUri': image_uri,
                 },
