@@ -12,8 +12,16 @@ class GCPServingDeployer:
         self._project_id = project_id or guess_project_name()
         self._ml = discovery.build('ml', 'v1')
 
+        # Set default deploy kwargs
+        self._deploy_kwargs = {
+            'runtime_version': '1.12',
+            'python_version': '3.5'
+        }
+
     def deploy(self, model_dir, model_name, version_name, **deploy_kwargs):
         """Deploys the model to Cloud ML Engine."""
+        self._deploy_kwargs.update(deploy_kwargs)
+
         # Check if the model exists
         try:
             res = self._ml.projects().models().get(
@@ -42,7 +50,7 @@ class GCPServingDeployer:
 
         # Create the version
         try:
-          version_body = deploy_kwargs
+          version_body = self._deploy_kwargs
           version_body['name'] = version_name
           version_body['deploymentUri'] = model_dir
           print(version_body)
@@ -56,7 +64,7 @@ class GCPServingDeployer:
             print('Error creating the version: {}'.format(err))
             return
 
-        print('Version created successfully. Access the version at the following URL:')
+        print('Version submitted successfully. Access the version at the following URL:')
         print('https://console.cloud.google.com/mlengine/models/{}/versions/{}?project={}'.format(
             model_name, version_name, self._project_id))
 
