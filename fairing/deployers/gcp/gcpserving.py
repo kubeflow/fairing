@@ -50,16 +50,15 @@ class GCPServingDeployer:
 
         # Create the version
         try:
-          version_body = self._deploy_kwargs
-          version_body['name'] = version_name
-          version_body['deploymentUri'] = model_dir
-          print(version_body)
+            version_body = self._deploy_kwargs
+            version_body['name'] = version_name
+            version_body['deploymentUri'] = model_dir
 
-          res = self._ml.projects().models().versions().create(
-              parent='projects/{}/models/{}'.format(
-                  self._project_id, model_name),
-              body=version_body
-          ).execute()
+            res = self._ml.projects().models().versions().create(
+                parent='projects/{}/models/{}'.format(
+                    self._project_id, model_name),
+                body=version_body
+            ).execute()
         except errors.HttpError as err:
             print('Error creating the version: {}'.format(err))
             return
