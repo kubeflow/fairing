@@ -4,6 +4,7 @@ logger = logging.getLogger('fairing')
 
 
 def write_dockerfile(
+        docker_command,
         destination=constants.DEFAULT_GENERATED_DOCKERFILE_FILENAME,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
         dockerfile_path=None,
@@ -14,7 +15,8 @@ def write_dockerfile(
         "ENV FAIRING_RUNTIME 1",
         "COPY {PATH_PREFIX} {PATH_PREFIX}".format(PATH_PREFIX=path_prefix),
         "RUN if [ -e requirements.txt ];" +
-        "then pip install --no-cache -r requirements.txt; fi"
+        "then pip install --no-cache -r requirements.txt; fi",
+        "CMD {}".format(" ".join(docker_command))
     ])
     with open(destination, 'w') as f:
         f.write(content)
