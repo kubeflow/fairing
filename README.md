@@ -49,7 +49,7 @@ if __name__ == '__main__':
 ```
 
 2. Configure the strategy that Kubeflow Fairing will use to package the model.
-   If you are using Google Cloud Platform and you have [set the _GOOGLE_
+   If you are using Google Cloud Platform and you [set the _GOOGLE_
    APPLICATION_CREDENTIALS_ environmental variable][gcp-auth], you can skip this
    step. Otherwise, use `set_builder()` to configure the builder method with
    the strategy you want to use to build the container image and the location
@@ -68,7 +68,7 @@ fairing.config.set_builder(name='append', registry='<your-registry-here>')
 fairing.config.run()
 ```
 
-In this example, Kubeflow Fairing:
+In this example, Kubeflow Fairing completed the following steps:
 
 - Packaged your code in a docker container, without using docker.
 - Deployed your training job as a Kubernetes workload.
@@ -79,9 +79,10 @@ In this example, Kubeflow Fairing:
 There are three configurable parts of Kubeflow Fairing: the preprocessor,
 builder, and deployer. 
 
-The **preprocessor** defines how a set of inputs gets mapped to a context
-for the docker image build. It can convert input files, exclude some, and
-change the entrypoint for the training job.
+The **preprocessor** defines how Kubeflow Fairing will map a set of inputs
+to a context when building the container image for your training job.
+The preprocessor can convert input files, exclude some files, and change the
+entrypoint for the training job.
 
 - **python:** Copies the input files directly into the container image.
 - **notebook:** Converts a notebook into a runnable python file. Strips
@@ -89,9 +90,10 @@ change the entrypoint for the training job.
 - **full_notebook:** Runs a full notebook as-is, including bash scripts
   or non-Python code.
 
-The **builder**  defines how and where a container image is built. There
-are different strategies that will make sense for different environments
-and use cases.
+The **builder** defines how Kubeflow Fairing will build the container
+image for your training job, and location of the container registry to 
+store the container image in. There are different strategies that will
+make sense for different environments and use cases.
 
 - **append:** Creates a Dockerfile by appending the your code as a new
   layer on an existing docker image. This builder requires less to time
@@ -105,8 +107,9 @@ and use cases.
 - **docker:** Uses a local docker daemon to build and push the container
   image for your training job to your container image registry.
 
-The **deployer** defines how a training job gets launched. It uses the
-image produced by the builder to run the training job on Kubernetes.
+The **deployer** defines where Kubeflow Fairing will deploy and run your
+training job. The deployer uses the image produced by the builder to
+deploy and run your training job on Kubeflow or Kubernetes.
 
 - **Job:** Uses a Kubernetes Job resource to launch your training job.
 - **TfJob:** Uses the TFJob component of Kubeflow to launch your
