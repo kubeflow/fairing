@@ -35,7 +35,12 @@ class DockerBuilder(BaseBuilder):
             self.publish()
 
     def _build(self):
+        docker_command = self.preprocessor.get_command()
+        logger.warning("Docker command: {}".format(docker_command))
+        if not docker_command:
+            logger.warning("Not setting a command for the output docker image.")
         dockerfile_path = dockerfile.write_dockerfile(
+            docker_command=docker_command,
             dockerfile_path=self.dockerfile_path,
             path_prefix=self.preprocessor.path_prefix,
             base_image=self.base_image)
