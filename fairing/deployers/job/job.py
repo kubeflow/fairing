@@ -48,44 +48,14 @@ class Job(DeployerInterface):
         if labels:
             self.labels.update(labels)
 
-    def add_credentials_to_pod_spec(self, pod_spec):
-        # TODO: Extract config options into a global config set, in order to
-        # enable platform-specific options.
-
-        if not self.backend.secret_exists('user-gcp-sa', self.namespace):
-            raise ValueError('Unable to mount credentials: '
-            + 'Secret user-gcp-sa not found in namespace {}'.format(self.namespace))
-
-        # Set appropriate secrets and volumes to enable kubeflow-user service
-        # account.
-        env_var = k8s_client.V1EnvVar(
-            name='GOOGLE_APPLICATION_CREDENTIALS',
-            value='/etc/secrets/user-gcp-sa.json')
-        if pod_spec.containers[0].env:
-            pod_spec.containers[0].env.append(env_var)
-        else:
-            pod_spec.containers[0].env = [env_var]
-
-        volume_mount = k8s_client.V1VolumeMount(
-            name='user-gcp-sa', mount_path='/etc/secrets', read_only=True)
-        if pod_spec.containers[0].volume_mounts:
-            pod_spec.containers[0].volume_mounts.append(volume_mount)
-        else:
-            pod_spec.containers[0].volume_mounts = [volume_mount]
-
-        volume = k8s_client.V1Volume(
-            name='user-gcp-sa',
-            secret=k8s_client.V1SecretVolumeSource(secret_name='user-gcp-sa'))
-        if pod_spec.volumes:
-            pod_spec.volumes.append(volume)
-        else:
-            pod_spec.volumes = [volume]
-
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
         if self.mount_credentials:
-            self.add_credentials_to_pod_spec(pod_spec)
+            if not self.backend.secret_exists('user-gcp-sa', self.namespace):
+                raise ValueError('Unable to mount credentials: '
+                + 'Secret user-gcp-sa not found in namespace {}'.format(self.namespace))
+            self.backend.add_credentials_to_pod_spec(pod_spec)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
         pod_template_spec.spec.restart_policy = 'Never'
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)
