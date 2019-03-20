@@ -56,6 +56,11 @@ class KubeManager(object):
             namespace,
             client.V1DeleteOptions())
 
+    def secret_exists(self, name, namespace):
+        secrets = client.CoreV1Api().list_namespaced_secret(namespace)
+        secret_names = [secret.metadata.name for secret in secrets.items]
+        return name in secret_names
+
     def watch_service_for_external_ip(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()

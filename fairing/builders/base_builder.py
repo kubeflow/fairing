@@ -18,8 +18,7 @@ class BaseBuilder(BuilderInterface):
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  push=True,
                  preprocessor=None,
-                 dockerfile_path=None,
-                 mount_credentials=False):
+                 dockerfile_path=None):
 
         self.registry = registry
         self.image_name = image_name
@@ -38,11 +37,10 @@ class BaseBuilder(BuilderInterface):
         self.preprocessor = preprocessor
         self.image_tag = None
         self.docker_client = None
-        self.mount_credentials = mount_credentials
 
     def generate_pod_spec(self):
         """return a V1PodSpec initialized with the proper container"""
-        pod_spec = client.V1PodSpec(
+        return client.V1PodSpec(
             containers=[client.V1Container(
                 name='model',
                 image=self.image_tag,
@@ -56,25 +54,6 @@ class BaseBuilder(BuilderInterface):
                 )]
             )],
         )
-
-        # TODO: Extract config options into a global config set, in order to
-        # enable platform-specific options.
-        if self.mount_credentials:
-            # Set appropriate secrets and volumes to enable kubeflow-user
-            # service account.
-            pod_spec.containers[0].env.append(client.V1EnvVar(
-                name='GOOGLE_APPLICATION_CREDENTIALS',
-                value='/etc/secrets/user-gcp-sa.json'
-            ))
-            pod_spec.containers[0].volume_mounts = [client.V1VolumeMount(
-                name='user-gcp-sa', mount_path='/etc/secrets', read_only=True
-            )]
-            pod_spec.volumes = [client.V1Volume(
-                name='user-gcp-sa',
-                secret=client.V1SecretVolumeSource(secret_name='user_gcp_sa')
-            )]
-
-        return pod_spec
 
     def full_image_name(self, tag):
         return '{}/{}:{}'.format(self.registry, self.image_name, tag)
