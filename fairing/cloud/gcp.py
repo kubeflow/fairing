@@ -1,6 +1,7 @@
 import google.auth
 from google.cloud import storage
 from fairing.constants import constants
+from kubernetes import client
 
 import os
 import json
@@ -43,3 +44,33 @@ def guess_project_name(credentials_file=None):
         raise Exception('Could not determine project id.')
 
     return project_id
+
+def add_gcp_credentials(kube_manager, pod_spec, namespace):
+    if not kube_manager.secret_exists('user-gcp-sa', namespace):
+        raise ValueError('Unable to mount credentials: '
+        + 'Secret user-gcp-sa not found in namespace {}'.format(namespace))
+
+    # Set appropriate secrets and volumes to enable kubeflow-user service
+    # account.
+    env_var = client.V1EnvVar(
+        name='GOOGLE_APPLICATION_CREDENTIALS',
+        value='/etc/secrets/user-gcp-sa.json')
+    if pod_spec.containers[0].env:
+        pod_spec.containers[0].env.append(env_var)
+    else:
+        pod_spec.containers[0].env = [env_var]
+
+    volume_mount = client.V1VolumeMount(
+        name='user-gcp-sa', mount_path='/etc/secrets', read_only=True)
+    if pod_spec.containers[0].volume_mounts:
+        pod_spec.containers[0].volume_mounts.append(volume_mount)
+    else:
+        pod_spec.containers[0].volume_mounts = [volume_mount]
+
+    volume = client.V1Volume(
+        name='user-gcp-sa',
+        secret=client.V1SecretVolumeSource(secret_name='user-gcp-sa'))
+    if pod_spec.volumes:
+        pod_spec.volumes.append(volume)
+    else:
+        pod_spec.volumes = [volume]

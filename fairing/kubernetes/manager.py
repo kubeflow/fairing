@@ -61,35 +61,6 @@ class KubeManager(object):
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
-    def add_credentials_to_pod_spec(self, pod_spec):
-        # TODO: Extract config options into a global config set, in order to
-        # enable platform-specific options.
-
-        # Set appropriate secrets and volumes to enable kubeflow-user service
-        # account.
-        env_var = client.V1EnvVar(
-            name='GOOGLE_APPLICATION_CREDENTIALS',
-            value='/etc/secrets/user-gcp-sa.json')
-        if pod_spec.containers[0].env:
-            pod_spec.containers[0].env.append(env_var)
-        else:
-            pod_spec.containers[0].env = [env_var]
-
-        volume_mount = client.V1VolumeMount(
-            name='user-gcp-sa', mount_path='/etc/secrets', read_only=True)
-        if pod_spec.containers[0].volume_mounts:
-            pod_spec.containers[0].volume_mounts.append(volume_mount)
-        else:
-            pod_spec.containers[0].volume_mounts = [volume_mount]
-
-        volume = client.V1Volume(
-            name='user-gcp-sa',
-            secret=client.V1SecretVolumeSource(secret_name='user-gcp-sa'))
-        if pod_spec.volumes:
-            pod_spec.volumes.append(volume)
-        else:
-            pod_spec.volumes = [volume]
-
     def watch_service_for_external_ip(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
@@ -110,7 +81,7 @@ class KubeManager(object):
             logger.error("error getting status for {} {}".format(name, str(v)))
         except client.rest.ApiException as e:
             logger.error("error getting status for {} {}".format(name, str(e)))
-                                  
+
     def log(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()

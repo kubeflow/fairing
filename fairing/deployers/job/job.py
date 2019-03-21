@@ -26,7 +26,7 @@ class Job(DeployerInterface):
     def __init__(self, namespace=None, runs=1, output=None,
                  cleanup=True, labels=None, job_name=DEFAULT_JOB_NAME,
                  stream_log=True, deployer_type=DEPLOPYER_TYPE,
-                 mount_credentials=False):
+                 pod_spec_mutators=None):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
@@ -41,7 +41,7 @@ class Job(DeployerInterface):
         self.cleanup = cleanup
         self.stream_log = stream_log
         self.set_labels(labels, deployer_type)
-        self.mount_credentials = mount_credentials
+        self.pod_spec_mutators = pod_spec_mutators or []
 
     def set_labels(self, labels, deployer_type):
         self.labels = {'fairing-deployer': deployer_type}
@@ -51,11 +51,8 @@ class Job(DeployerInterface):
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
-        if self.mount_credentials:
-            if not self.backend.secret_exists('user-gcp-sa', self.namespace):
-                raise ValueError('Unable to mount credentials: '
-                + 'Secret user-gcp-sa not found in namespace {}'.format(self.namespace))
-            self.backend.add_credentials_to_pod_spec(pod_spec)
+        for fn in self.pod_spec_mutators:
+            fn(self.backend, pod_spec, self.namespace)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
         pod_template_spec.spec.restart_policy = 'Never'
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)

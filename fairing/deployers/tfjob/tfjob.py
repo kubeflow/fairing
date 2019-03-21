@@ -9,10 +9,10 @@ DEPLOYER_TYPE = 'tfjob'
 class TfJob(Job):
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
                  chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True, labels=None,
-                 mount_credentials=False):
+                 pod_spec_mutators=None):
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
                                     deployer_type=DEPLOYER_TYPE, labels=labels,
-                                    mount_credentials=mount_credentials)
+                                    pod_spec_mutators=pod_spec_mutators)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
