@@ -50,42 +50,50 @@ def test_job_submission(capsys):
     assert 'hello world' in captured.out
 
 
-def run_submission_with_gcs_access(deployer, mount_credentials, namespace):
+def run_submission_with_gcs_access(deployer, pod_spec_mutators, namespace):
     gcp_project = fairing.cloud.gcp.guess_project_name()
     docker_registry = 'gcr.io/{}/fairing-job'.format(gcp_project)
     fairing.config.set_builder(
         'append', base_image='gcr.io/{}/fairing-test:latest'.format(gcp_project),
         registry=docker_registry, push=True)
     fairing.config.set_deployer(
-        deployer, mount_credentials=mount_credentials, namespace=namespace)
+        deployer, pod_spec_mutators=pod_spec_mutators, namespace=namespace)
 
     remote_train = fairing.config.fn(train_fn_with_gcs_access)
     remote_train()
 
 def test_job_submission_with_gcs_access(capsys):
     run_submission_with_gcs_access(
-        'job', mount_credentials=True, namespace='kubeflow')
+        'job',
+        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
+        namespace='kubeflow')
 
     captured = capsys.readouterr()
     assert 'testing gcs access' in captured.out
 
 def test_tfjob_submission_with_gcs_access(capsys):
     run_submission_with_gcs_access(
-        'tfjob', mount_credentials=True, namespace='kubeflow')
+        'tfjob',
+        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
+        namespace='kubeflow')
 
     captured = capsys.readouterr()
     assert 'testing gcs access' in captured.out
 
 def test_job_submission_without_gcs_access(capsys):
     run_submission_with_gcs_access(
-        'job', mount_credentials=False, namespace='kubeflow')
+        'job',
+        pod_spec_mutators=[],
+        namespace='kubeflow')
 
     captured = capsys.readouterr()
     assert 'google.api_core.exceptions.Forbidden: 403' in captured.out
 
 def test_tfjob_submission_without_gcs_access(capsys):
     run_submission_with_gcs_access(
-        'tfjob', mount_credentials=False, namespace='kubeflow')
+        'tfjob',
+        pod_spec_mutators=[],
+        namespace='kubeflow')
 
     captured = capsys.readouterr()
     assert 'google.api_core.exceptions.Forbidden: 403' in captured.out
@@ -93,7 +101,9 @@ def test_tfjob_submission_without_gcs_access(capsys):
 def test_job_submission_invalid_namespace(capsys):
     with pytest.raises(ValueError) as err:
         run_submission_with_gcs_access(
-            'job', mount_credentials=True, namespace='default')
+            'job',
+            pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
+            namespace='default')
 
     msg = 'Unable to mount credentials: '\
           'Secret user-gcp-sa not found in namespace default'
@@ -102,7 +112,9 @@ def test_job_submission_invalid_namespace(capsys):
 def test_tfjob_submission_invalid_namespace(capsys):
     with pytest.raises(ValueError) as err:
         run_submission_with_gcs_access(
-            'tfjob', mount_credentials=True, namespace='default')
+            'tfjob',
+            pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
+            namespace='default')
 
     msg = 'Unable to mount credentials: '\
           'Secret user-gcp-sa not found in namespace default'
