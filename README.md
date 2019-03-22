@@ -5,10 +5,12 @@ directly from Python code or a Jupyter notebook.
 
 ## Requirements
 
-To use Kubeflow Fairing, you need:
+To use Kubeflow Fairing on your laptop, you need:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [Docker](https://www.docker.com/products/docker-desktop)
+
+You can also use it directly from the Kubeflow Jupyter Notebooks.
 
 If you already have Docker and kubectl configured, you're all set! If you are using
 [Kubeflow](https://www.kubeflow.org/), you can take advantage of advanced features,
