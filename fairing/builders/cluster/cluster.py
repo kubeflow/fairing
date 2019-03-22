@@ -33,6 +33,8 @@ class ClusterBuilder(BaseBuilder):
                  preprocessor=None,
                  push=True,
                  base_image=constants.DEFAULT_BASE_IMAGE,
+                 pod_spec_mutators=None,
+                 namespace="kubeflow",
                  dockerfile_path=None):
         super().__init__(
                 registry=registry,
@@ -45,6 +47,8 @@ class ClusterBuilder(BaseBuilder):
         if context_source is None:
             context_source = gcs_context.GCSContextSource()
         self.context_source = context_source
+        self.pod_spec_mutators = pod_spec_mutators or []
+        self.namespace = namespace
 
     def build(self):
         dockerfile_path = dockerfile.write_dockerfile(
@@ -57,14 +61,18 @@ class ClusterBuilder(BaseBuilder):
         self.image_tag = self.full_image_name(context_hash)
         self.context_source.prepare(context_path)
         labels = {'fairing-builder': 'kaniko'}
+        pod_spec = self.context_source.generate_pod_spec(self.image_tag, self.push)
+        for fn in self.pod_spec_mutators:
+            fn(self.manager, pod_spec, self.namespace)
         build_pod = client.V1Pod(
             api_version="v1",
             kind="Pod",
             metadata=client.V1ObjectMeta(
                 generate_name="fairing-builder-",
                 labels=labels,
+                namespace=self.namespace,
             ),
-            spec=self.context_source.generate_pod_spec(self.image_tag, self.push)
+            spec=pod_spec
         )
         created_pod = client. \
             CoreV1Api(). \
