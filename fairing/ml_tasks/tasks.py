@@ -19,7 +19,8 @@ class BaseTask:
         input_files: list of files that needs to be packaged along with the entry point.
             E.g. local python modules, trained model weigths, etc.
     """
-    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=[]):
+    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=None):
+        input_files = input_files or []
         preprocessor = guess_preprocessor(entry_point, input_files=input_files)
         logger.warn("Using preprocessor: {}".format(type(preprocessor)))
 
@@ -40,7 +41,7 @@ class BaseTask:
 
 class TrainJob(BaseTask):
 
-    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=[]):
+    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=None):
         super().__init__(entry_point, base_docker_image, docker_registry, input_files)
 
     def submit(self):
@@ -51,7 +52,7 @@ class TrainJob(BaseTask):
 
 class PredictionEndpoint(BaseTask):
 
-    def __init__(self, model_class, base_docker_image, docker_registry, input_files=[]):
+    def __init__(self, model_class, base_docker_image, docker_registry, input_files=None):
         self.model_class = model_class
         super().__init__(model_class, base_docker_image, docker_registry, input_files)
 
