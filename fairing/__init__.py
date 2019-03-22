@@ -6,3 +6,4 @@ else:
     from fairing.config import config
 
 name = "fairing"
+from .ml_tasks.tasks import TrainJob, PredictionEndpoint

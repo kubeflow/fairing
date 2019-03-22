@@ -3,28 +3,30 @@ import logging
 import fairing
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
-import fairing.utils as utils
+from .utils import guess_preprocessor, guess_builder
 
 logger = logging.getLogger(__name__)
 
 
 class BaseTask:
-
-    def __init__(self, entry_point, base_docker_image, docker_registry=None, input_files=[]):
-        preprocessor = utils.guess_preprocessor(entry_point, input_files=input_files)
+    """
+    Base class for handling high level ML tasks.
+    args:
+        entry_point: An object or reference to the source code that has to be deployed.
+        base_docker_image: Name of the base docker image that should be used as a base image
+            when building a new docker image as part of an ML task deployment.
+        docker_registry: Docker registry to store output docker images.
+        input_files: list of files that needs to be packaged along with the entry point.
+            E.g. local python modules, trained model weigths, etc.
+    """
+    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=[]):
+        preprocessor = guess_preprocessor(entry_point, input_files=input_files)
         logger.warn("Using preprocessor: {}".format(type(preprocessor)))
 
-        if not docker_registry:
-            guessed_docker_registry = utils.guess_docker_registry()
-            if not guessed_docker_registry:
-                raise RuntimeError(
-                    "Not able to guess docker registry, please specify docker_registry explicitly.")
-            self.docker_registry = guessed_docker_registry
-        else:
-            self.docker_registry = docker_registry
+        self.docker_registry = docker_registry
         logger.warn("Using docker registry: {}".format(self.docker_registry))
 
-        gussed_builder = utils.guess_builder(needs_deps_installation=True)
+        gussed_builder = guess_builder(needs_deps_installation=True)
         logger.warn("Using builder: {}".format(gussed_builder.__name__))
 
         self.builder = gussed_builder(preprocessor=preprocessor,
@@ -38,7 +40,7 @@ class BaseTask:
 
 class TrainJob(BaseTask):
 
-    def __init__(self, entry_point, base_docker_image, docker_registry=None, input_files=[]):
+    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=[]):
         super().__init__(entry_point, base_docker_image, docker_registry, input_files)
 
     def submit(self):
@@ -49,7 +51,7 @@ class TrainJob(BaseTask):
 
 class PredictionEndpoint(BaseTask):
 
-    def __init__(self, model_class, base_docker_image, docker_registry=None, input_files=[]):
+    def __init__(self, model_class, base_docker_image, docker_registry, input_files=[]):
         self.model_class = model_class
         super().__init__(model_class, base_docker_image, docker_registry, input_files)
 
