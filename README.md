@@ -7,8 +7,8 @@ directly from Python code or a Jupyter notebook.
 
 To use Kubeflow Fairing, you need:
 
-- a kubeconfig
-- a docker config
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [Docker](https://www.docker.com/products/docker-desktop)
 
 If you already have Docker and kubectl configured, you're all set! If you are using
 [Kubeflow](https://www.kubeflow.org/), you can take advantage of advanced features,
