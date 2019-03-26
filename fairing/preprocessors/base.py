@@ -15,7 +15,7 @@ class BasePreProcessor(object):
 
     input_files -  the source files to be processed
     executable - the file to execute using command (e.g. main.py)
-    output_map - a list of files to be added without preprocessing
+    output_map - a dict of files to be added without preprocessing
     path_prefix - the prefix of the path where the files will be added in the container
     command - the command to pass to the builder
 
@@ -29,8 +29,13 @@ class BasePreProcessor(object):
         output_map=None
     ):
         self.executable = executable
-        self.input_files = set(input_files)
-        self.output_map = output_map if output_map else {}
+        self.input_files = set([os.path.normpath(f) for f in input_files])
+        output_map = output_map if output_map else {}
+        normalized_map = {}
+        for src, dst in output_map.items():
+            normalized_map[os.path.normpath(src)] = os.path.normpath(dst)
+        self.output_map = normalized_map
+
         self.path_prefix = path_prefix
         self.command = command
 
@@ -94,7 +99,9 @@ class BasePreProcessor(object):
         fairing_dir = os.path.dirname(fairing.__file__)
         ret = {}
         for f in ["__init__.py", "runtime_config.py"]:
-            ret[os.path.join(fairing_dir, f)] = os.path.join(self.path_prefix, "fairing", f)
+            src = os.path.normpath(os.path.join(fairing_dir, f))
+            dst = os.path.normpath(os.path.join(self.path_prefix, "fairing", f))
+            ret[src] = dst
         return ret
 
 # Reset the mtime on the the tarball for reproducibility
