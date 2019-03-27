@@ -33,15 +33,15 @@ class KubeflowBackend(KubernetesBackend):
     def __init__(self):
         super(KubeflowBackend, self).__init__()
     
-    def get_training_deployer(self,ml_task_type):
-            return TfJob(pod_spec_mutators=[gcp.add_gcp_credentials])
+    def get_training_deployer(self):
+            return TfJob()
 
 class KubeflowGKEBackend(GKEBackend):
 
     def __init__(self):
         super(KubeflowGKEBackend, self).__init__()
     
-    def get_training_deployer(self,ml_task_type):
+    def get_training_deployer(self):
             return TfJob(pod_spec_mutators=[gcp.add_gcp_credentials])
 
 class GCPManagedBackend(KubernetesBackend):
