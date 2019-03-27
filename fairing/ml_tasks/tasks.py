@@ -3,6 +3,7 @@ import logging
 import fairing
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
+from fairing.backends import KubernetesBackend
 from .utils import guess_preprocessor, guess_builder
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,8 @@ class BaseTask:
         input_files: list of files that needs to be packaged along with the entry point.
             E.g. local python modules, trained model weigths, etc.
     """
-    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=None):
+    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=None, backend=None):
+        self._backend = backend or KubernetesBackend()
         input_files = input_files or []
         preprocessor = guess_preprocessor(entry_point, input_files=input_files)
         logger.warn("Using preprocessor: {}".format(type(preprocessor)))
@@ -41,23 +43,23 @@ class BaseTask:
 
 class TrainJob(BaseTask):
 
-    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=None):
-        super().__init__(entry_point, base_docker_image, docker_registry, input_files)
+    def __init__(self, entry_point, base_docker_image, docker_registry, input_files=None, backend=None):
+        super().__init__(entry_point, base_docker_image, docker_registry, input_files, backend)
 
     def submit(self):
         self._build()
-        deployer = Job()
+        deployer = self._backend.get_training_deployer()
         deployer.deploy(self.pod_spec)
 
 
 class PredictionEndpoint(BaseTask):
 
-    def __init__(self, model_class, base_docker_image, docker_registry, input_files=None):
+    def __init__(self, model_class, base_docker_image, docker_registry, input_files=None, backend=None):
         self.model_class = model_class
-        super().__init__(model_class, base_docker_image, docker_registry, input_files)
+        super().__init__(model_class, base_docker_image, docker_registry, input_files, backend=backend)
 
     def create(self):
         self._build()
-        deployer = Serving(serving_class=self.model_class.__name__)
+        deployer = self._backend.get_serving_deployer(self.model_class.__name__)
         deployer.deploy(self.pod_spec)
         # TODO shoudl return a prediction endpoint client
