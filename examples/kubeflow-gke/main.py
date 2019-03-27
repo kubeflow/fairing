@@ -14,12 +14,7 @@
 # ==============================================================================
 
 """Trains and Evaluates the MNIST network using a feed dictionary."""
-import argparse
 import os
-import sys
-import time
-import random
-import logging
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -44,6 +39,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
+
 def train():
     tf.logging.set_verbosity(tf.logging.ERROR)
     data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
@@ -59,7 +55,6 @@ def train():
     train_op = mnist.training(loss, LEARNING_RATE)
     summary = tf.summary.merge_all()
     init = tf.global_variables_initializer()
-    saver = tf.train.Saver()
     sess = tf.Session()
     summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
     sess.run(init)
@@ -79,6 +74,7 @@ def train():
             summary_str = sess.run(summary, feed_dict=feed_dict)
             summary_writer.add_summary(summary_str, step)
             summary_writer.flush()
+
 
 if __name__ == '__main__':
     train()

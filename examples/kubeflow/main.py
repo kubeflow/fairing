@@ -14,12 +14,7 @@
 # ==============================================================================
 
 """Trains and Evaluates the MNIST network using a feed dictionary."""
-import argparse
 import os
-import sys
-import time
-import random
-import logging
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -41,6 +36,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
 
+
 class TensorflowModel():
     def train(self, **kwargs):
         tf.logging.set_verbosity(tf.logging.ERROR)
@@ -57,7 +53,6 @@ class TensorflowModel():
         self.train_op = mnist.training(self.loss, LEARNING_RATE)
         self.summary = tf.summary.merge_all()
         init = tf.global_variables_initializer()
-        saver = tf.train.Saver()
         self.sess = tf.Session()
         self.summary_writer = tf.summary.FileWriter(LOG_DIR, self.sess.graph)
         self.sess.run(init)
@@ -77,6 +72,7 @@ class TensorflowModel():
                 summary_str = self.sess.run(self.summary, feed_dict=feed_dict)
                 self.summary_writer.add_summary(summary_str, step)
                 self.summary_writer.flush()
+
 
 if __name__ == '__main__':
     fairing.config.set_builder(name='cluster')
