@@ -5,6 +5,7 @@ from fairing.notebook import notebook_util
 
 
 class FullNotebookPreProcessor(BasePreProcessor):
+    # TODO: Allow configuration of errors / timeout options
     def __init__(self,
                  notebook_file=None,
                  input_files=None,
@@ -17,7 +18,8 @@ class FullNotebookPreProcessor(BasePreProcessor):
             notebook_file = notebook_util.get_notebook_name()
 
         input_files = input_files or []
-        input_files.append(notebook_file)
+        if notebook_file not in input_files:
+            input_files.append(notebook_file)
 
         super().__init__(
             executable=notebook_file,
