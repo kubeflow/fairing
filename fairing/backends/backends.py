@@ -73,4 +73,4 @@ class GCPManagedBackend(BackendInterface):
 
     def get_serving_deployer(self, model_class):
         # currently GCP serving deployer doesn't implement deployer interface
-        raise NotImplementedError("GCP managed serving is not implemented.")
+        raise NotImplementedError("GCP managed serving is not integrated into high level API yet.")
