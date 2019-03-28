@@ -8,41 +8,41 @@ from fairing.cloud import gcp
 
 class KubernetesBackend:
 
-    def __init__(self):
-        pass
+    def __init__(self, namespace=None):
+        self._namespace = namespace
     
     def get_training_deployer(self):
-            return Job()
+        return Job(self._namespace)
     
     def get_serving_deployer(self, model_class):
-            return Serving(model_class)
+        return Serving(model_class, namespace=self._namespace)
 
 class GKEBackend(KubernetesBackend):
 
-    def __init__(self):
-        super(GKEBackend, self).__init__()
+    def __init__(self, namespace=None):
+        super(GKEBackend, self).__init__(namespace)
     
     def get_training_deployer(self):
-            return Job(pod_spec_mutators=[gcp.add_gcp_credentials])
+        return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
     
     def get_serving_deployer(self, model_class):
-            return Serving(model_class)
+        return Serving(model_class, namespace=self._namespace)
 
 class KubeflowBackend(KubernetesBackend):
 
-    def __init__(self):
-        super(KubeflowBackend, self).__init__()
+    def __init__(self, namespace="kubeflow"):
+        super(KubeflowBackend, self).__init__(namespace)
     
     def get_training_deployer(self):
-            return TfJob()
+        return TfJob(namespace=self._namespace)
 
 class KubeflowGKEBackend(GKEBackend):
 
-    def __init__(self):
-        super(KubeflowGKEBackend, self).__init__()
+    def __init__(self, namespace="kubeflow"):
+        super(KubeflowGKEBackend, self).__init__(namespace)
     
     def get_training_deployer(self):
-            return TfJob(pod_spec_mutators=[gcp.add_gcp_credentials])
+        return TfJob(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
 
 class GCPManagedBackend(KubernetesBackend):
 
@@ -56,5 +56,5 @@ class GCPManagedBackend(KubernetesBackend):
         return GCPJob(self._project_id, self._region, self._training_scale_tier)
 
     def get_serving_deployer(self, model_class):
-            # currently GCP serving deployer doesn't implement deployer interface
-            raise NotImplementedError("GCP managed serving is not implemented.")
+        # currently GCP serving deployer doesn't implement deployer interface
+        raise NotImplementedError("GCP managed serving is not implemented.")

@@ -2,10 +2,14 @@ import google.auth
 from google.cloud import storage
 from fairing.constants import constants
 from kubernetes import client
+import logging
 
 import os
 import json
 
+logger = logging.getLogger(__name__)
+
+GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 
 class GCSUploader(object):
     def __init__(
@@ -45,8 +49,14 @@ def guess_project_name(credentials_file=None):
 
     return project_id
 
+def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
+    if kube_manager.secret_exists(GCP_CREDS_SECRET_NAME, namespace):
+        add_gcp_credentials(kube_manager, pod_spec, namespace)
+    else:
+        logger.warning("Not able to find gcp credentials secret: {}".format(GCP_CREDS_SECRET_NAME))
+
 def add_gcp_credentials(kube_manager, pod_spec, namespace):
-    if not kube_manager.secret_exists('user-gcp-sa', namespace):
+    if not kube_manager.secret_exists(GCP_CREDS_SECRET_NAME, namespace):
         raise ValueError('Unable to mount credentials: '
         + 'Secret user-gcp-sa not found in namespace {}'.format(namespace))
 
