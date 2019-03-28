@@ -1,3 +1,6 @@
+import abc 
+import six
+
 from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from fairing.deployers.job.job import Job
@@ -6,7 +9,20 @@ from fairing.deployers.serving.serving import Serving
 from fairing.cloud import gcp
 
 
-class KubernetesBackend:
+@six.add_metaclass(abc.ABCMeta)
+class BackendInterface(object):
+
+    @abc.abstractmethod
+    def get_training_deployer(self):
+        """Deploys the training job"""
+        raise NotImplementedError('TrainingInterface.deploy')
+
+    @abc.abstractmethod
+    def get_serving_deployer(self, model_class):
+        """Streams the logs for the training job"""
+        raise NotImplementedError('TrainingInterface.train')
+
+class KubernetesBackend(BackendInterface):
 
     def __init__(self, namespace=None):
         self._namespace = namespace
@@ -44,7 +60,7 @@ class KubeflowGKEBackend(GKEBackend):
     def get_training_deployer(self):
         return TfJob(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
 
-class GCPManagedBackend(KubernetesBackend):
+class GCPManagedBackend(BackendInterface):
 
     def __init__(self, project_id=None, region=None, training_scale_tier=None):
         super(GCPManagedBackend, self).__init__()
