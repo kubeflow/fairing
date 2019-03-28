@@ -10,7 +10,7 @@ setuptools.setup(
     author="William Buchwalter,Matt Rickard",
     description="Easily train ML models on Kubernetes, directly from your python code.",
     url="https://github.com/kubeflow/fairing",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(include=("fairing*", "containerregistry*",)),
     package_data={},
     include_package_data=False,
     zip_safe=False,
