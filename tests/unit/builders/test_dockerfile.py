@@ -14,8 +14,8 @@ def test_writedockerfile_with_docker_cmd():
     expected = """FROM foo_bar
 WORKDIR /pre
 ENV FAIRING_RUNTIME 1
-COPY /pre /pre
 RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
+COPY /pre /pre
 CMD python main.py"""
     assert actual == expected
 
@@ -30,8 +30,8 @@ def test_writedockerfile_without_docker_cmd():
     expected = """FROM foo_bar
 WORKDIR /pre
 ENV FAIRING_RUNTIME 1
-COPY /pre /pre
-RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi"""
+RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
+COPY /pre /pre"""
     assert actual == expected
 
 def test_writedockerfile_with_early_install_reqs():
@@ -47,7 +47,7 @@ def test_writedockerfile_with_early_install_reqs():
 WORKDIR /pre
 ENV FAIRING_RUNTIME 1
 COPY /pre/requirements.txt /pre
-RUN pip install --no-cache -r requirements.txt
+RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
 COPY /pre /pre
 CMD python main.py"""
     assert actual == expected

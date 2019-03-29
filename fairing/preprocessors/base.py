@@ -7,6 +7,7 @@ import fairing
 import tarfile
 import glob
 import logging
+import posixpath
 
 
 class BasePreProcessor(object):
@@ -106,7 +107,8 @@ class BasePreProcessor(object):
     
     def is_requirements_txt_file_present(self):
         dst_files = self.context_map().keys()
-        res = (self.path_prefix + "requirements.txt") in dst_files
+        reqs_file = posixpath.join(self.path_prefix, "requirements.txt")
+        res = reqs_file in dst_files
         return res
 
 # Reset the mtime on the the tarball for reproducibility
