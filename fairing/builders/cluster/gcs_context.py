@@ -21,7 +21,6 @@ class GCSContextSource(ContextSourceInterface):
         if self.gcp_project is None:
             self.gcp_project = gcp.guess_project_name()
         self.uploaded_context_url = self.upload_context(context_filename)
-        self.created_secret = self.create_secret()
 
     def upload_context(self, context_filename):
         gcs_uploader = gcp.GCSUploader()
@@ -30,29 +29,9 @@ class GCSContextSource(ContextSourceInterface):
                     bucket_name=self.gcp_project,
                     blob_name='fairing_builds/' + context_hash,
                     file_to_upload=context_filename)
-        
-    def create_secret(self):
-        with open(self.credentials_file, 'r') as f:
-            secret_data = f.read()
-
-        secret = client.V1Secret(
-            api_version="v1",
-            kind="Secret",
-            metadata=client.V1ObjectMeta(
-                generate_name='fairing-kaniko-secret-',
-                namespace=self.namespace,
-                labels={'fairing-builder-kaniko': 'secret'}
-            ),
-            string_data={'kaniko-secret': secret_data}
-        )
-
-        return client.CoreV1Api().create_namespaced_secret(self.namespace, secret)
 
     def cleanup(self):
-        client.CoreV1Api().delete_namespaced_secret(
-            self.created_secret.metadata.name,
-            self.created_secret.metadata.namespace,
-            client.V1DeleteOptions())
+        pass
 
     def generate_pod_spec(self, image_name, push):
         args = ["--dockerfile=Dockerfile",
@@ -64,23 +43,9 @@ class GCSContextSource(ContextSourceInterface):
                 containers=[client.V1Container(
                     name='kaniko',
                     image='gcr.io/kaniko-project/executor:v0.7.0',
-                    volume_mounts=[client.V1VolumeMount(
-                        name='kaniko-secret',
-                        mount_path='/secret',
-                    )],
                     args=["--dockerfile=Dockerfile",
                           "--destination=" + image_name,
                           "--context=" + self.uploaded_context_url],
-                    env=[client.V1EnvVar(
-                        name=constants.GOOGLE_CREDS_ENV,
-                        value='/secret/kaniko-secret',
-                    )],
-                )],
-                volumes=[client.V1Volume(
-                    name='kaniko-secret',
-                    secret=client.V1SecretVolumeSource(
-                        secret_name=self.created_secret.metadata.name,
-                    ),
                 )],
                 restart_policy='Never'
             )
