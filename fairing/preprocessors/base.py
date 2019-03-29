@@ -103,6 +103,11 @@ class BasePreProcessor(object):
             dst = os.path.normpath(os.path.join(self.path_prefix, "fairing", f))
             ret[src] = dst
         return ret
+    
+    def is_requirements_txt_file_present(self):
+        dst_files = self.context_map().keys()
+        res = (self.path_prefix + "requirements.txt") in dst_files
+        return res
 
 # Reset the mtime on the the tarball for reproducibility
 def reset_tar_mtime(tarinfo):
