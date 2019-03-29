@@ -39,11 +39,13 @@ class DockerBuilder(BaseBuilder):
         logger.warning("Docker command: {}".format(docker_command))
         if not docker_command:
             logger.warning("Not setting a command for the output docker image.")
+        install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
         dockerfile_path = dockerfile.write_dockerfile(
             docker_command=docker_command,
             dockerfile_path=self.dockerfile_path,
             path_prefix=self.preprocessor.path_prefix,
-            base_image=self.base_image)
+            base_image=self.base_image,
+            install_reqs_before_copy=install_reqs_before_copy)
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_file, context_hash = self.preprocessor.context_tar_gz()
         self.image_tag = self.full_image_name(context_hash)

@@ -45,16 +45,18 @@ class ClusterBuilder(BaseBuilder):
             )
         self.manager = KubeManager()
         if context_source is None:
-            context_source = gcs_context.GCSContextSource()
+            context_source = gcs_context.GCSContextSource(namespace=namespace)
         self.context_source = context_source
         self.pod_spec_mutators = pod_spec_mutators or []
         self.namespace = namespace
 
     def build(self):
+        install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
         dockerfile_path = dockerfile.write_dockerfile(
             dockerfile_path=self.dockerfile_path,
             path_prefix=self.preprocessor.path_prefix,
-            base_image=self.base_image
+            base_image=self.base_image,
+            install_reqs_before_copy=install_reqs_before_copy
         )
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_path, context_hash = self.preprocessor.context_tar_gz()
@@ -76,7 +78,7 @@ class ClusterBuilder(BaseBuilder):
         )
         created_pod = client. \
             CoreV1Api(). \
-            create_namespaced_pod("default", build_pod)
+            create_namespaced_pod(self.namespace, build_pod)
         self.manager.log(
             name=created_pod.metadata.name,
             namespace=created_pod.metadata.namespace,
@@ -87,4 +89,4 @@ class ClusterBuilder(BaseBuilder):
         client.CoreV1Api().delete_namespaced_pod(
             created_pod.metadata.name,
             created_pod.metadata.namespace,
-            client.V1DeleteOptions())
+            body=client.V1DeleteOptions())
