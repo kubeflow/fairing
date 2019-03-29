@@ -23,7 +23,7 @@ def train_fn():
 # other modules.
 train_fn.__module__ = '__main__'
 
-def run_submission_with_function_preprocessor(deployer, namespace, capsys, expected_result):
+def run_submission_with_function_preprocessor(capsys, expected_result, deployer="job", builder="append", namespace="default"):
     base_image = 'gcr.io/{}/fairing-test:latest'.format(GCS_PROJECT_ID)
     fairing.config.set_builder('append', base_image=base_image, registry=DOCKER_REGISTRY)
     fairing.config.set_deployer(deployer, namespace=namespace)
@@ -34,7 +34,13 @@ def run_submission_with_function_preprocessor(deployer, namespace, capsys, expec
     assert expected_result in captured.out
 
 def test_job_deployer(capsys):
-    run_submission_with_function_preprocessor("job", "default", capsys, DUMMY_FN_MSG)    
+    run_submission_with_function_preprocessor(capsys, DUMMY_FN_MSG, deployer="job")    
 
 def test_tfjob_deployer(capsys):
-    run_submission_with_function_preprocessor("tfjob", "default", capsys, DUMMY_FN_MSG) 
+    run_submission_with_function_preprocessor(capsys, DUMMY_FN_MSG, deployer="tfjob", namespace="kubeflow") 
+
+def test_docker_builder(capsys):
+    run_submission_with_function_preprocessor(capsys, DUMMY_FN_MSG, builder="docker")    
+
+def test_cluster_builder(capsys):
+    run_submission_with_function_preprocessor(capsys, DUMMY_FN_MSG, builder="cluster", namespace="kubeflow")

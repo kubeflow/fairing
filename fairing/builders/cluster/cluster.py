@@ -51,7 +51,7 @@ class ClusterBuilder(BaseBuilder):
         self.namespace = namespace
 
     def build(self):
-        install_reqs_before_copy = (self.preprocessor.path_prefix + "requirements.txt") in self.preprocessor.context_map().keys()
+        install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
         dockerfile_path = dockerfile.write_dockerfile(
             dockerfile_path=self.dockerfile_path,
             path_prefix=self.preprocessor.path_prefix,
