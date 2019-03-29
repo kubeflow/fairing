@@ -52,7 +52,7 @@ class GCSContextSource(ContextSourceInterface):
         client.CoreV1Api().delete_namespaced_secret(
             self.created_secret.metadata.name,
             self.created_secret.metadata.namespace,
-            client.V1DeleteOptions())
+            body=client.V1DeleteOptions())
 
     def generate_pod_spec(self, image_name, push):
         args = ["--dockerfile=Dockerfile",
