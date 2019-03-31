@@ -42,6 +42,8 @@ class BasePreProcessor(object):
 
         self.set_default_executable()
 
+    # TODO: Add workaround for users who do not want to set an executable for
+    # their command.
     def set_default_executable(self):
         if self.executable is not None:
             return self.executable
@@ -90,10 +92,11 @@ class BasePreProcessor(object):
         return output_file, utils.crc(self._context_tar_path)
 
     def get_command(self):
-        if self.command is None or self.executable is None:
+        if self.command is None:
             return []
         cmd = self.command.copy()
-        cmd.append(os.path.join(self.path_prefix, self.executable))
+        if self.executable is not None:
+            cmd.append(os.path.join(self.path_prefix, self.executable))
         return cmd
 
     def fairing_runtime_files(self):
