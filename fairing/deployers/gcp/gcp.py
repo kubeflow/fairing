@@ -14,6 +14,10 @@ class GCPJob(DeployerInterface):
             Ref: https://cloud.google.com/compute/docs/regions-zones/
         scale_tier: machine type to use for the job.
             Ref: https://cloud.google.com/ml-engine/docs/tensorflow/machine-types
+        job_config: Custom job configuration options. If an option is specified
+            in the job_config and as a top-level parameter, the parameter overrides
+            the value in the job_config.
+            Ref: https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs
     """
 
     def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None):
@@ -49,7 +53,8 @@ class GCPJob(DeployerInterface):
             request_dict['trainingInput']['region'] = self._region
 
         try:
-            print(request_dict)
+            print('Creating training job with the following options: {}'.format(
+                str(request_dict)))
             response = self._ml.projects().jobs().create(
                 parent='projects/{}'.format(self._project_id),
                 body=request_dict
