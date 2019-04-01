@@ -64,8 +64,8 @@ class PredictionEndpoint(BaseTask):
         self._build()
         deployer = self._backend.get_serving_deployer(self.model_class.__name__)
         self.url = deployer.deploy(self.pod_spec)
-        print("Prediction endpoint: {}".format(self.url))
+        logger.warning("Prediction endpoint: {}".format(self.url))
 
     def predict(self, data):
         r = requests.post(self.url, data=data)
-        print(r.text)
+        logger.warning(r.text)

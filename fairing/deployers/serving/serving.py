@@ -41,7 +41,7 @@ class Serving(Job):
         self.service = v1_api.create_namespaced_service(self.namespace, self.service_spec)
 
         logger.warn("Endpoint {} launched.".format(self.deployment.metadata.name))
-        url = self.backend.get_service_external_ip()
+        url = self.backend.get_service_external_endpoint()
         return url
 
     def generate_deployment_spec(self, pod_template_spec):

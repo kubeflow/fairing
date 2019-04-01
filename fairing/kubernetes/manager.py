@@ -61,7 +61,7 @@ class KubeManager(object):
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
-    def get_service_external_ip(self, name, namespace, selectors=None):
+    def get_service_external_endpoint(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         w = watch.Watch()
