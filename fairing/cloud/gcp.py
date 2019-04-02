@@ -1,5 +1,6 @@
 import google.auth
 from google.cloud import storage
+from google.cloud.exceptions import NotFound
 from fairing.constants import constants
 from kubernetes import client
 import logging
@@ -21,10 +22,18 @@ class GCSUploader(object):
                          blob_name,
                          bucket_name,
                          file_to_upload):
-        bucket = self.storage_client.get_bucket(bucket_name)
+        bucket = self.get_or_create_bucket(bucket_name)
         blob = bucket.blob(blob_name)
         blob.upload_from_filename(file_to_upload)
         return "gs://{}/{}".format(bucket_name, blob_name)
+
+    def get_or_create_bucket(self, bucket_name):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            return bucket
+        except NotFound:
+            bucket = self.storage_client.create_bucket(bucket_name)
+            return bucket
 
 
 def guess_project_name(credentials_file=None):
