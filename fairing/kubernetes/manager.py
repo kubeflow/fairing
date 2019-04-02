@@ -61,7 +61,7 @@ class KubeManager(object):
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
-    def watch_service_for_external_ip(self, name, namespace, selectors=None):
+    def get_service_external_endpoint(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         w = watch.Watch()
@@ -76,7 +76,8 @@ class KubeManager(object):
                              event['object'])
                 ing = svc.status.load_balancer.ingress
                 if ing is not None and len(ing) > 0:
-                    print("Prediction endpoint: http://{}:5000/predict".format(ing[0].ip))
+                    url = "http://{}:5000/predict".format(ing[0].ip)
+                    return url
         except ValueError as v:
             logger.error("error getting status for {} {}".format(name, str(v)))
         except client.rest.ApiException as e:

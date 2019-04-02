@@ -6,6 +6,8 @@ from fairing.deployers.serving.serving import Serving
 from fairing.backends import KubernetesBackend
 from .utils import guess_preprocessor, guess_builder
 
+import requests
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,5 +63,9 @@ class PredictionEndpoint(BaseTask):
     def create(self):
         self._build()
         deployer = self._backend.get_serving_deployer(self.model_class.__name__)
-        deployer.deploy(self.pod_spec)
-        # TODO shoudl return a prediction endpoint client
+        self.url = deployer.deploy(self.pod_spec)
+        logger.warning("Prediction endpoint: {}".format(self.url))
+
+    def predict(self, data):
+        r = requests.post(self.url, data=data)
+        logger.warning(r.text)
