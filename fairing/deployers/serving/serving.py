@@ -41,7 +41,8 @@ class Serving(Job):
         self.service = v1_api.create_namespaced_service(self.namespace, self.service_spec)
 
         logger.warn("Endpoint {} launched.".format(self.deployment.metadata.name))
-        self.get_logs()
+        url = self.backend.get_service_external_endpoint()
+        return url
 
     def generate_deployment_spec(self, pod_template_spec):
         return k8s_client.V1Deployment(
@@ -75,6 +76,3 @@ class Serving(Job):
                 type="LoadBalancer",
             )
         )
-
-    def get_logs(self):
-        self.backend.watch_service_for_external_ip(self.service.metadata.name, self.service.metadata.namespace, self.labels)
