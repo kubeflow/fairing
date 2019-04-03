@@ -1,5 +1,5 @@
 import logging
-
+import uuid
 
 from kubernetes import client
 
@@ -63,6 +63,7 @@ class ClusterBuilder(BaseBuilder):
         self.image_tag = self.full_image_name(context_hash)
         self.context_source.prepare(context_path)
         labels = {'fairing-builder': 'kaniko'}
+        labels['fairing-build-id'] = str(uuid.uuid1())
         pod_spec = self.context_source.generate_pod_spec(self.image_tag, self.push)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
