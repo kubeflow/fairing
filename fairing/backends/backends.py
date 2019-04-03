@@ -36,7 +36,7 @@ class KubernetesBackend(BackendInterface):
         self._namespace = namespace
     
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
-        if not fairing.utils.is_running_in_k8s():
+        if fairing.utils.is_running_in_k8s():
             return ClusterBuilder(preprocessor=preprocessor,
                                   base_image=base_image,
                                   registry=registry,
