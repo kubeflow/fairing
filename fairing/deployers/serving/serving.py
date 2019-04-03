@@ -38,10 +38,15 @@ class Serving(Job):
         v1_api = k8s_client.CoreV1Api()
         apps_v1 = k8s_client.AppsV1Api()
         self.deployment = apps_v1.create_namespaced_deployment(self.namespace, self.deployment_spec)
+        print("namespace",self.namespace)
+        print("podspec", pod_spec)
+        print("pod_template_spec", pod_template_spec)
+        print("deployment_spec",self.deployment_spec)
+        print("deployment.metadata", self.deployment.metadata)
         self.service = v1_api.create_namespaced_service(self.namespace, self.service_spec)
 
         logger.warn("Endpoint {} launched.".format(self.deployment.metadata.name))
-        url = self.backend.get_service_external_endpoint(self.deployment.metadata.name, self.deployment.metadata.namespace, self.deployment.metadata.labels)
+        url = self.backend.get_service_external_endpoint(self.deployment.metadata.name, self.deployment.metadata.namespace, self.labels)
         return url
 
     def generate_deployment_spec(self, pod_template_spec):
