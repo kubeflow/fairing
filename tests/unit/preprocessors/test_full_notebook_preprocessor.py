@@ -2,9 +2,12 @@ import pytest
 import tarfile
 import os
 
+import fairing
 from fairing.preprocessors.full_notebook import FullNotebookPreProcessor
+from fairing.constants.constants import DEFAULT_DEST_PREFIX
 
-NOTEBOOK_PATH = os.path.join(os.path.dirname(__file__), 'test_notebook.ipynb')
+NOTEBOOK_PATH = os.path.relpath(
+    os.path.join(os.path.dirname(__file__), 'test_notebook.ipynb'))
 
 def test_preprocess():
     preprocessor = FullNotebookPreProcessor(notebook_file=NOTEBOOK_PATH)
@@ -21,5 +24,7 @@ def test_context_tar_gz():
     preprocessor = FullNotebookPreProcessor(notebook_file=NOTEBOOK_PATH)
     context_file, _ = preprocessor.context_tar_gz()
     tar = tarfile.open(context_file)
-    tar_notebook = tar.extractfile(tar.getmember(NOTEBOOK_PATH[1:]))
+
+    notebook_context_path = os.path.join('app/', NOTEBOOK_PATH)
+    tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
     assert 'Hello World' in tar_notebook.read().decode()
