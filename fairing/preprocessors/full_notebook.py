@@ -23,7 +23,7 @@ class FullNotebookPreProcessor(BasePreProcessor):
 
         relative_notebook_file = notebook_file
         # Convert absolute notebook path to relative path
-        if notebook_file[0] == '/':
+        if os.path.isabs(notebook_file[0]):
             relative_notebook_file = os.path.relpath(notebook_file)
 
         if command is None:
