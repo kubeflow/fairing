@@ -4,7 +4,7 @@ import fairing
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.backends import KubernetesBackend
-from .utils import guess_preprocessor, guess_builder
+from .utils import guess_preprocessor
 
 import requests
 
@@ -31,12 +31,10 @@ class BaseTask:
         self.docker_registry = docker_registry
         logger.warn("Using docker registry: {}".format(self.docker_registry))
 
-        gussed_builder = guess_builder(needs_deps_installation=True)
-        logger.warn("Using builder: {}".format(gussed_builder.__name__))
-
-        self.builder = gussed_builder(preprocessor=preprocessor,
-                                      base_image=base_docker_image,
-                                      registry=self.docker_registry)
+        self.builder = backend.get_builder(preprocessor=preprocessor,
+                                           base_image=base_docker_image,
+                                           registry=self.docker_registry)
+        logger.warn("Using builder: {}".format(type(self.builder)))
 
     def _build(self):
         self.builder.build()
