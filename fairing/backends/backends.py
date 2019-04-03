@@ -4,7 +4,6 @@ import six
 from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from fairing.deployers.job.job import Job
-from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.deployers.serving.serving import Serving
 from fairing.cloud import gcp
 
@@ -50,7 +49,7 @@ class KubeflowBackend(KubernetesBackend):
         super(KubeflowBackend, self).__init__(namespace)
     
     def get_training_deployer(self):
-        return TfJob(namespace=self._namespace)
+        return Job(namespace=self._namespace)
 
 class KubeflowGKEBackend(GKEBackend):
 
@@ -58,7 +57,7 @@ class KubeflowGKEBackend(GKEBackend):
         super(KubeflowGKEBackend, self).__init__(namespace)
     
     def get_training_deployer(self):
-        return TfJob(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
+        return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
 
 class GCPManagedBackend(BackendInterface):
 
