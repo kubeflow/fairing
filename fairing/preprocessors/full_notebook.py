@@ -1,3 +1,4 @@
+import os
 from fairing.constants import constants
 
 from .base import BasePreProcessor
@@ -20,12 +21,17 @@ class FullNotebookPreProcessor(BasePreProcessor):
         if notebook_file is None:
             raise ValueError('A notebook_file must be provided.')
 
+        relative_notebook_file = notebook_file
+        # Convert absolute notebook path to relative path
+        if notebook_file[0] == '/':
+            relative_notebook_file = os.path.relpath(notebook_file)
+
         if command is None:
-            command = ["papermill", notebook_file, output_file, "--log-output"]
+            command = ["papermill", relative_notebook_file, output_file, "--log-output"]
 
         input_files = input_files or []
-        if notebook_file not in input_files:
-            input_files.append(notebook_file)
+        if relative_notebook_file not in input_files:
+            input_files.append(relative_notebook_file)
 
         super().__init__(
             executable=None,
