@@ -14,7 +14,7 @@ RUN mkdir -p /builder && \
 ENV PATH=/builder/google-cloud-sdk/bin/:$PATH
 
 # Install test dependencies
-RUN pip install pytest pytest-cov
+RUN pip install pytest pytest-cov papermill
 
 # Install dependencies
 COPY setup.py requirements.txt /opt/fairing/

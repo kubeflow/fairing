@@ -4,6 +4,7 @@ import logging
 
 from kubernetes import client as k8s_client
 from fairing.deployers.job.job import Job
+from kubernetes.client.rest import ApiException
 
 logger = logging.getLogger(__name__)
 DEPLOPYER_TYPE = 'serving'
@@ -76,3 +77,24 @@ class Serving(Job):
                 type="LoadBalancer",
             )
         )
+    
+    def delete(self):
+        v1_api = k8s_client.CoreV1Api()
+        try: 
+            service_name = self.service.metadata.name
+            v1_api.delete_namespaced_service(service_name, self.namespace)
+            logger.info("Deleted service: {}/{}".format(self.namespace, service_name))
+        except ApiException as e:
+            logger.error(e)
+            logger.error("Not able to delete service: {}/{}".format(self.namespace, service_name))
+        try: 
+            api_instance = k8s_client.ExtensionsV1beta1Api()
+            deployment_name = self.deployment.metadata.name
+            del_opts = k8s_client.V1DeleteOptions(propagation_policy="Foreground")
+            api_instance.delete_namespaced_deployment(deployment_name,
+                                                      self.namespace,
+                                                      body=del_opts)
+            logger.info("Deleted deployment: {}/{}".format(self.namespace, deployment_name))
+        except ApiException as e:
+            logger.error(e)
+            logger.error("Not able to delete deployment: {}/{}".format(self.namespace, deployment_name))
