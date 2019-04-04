@@ -22,3 +22,5 @@ steps:
       - 'gcloud container clusters get-credentials kubeflow --zone us-central1-a && pytest --cov=fairing tests/'
 
 images: ['gcr.io/$PROJECT_ID/fairing-test:latest']
+timeout: 3600s
+
