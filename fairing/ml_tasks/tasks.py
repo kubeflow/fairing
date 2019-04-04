@@ -2,6 +2,7 @@ import logging
 
 import fairing
 import json
+import numpy as np
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.backends import KubernetesBackend
