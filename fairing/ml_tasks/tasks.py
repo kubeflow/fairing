@@ -72,7 +72,7 @@ class PredictionEndpoint(BaseTask):
                 "names":feature_names,
                 "tensor": {
                     "shape": np.asarray(data.shape).tolist(),
-                    "values": data.tolist(),
+                    "values": data.flatten().tolist(),
                 },
             }
         }
