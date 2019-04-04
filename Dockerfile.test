@@ -14,7 +14,11 @@ RUN mkdir -p /builder && \
 ENV PATH=/builder/google-cloud-sdk/bin/:$PATH
 
 # Install test dependencies
-RUN pip install pytest pytest-cov
+RUN pip install pytest pytest-cov papermill
+# TODO: Find a better to run e2e tests without
+# adding a lot of reqs
+COPY examples/prediction/requirements.txt  examples/prediction/requirements.txt 
+RUN pip install -r examples/prediction/requirements.txt
 
 # Install dependencies
 COPY setup.py requirements.txt /opt/fairing/

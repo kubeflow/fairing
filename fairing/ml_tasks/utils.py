@@ -2,9 +2,6 @@ import docker
 import fairing
 
 from docker.errors import DockerException
-from fairing.builders.docker.docker import DockerBuilder
-from fairing.builders.cluster.cluster import ClusterBuilder
-from fairing.builders.append.append import AppendBuilder
 from fairing.functions.function_shim import get_execution_obj_type, ObjectType
 from fairing.preprocessors.function import FunctionPreProcessor
 
@@ -24,15 +21,3 @@ def is_docker_daemon_exists():
         return True
     except DockerException:
         return False
-
-
-def guess_builder(needs_deps_installation):
-    if fairing.utils.is_running_in_k8s():
-        return ClusterBuilder
-    elif is_docker_daemon_exists():
-        return DockerBuilder
-    elif not needs_deps_installation:
-        return AppendBuilder
-    else:
-        # TODO (karthikv2k): Add more info on how to reolve this issue
-        raise RuntimeError("Not able to guess the right builder for this job!")
