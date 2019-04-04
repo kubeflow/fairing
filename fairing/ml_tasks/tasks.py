@@ -1,6 +1,8 @@
 import logging
 
 import fairing
+import json
+import numpy as np
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.backends import KubernetesBackend
@@ -64,8 +66,18 @@ class PredictionEndpoint(BaseTask):
         self.url = self._deployer.deploy(self.pod_spec)
         logger.warning("Prediction endpoint: {}".format(self.url))
 
-    def predict(self, data):
-        r = requests.post(self.url, data=data)
+    def predict_nparray(self, data, feature_names=None):
+        pdata={
+            "data": {
+                "names":feature_names,
+                "tensor": {
+                    "shape": np.asarray(data.shape).tolist(),
+                    "values": data.flatten().tolist(),
+                },
+            }
+        }
+        serialized_data = json.dumps(pdata)
+        r = requests.post(self.url, data={'json':serialized_data})
         logger.warning(r.text)
     
     def delete(self):
