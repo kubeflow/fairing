@@ -65,10 +65,10 @@ class PredictionEndpoint(BaseTask):
         self.url = self._deployer.deploy(self.pod_spec)
         logger.warning("Prediction endpoint: {}".format(self.url))
 
-    def predict_nparray(self, data, names=["t:0", "t:1"]):
+    def predict_nparray(self, data, feature_names=None):
         pdata={
             "data": {
-                "names":names,
+                "names":feature_names,
                 "tensor": {
                     "shape": np.asarray(data.shape).tolist(),
                     "values": data.tolist(),
