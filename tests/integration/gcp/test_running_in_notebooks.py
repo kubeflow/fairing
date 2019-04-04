@@ -32,6 +32,5 @@ def test_xgboost_highlevel_apis():
         "Model export success: trained_ames_model.dat", #KF training
         "Access job logs at the following URL:", #GCP managed submission success
         "Prediction endpoint: http", #create endpoint success
-        "Prediction results:" #prediction against the endpoint success
     ]
     run_notebook_test(notebook_abs_path, expected_messages)
