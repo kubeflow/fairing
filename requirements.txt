@@ -12,3 +12,4 @@ oauth2client>=4.0.0
 tornado>=5.1.1,<6.0.0
 google-api-python-client>=1.7.8
 cloudpickle>=0.8
+numpy>=1.14

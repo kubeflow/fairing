@@ -4,6 +4,7 @@ import sys
 import io
 import tempfile
 import random
+import os
 
 from google.cloud import storage
 from fairing import TrainJob
@@ -15,7 +16,6 @@ TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)
 GCS_SUCCESS_MSG = "gcs access is successful"
 GCS_FAILED_MSG = 'google.api_core.exceptions.Forbidden: 403'
-DUMMY_FN_MSG = "hello world"
 
 
 # Training function that accesses GCS
@@ -44,14 +44,18 @@ def train_fn_with_gcs_access(temp_gcs_prefix):
 train_fn_with_gcs_access.__module__ = '__main__'
 
 def run_submission_with_gcs_access(deployer, pod_spec_mutators, namespace, gcs_prefix, capsys, expected_result):
+    py_version = ".".join([str(x) for x in sys.version_info[0:3]])
+    base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
     fairing.config.set_builder(
-        'append', base_image='gcr.io/{}/fairing-test:latest'.format(GCS_PROJECT_ID),
+        'docker', base_image=base_image,
         registry=DOCKER_REGISTRY, push=True)
     fairing.config.set_deployer(
         deployer, pod_spec_mutators=pod_spec_mutators, namespace=namespace)
-
-    remote_train = fairing.config.fn(lambda : train_fn_with_gcs_access(gcs_prefix))
-    remote_train()
+    requirements_file = os.path.relpath(os.path.join(os.path.dirname(__file__), 'requirements.txt'))
+    fairing.config.set_preprocessor('function',
+                                    function_obj=lambda : train_fn_with_gcs_access(gcs_prefix),
+                                    output_map={requirements_file: '/app/requirements.txt'})
+    fairing.config.run()
     captured = capsys.readouterr()
     assert expected_result in captured.out
 

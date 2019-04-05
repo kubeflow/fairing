@@ -4,6 +4,8 @@ import sys
 import io
 import tempfile
 import random
+import time
+import uuid
 
 from google.cloud import storage
 from fairing import TrainJob
@@ -15,7 +17,6 @@ TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)
 GCS_SUCCESS_MSG = "gcs access is successful"
 GCS_FAILED_MSG = 'google.api_core.exceptions.Forbidden: 403'
-DUMMY_FN_MSG = "hello world"
 
 def delete_blobs1(bucket_name, prefix):
     storage_client = storage.Client()
@@ -25,8 +26,10 @@ def delete_blobs1(bucket_name, prefix):
         blob.delete()
 
 # Dummy training function to be submitted
-def train_fn():
-    print(DUMMY_FN_MSG)
+def train_fn(msg):
+    for _ in range(30):
+        time.sleep(0.1)
+        print(msg)
 
 # Training function that accesses GCS
 def train_fn_with_gcs_access(temp_gcs_prefix):
@@ -68,13 +71,15 @@ def run_submission_with_high_level_api(backend, entry_point, capsys, expected_re
     assert expected_result in captured.out
 
 def test_job_submission_kubeflowgkebackend(capsys):
-    run_submission_with_high_level_api(KubeflowGKEBackend(), train_fn, capsys, DUMMY_FN_MSG)
+    expected_result = str(uuid.uuid4())
+    run_submission_with_high_level_api(KubeflowGKEBackend(), lambda : train_fn(expected_result), capsys, expected_result)
 
 def test_job_submission_kubeflowgkebackend_gcs_access(capsys, temp_gcs_prefix):
     run_submission_with_high_level_api(KubeflowGKEBackend(), lambda : train_fn_with_gcs_access(temp_gcs_prefix), capsys, GCS_SUCCESS_MSG)
 
 def test_job_submission_gkebackend_with_default_namespace(capsys):
-    run_submission_with_high_level_api(GKEBackend(), train_fn, capsys, DUMMY_FN_MSG)
+    expected_result = str(uuid.uuid4())
+    run_submission_with_high_level_api(GKEBackend(), lambda : train_fn(expected_result), capsys, expected_result)
 
 def test_job_submission_gkebackend_gcs_access_with_default_namespace(capsys, temp_gcs_prefix):
     run_submission_with_high_level_api(GKEBackend(), lambda : train_fn_with_gcs_access(temp_gcs_prefix), capsys, GCS_FAILED_MSG)

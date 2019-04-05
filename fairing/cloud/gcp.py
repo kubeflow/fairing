@@ -15,8 +15,7 @@ class GCSUploader(object):
     def __init__(
             self,
             credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV)):
-        self.storage_client = storage. \
-            Client.from_service_account_json(credentials_file)
+        self.storage_client = storage.Client()
 
     def upload_to_bucket(self,
                          blob_name,
