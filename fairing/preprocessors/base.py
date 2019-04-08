@@ -8,7 +8,7 @@ import tarfile
 import glob
 import logging
 import posixpath
-
+import tempfile
 
 class BasePreProcessor(object):
     """
@@ -83,7 +83,9 @@ class BasePreProcessor(object):
 
         return c_map
 
-    def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
+    def context_tar_gz(self, output_file=None):
+        if not output_file:
+            _, output_file = tempfile.mkstemp(prefix="/tmp/fairing_context_")
         logging.info("Creating docker context: %s", output_file)
         self.input_files = self.preprocess()
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
