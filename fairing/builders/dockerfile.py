@@ -1,15 +1,18 @@
 from fairing.constants import constants
 import logging
+import tempfile
 logger = logging.getLogger('fairing')
 
 # TODO(@karthikv2k): Need to be refractored into a better template
 def write_dockerfile(
         docker_command=None,
-        destination=constants.DEFAULT_GENERATED_DOCKERFILE_FILENAME,
+        destination=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
         dockerfile_path=None,
         base_image=None,
         install_reqs_before_copy=False):
+    if not destination:
+        _, destination = tempfile.mkstemp(prefix="/tmp/fairing_dockerfile_")
     content_lines = [ "FROM {}".format(base_image),
         "WORKDIR {PATH_PREFIX}".format(PATH_PREFIX=path_prefix),
         "ENV FAIRING_RUNTIME 1"]
