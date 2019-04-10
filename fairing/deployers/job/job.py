@@ -97,7 +97,8 @@ class Job(DeployerInterface):
             api_version="batch/v1",
             kind="Job",
             metadata=k8s_client.V1ObjectMeta(
-                generate_name=self.job_name
+                generate_name=self.job_name,
+                labels=self.labels,
             ),
             spec=job_spec
         )
