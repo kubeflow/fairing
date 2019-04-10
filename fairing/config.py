@@ -57,14 +57,14 @@ class Config(object):
 
         self._builder_name = DEFAULT_BUILDER
         self._builder_kwargs = {}
-        
+
         self._deployer_name = DEFAULT_DEPLOYER
         self._deployer_kwargs = {}
 
     def set_preprocessor(self, name=None, **kwargs):
         self._preprocessor_name = name
         self._preprocessor_kwargs = kwargs
-    
+
     def get_preprocessor(self):
         fn = preprocessor_map.get(self._preprocessor_name)
         if fn is None:
@@ -75,14 +75,14 @@ class Config(object):
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
         self._builder_name = name
         self._builder_kwargs = kwargs
-   
+
     def get_builder(self, preprocessor):
         fn = builder_map.get(self._builder_name)
         if fn is None:
             raise Exception('Builder name not found: {}\nAvailable deployer: {}'.format(
                 self._builder_name, list(builder_map.keys())))
         return fn(preprocessor=preprocessor, **self._builder_kwargs)
-        
+
     def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
         self._deployer_name = name
         self._deployer_kwargs = kwargs
@@ -96,7 +96,9 @@ class Config(object):
 
     def run(self):
         preprocessor = self.get_preprocessor()
+        logging.info("Using preprocessor: %s", preprocessor)
         builder = self.get_builder(preprocessor)
+        logging.info("Using builder: %s", builder)
         deployer = self.get_deployer()
 
         builder.build()

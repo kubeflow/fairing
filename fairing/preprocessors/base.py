@@ -84,9 +84,13 @@ class BasePreProcessor(object):
         return c_map
 
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
+        logging.info("Creating docker context: %s", output_file)
         self.input_files = self.preprocess()
+        logging.info("Adding files to context: %s", self.input_files)
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
             for dst, src in self.context_map().items():
+                logging.info("Context: %s, Adding %s at %s", output_file,
+                             src, dst)
                 tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
         self._context_tar_path = output_file
         return output_file, utils.crc(self._context_tar_path)
@@ -107,7 +111,7 @@ class BasePreProcessor(object):
             dst = os.path.normpath(os.path.join(self.path_prefix, "fairing", f))
             ret[src] = dst
         return ret
-    
+
     def is_requirements_txt_file_present(self):
         dst_files = self.context_map().keys()
         reqs_file = posixpath.join(self.path_prefix, "requirements.txt")
