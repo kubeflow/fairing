@@ -105,6 +105,8 @@ class Config(object):
         pod_spec = builder.generate_pod_spec()
         deployer.deploy(pod_spec)
 
+        return preprocessor, builder, deployer
+
     def deploy(self, pod_spec):
         self.get_deployer().deploy(pod_spec)
 

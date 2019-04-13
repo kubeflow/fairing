@@ -54,7 +54,7 @@ class BaseBuilder(BuilderInterface):
                 )],
                 # Set the directory where the python files are built.
                 # TODO(jlewi): Would it be better to set PYTHONPATH?
-                working_dir="/app",
+                working_dir=self.preprocessor.path_prefix,
             )],
         )
 
