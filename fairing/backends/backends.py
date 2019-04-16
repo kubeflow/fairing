@@ -1,5 +1,4 @@
-import abc
-import logging
+import abc 
 import six
 
 import fairing
@@ -35,32 +34,29 @@ class KubernetesBackend(BackendInterface):
 
     def __init__(self, namespace=None):
         self._namespace = namespace
-
+    
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         if fairing.utils.is_running_in_k8s():
-            logging.info("Using ClusterBuilder")
             return ClusterBuilder(preprocessor=preprocessor,
                                   base_image=base_image,
                                   registry=registry,
                                   pod_spec_mutators=pod_spec_mutators,
                                   namespace=self._namespace)
         elif ml_tasks_utils.is_docker_daemon_exists():
-            logging.info("Using Docker builder")
             return DockerBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
                                  registry=registry)
         elif not needs_deps_installation:
-            logging.info("Using AppendBuilder")
             return AppendBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
                                  registry=registry)
         else:
             # TODO (karthikv2k): Add more info on how to reolve this issue
             raise RuntimeError("Not able to guess the right builder for this job!")
-
+    
     def get_training_deployer(self):
         return Job(self._namespace)
-
+    
     def get_serving_deployer(self, model_class):
         return Serving(model_class, namespace=self._namespace)
 
@@ -68,7 +64,7 @@ class GKEBackend(KubernetesBackend):
 
     def __init__(self, namespace=None):
         super(GKEBackend, self).__init__(namespace)
-
+    
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
@@ -77,10 +73,10 @@ class GKEBackend(KubernetesBackend):
                                                    registry,
                                                    needs_deps_installation,
                                                    pod_spec_mutators)
-
+    
     def get_training_deployer(self):
         return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
-
+    
     def get_serving_deployer(self, model_class):
         return Serving(model_class, namespace=self._namespace)
 
@@ -88,7 +84,7 @@ class KubeflowBackend(KubernetesBackend):
 
     def __init__(self, namespace="kubeflow"):
         super(KubeflowBackend, self).__init__(namespace)
-
+    
     def get_training_deployer(self):
         return Job(namespace=self._namespace)
 
@@ -96,7 +92,7 @@ class KubeflowGKEBackend(GKEBackend):
 
     def __init__(self, namespace="kubeflow"):
         super(KubeflowGKEBackend, self).__init__(namespace)
-
+    
     def get_training_deployer(self):
         return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
 
@@ -107,7 +103,7 @@ class GCPManagedBackend(BackendInterface):
         self._project_id = project_id or gcp.guess_project_name()
         self._region = region or 'us-central1'
         self._training_scale_tier =  training_scale_tier or 'BASIC'
-
+    
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
@@ -128,7 +124,7 @@ class GCPManagedBackend(BackendInterface):
                                  registry=registry)
         else:
             # TODO (karthikv2k): Add more info on how to reolve this issue
-            raise RuntimeError("Not able to guess the right builder for this job!")
+            raise RuntimeError("Not able to guess the right builder for this job!")       
 
     def get_training_deployer(self):
         return GCPJob(self._project_id, self._region, self._training_scale_tier)
