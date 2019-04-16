@@ -86,7 +86,6 @@ class BasePreProcessor(object):
     def context_tar_gz(self, output_file=constants.DEFAULT_CONTEXT_FILENAME):
         logging.info("Creating docker context: %s", output_file)
         self.input_files = self.preprocess()
-        logging.info("Adding files to context: %s", self.input_files)
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
             for dst, src in self.context_map().items():
                 logging.info("Context: %s, Adding %s at %s", output_file,
