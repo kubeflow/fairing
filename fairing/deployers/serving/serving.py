@@ -18,8 +18,12 @@ class Serving(Job):
 
     """
 
+    # TODO(https://github.com/kubeflow/fairing/issues/206): The default
+    # should be ClusterIP not LoadBalancer because LoadBalancer opens up
+    # a port. But this breaks the post submit test
+    # https://github.com/kubeflow/fairing/blob/master/examples/prediction/xgboost-high-level-apis.ipynb
     def __init__(self, serving_class, namespace=None, runs=1, labels=None,
-                 service_type="ClusterIP"):
+                 service_type="LoadBalancer"):
         super(Serving, self).__init__(namespace, runs, deployer_type=DEPLOPYER_TYPE, labels=labels)
         self.serving_class = serving_class
         self.service_type = service_type
@@ -44,7 +48,7 @@ class Serving(Job):
         self.deployment = apps_v1.create_namespaced_deployment(self.namespace, self.deployment_spec)
         self.service = v1_api.create_namespaced_service(self.namespace, self.service_spec)
 
-        if service_type == "LoadBalancer":
+        if self.service_type == "LoadBalancer":
             url = self.backend.get_service_external_endpoint(
                 self.service.metadata.name, self.service.metadata.namespace,
                 self.service.metadata.labels)
