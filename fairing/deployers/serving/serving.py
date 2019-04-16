@@ -12,15 +12,18 @@ DEPLOPYER_TYPE = 'serving'
 
 class Serving(Job):
     """
-    Serves a prediction endpoint using Kubernetes deployments and services 
-    
+    Serves a prediction endpoint using Kubernetes deployments and services
+
     serving_class: the name of the class that holds the predict function.
-    
+
     """
-    def __init__(self, serving_class, namespace=None, runs=1, labels=None):
+
+    def __init__(self, serving_class, namespace=None, runs=1, labels=None,
+                 service_type="ClusterIP"):
         super(Serving, self).__init__(namespace, runs, deployer_type=DEPLOPYER_TYPE, labels=labels)
         self.serving_class = serving_class
-        
+        self.service_type = service_type
+
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
@@ -28,7 +31,7 @@ class Serving(Job):
         pod_template_spec.spec.containers[0].command = ["seldon-core-microservice", self.serving_class, "REST", "--service-type=MODEL", "--persistence=0"]
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)
         self.service_spec = self.generate_service_spec()
-        
+
         if self.output:
             api = k8s_client.ApiClient()
             job_output = api.sanitize_for_serialization(self.deployment_spec)
@@ -41,10 +44,17 @@ class Serving(Job):
         self.deployment = apps_v1.create_namespaced_deployment(self.namespace, self.deployment_spec)
         self.service = v1_api.create_namespaced_service(self.namespace, self.service_spec)
 
-        logger.warn("Endpoint {} launched.".format(self.deployment.metadata.name))
-        url = self.backend.get_service_external_endpoint(self.service.metadata.name,
-                                                         self.service.metadata.namespace,
-                                                         self.service.metadata.labels)
+        if service_type == "LoadBalancer":
+            url = self.backend.get_service_external_endpoint(
+                self.service.metadata.name, self.service.metadata.namespace,
+                self.service.metadata.labels)
+        else:
+            # TODO(jlewi): The suffix won't always be cluster.local since
+            # its configurable. Is there a way to get it programmatically?
+            url = "http://{0}.{1}.svc.cluster.local".format(
+                self.service.metadata.name, self.service.metadata.namespace)
+
+        logging.info("Cluster endpoint: %s", url)
         return url
 
     def generate_deployment_spec(self, pod_template_spec):
@@ -52,7 +62,8 @@ class Serving(Job):
             api_version="apps/v1",
             kind="Deployment",
             metadata=k8s_client.V1ObjectMeta(
-                generate_name="fairing-deployer-"
+                generate_name="fairing-deployer-",
+                labels=self.labels,
             ),
             spec=k8s_client.V1DeploymentSpec(
                 selector=k8s_client.V1LabelSelector(
@@ -61,7 +72,7 @@ class Serving(Job):
                 template=pod_template_spec,
             )
         )
-        
+
     def generate_service_spec(self):
         return k8s_client.V1Service(
             api_version="v1",
@@ -76,13 +87,13 @@ class Serving(Job):
                     name="serving",
                     port=5000
                 )],
-                type="LoadBalancer",
+                type=self.service_type,
             )
         )
-    
+
     def delete(self):
         v1_api = k8s_client.CoreV1Api()
-        try: 
+        try:
             v1_api.delete_namespaced_service(self.service.metadata.name,
                                              self.service.metadata.namespace)
             logger.info("Deleted service: {}/{}".format(self.service.metadata.namespace,
@@ -91,7 +102,7 @@ class Serving(Job):
             logger.error(e)
             logger.error("Not able to delete service: {}/{}".format(self.service.metadata.namespace,
                                                                     self.service.metadata.name))
-        try: 
+        try:
             api_instance = k8s_client.ExtensionsV1beta1Api()
             del_opts = k8s_client.V1DeleteOptions(propagation_policy="Foreground")
             api_instance.delete_namespaced_deployment(self.deployment.metadata.name,

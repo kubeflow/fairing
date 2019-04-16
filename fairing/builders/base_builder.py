@@ -25,7 +25,7 @@ class BaseBuilder(BuilderInterface):
         self.push = push
         if self.registry is None:
             # TODO(r2d4): Add more heuristics here...
-            
+
             # If no push and no registry provided, use any registry name
             if not self.push:
                 self.registry = 'local/fairing-image'
@@ -51,7 +51,10 @@ class BaseBuilder(BuilderInterface):
                 env=[client.V1EnvVar(
                     name='FAIRING_RUNTIME',
                     value='1',
-                )]
+                )],
+                # Set the directory where the python files are built.
+                # TODO(jlewi): Would it be better to set PYTHONPATH?
+                working_dir=self.preprocessor.path_prefix,
             )],
         )
 

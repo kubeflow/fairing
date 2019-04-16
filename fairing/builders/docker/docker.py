@@ -29,6 +29,7 @@ class DockerBuilder(BaseBuilder):
         )
 
     def build(self):
+        logging.info("Building image using docker")
         self.docker_client = APIClient(version='auto')
         self._build()
         if self.push:
@@ -62,7 +63,7 @@ class DockerBuilder(BaseBuilder):
             self._process_stream(line)
 
     def publish(self):
-        logger.warn('Publishing image {}...'.format(self.image_tag))       
+        logger.warn('Publishing image {}...'.format(self.image_tag))
         for line in self.docker_client.push(self.image_tag, stream=True):
             self._process_stream(line)
 

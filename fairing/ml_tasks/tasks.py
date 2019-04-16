@@ -39,6 +39,7 @@ class BaseTask:
         logger.warn("Using builder: {}".format(type(self.builder)))
 
     def _build(self):
+        logging.info("Building the docker image.")
         self.builder.build()
         self.pod_spec = self.builder.generate_pod_spec()
 
@@ -62,6 +63,7 @@ class PredictionEndpoint(BaseTask):
 
     def create(self):
         self._build()
+        logging.info("Deploying the endpoint.")
         self._deployer = self._backend.get_serving_deployer(self.model_class.__name__)
         self.url = self._deployer.deploy(self.pod_spec)
         logger.warning("Prediction endpoint: {}".format(self.url))
@@ -79,6 +81,6 @@ class PredictionEndpoint(BaseTask):
         serialized_data = json.dumps(pdata)
         r = requests.post(self.url, data={'json':serialized_data})
         logger.warning(r.text)
-    
+
     def delete(self):
         self._deployer.delete()
