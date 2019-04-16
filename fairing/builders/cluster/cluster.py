@@ -51,6 +51,7 @@ class ClusterBuilder(BaseBuilder):
         self.namespace = namespace
 
     def build(self):
+        logging.info("Building image using cluster builder.")
         install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
         dockerfile_path = dockerfile.write_dockerfile(
             dockerfile_path=self.dockerfile_path,
