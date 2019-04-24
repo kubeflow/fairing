@@ -249,7 +249,7 @@
             $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("unit", pythonImage, [
               "tests/unit.sh",
             ]),  // run python tests
-            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("integration", pythonImage, [
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("integration", testWorkerImage, [
               "tests/e2e.sh",
             ]),  // run tests
             $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("create-pr-symlink", testWorkerImage, [
