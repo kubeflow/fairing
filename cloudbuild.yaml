@@ -19,9 +19,9 @@ steps:
   entrypoint: 'bash'
   args: 
       - '-c'
-      - 'gcloud container clusters get-credentials kubeflow-ci-fairing --zone us-central1-a && pytest tests/integration'
+      - 'gcloud container clusters get-credentials kubeflow-ci-fairing --zone us-central1-a && pytest -n 8 -v --durations=10 --cov=fairing tests/integration/common'
 
 images: ['gcr.io/$PROJECT_ID/fairing-test:latest']
-timeout: 3600s 
+timeout: 3600s
 options:
   machineType: 'N1_HIGHCPU_8'
