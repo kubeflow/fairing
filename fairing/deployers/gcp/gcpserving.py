@@ -1,6 +1,7 @@
 from fairing import utils
 from fairing.deployers.deployer import DeployerInterface
 from fairing.cloud.gcp import guess_project_name
+from fairing import http_utils
 
 from googleapiclient import discovery
 from googleapiclient import errors
@@ -16,7 +17,8 @@ class GCPServingDeployer(DeployerInterface):
         self._model_name = model_name
         self._version_name = version_name
         self._deploy_kwargs = deploy_kwargs
-        self._ml = discovery.build('ml', 'v1')
+        http_instance = http_utils.configure_http_instance()
+        self._ml = discovery.build('ml', 'v1', http=http_instance)
 
         # Set default deploy kwargs
         if 'runtime_version' not in self._deploy_kwargs:
