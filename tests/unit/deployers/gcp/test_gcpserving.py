@@ -1,7 +1,6 @@
 """Tests for GCPServing Deployer."""
 
 import pytest
-import re
 import json
 import httplib2
 from unittest.mock import patch

@@ -1,12 +1,8 @@
 import pytest
-import re
 import fairing
 
-import httplib2
 from kubernetes import client
 from fairing.deployers.gcp.gcp import GCPJob
-from unittest.mock import patch
-from googleapiclient import discovery
 
 PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 
