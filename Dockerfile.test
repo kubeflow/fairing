@@ -5,7 +5,7 @@ ARG CLOUD_SDK_VERSION="236.0.0"
 
 # Install pinned version of gcloud
 RUN mkdir -p /builder && \
-	wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar zxv -C /builder && \
+	wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar zx -C /builder && \
 	CLOUDSDK_PYTHON="python3.5" /builder/google-cloud-sdk/install.sh --usage-reporting=false \
 		--bash-completion=false \
 		--disable-installation-options && \

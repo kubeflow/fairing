@@ -26,8 +26,8 @@ class GCPJob(DeployerInterface):
         self._region = region or 'us-central1'
         self._job_config = job_config or {}
         self.scale_tier = scale_tier
-        http_instance = http_utils.configure_http_instance()
-        self._ml = discovery.build('ml', 'v1', http=http_instance)
+        self._ml = discovery.build('ml', 'v1')
+        self._ml._http = http_utils.configure_http_instance(self._ml._http)
 
     def create_request_dict(self, pod_template_spec):
         """Return the request to be sent to the ML Engine API."""

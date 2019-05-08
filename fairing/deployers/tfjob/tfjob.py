@@ -67,6 +67,6 @@ class TfJob(Job):
         labels = {
             'tf-replica-index': '0',
             'tf-replica-type': 'worker',
-            'tf_job_name=': name
+            'tf-job-name': name
         }
         self.backend.log(name, namespace, labels)

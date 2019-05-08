@@ -17,8 +17,8 @@ class GCPServingDeployer(DeployerInterface):
         self._model_name = model_name
         self._version_name = version_name
         self._deploy_kwargs = deploy_kwargs
-        http_instance = http_utils.configure_http_instance()
-        self._ml = discovery.build('ml', 'v1', http=http_instance)
+        self._ml = discovery.build('ml', 'v1')
+        self._ml._http = http_utils.configure_http_instance(self._ml._http)
 
         # Set default deploy kwargs
         if 'runtime_version' not in self._deploy_kwargs:
