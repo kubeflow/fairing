@@ -118,14 +118,3 @@ def test_valid_creation(capsys):
 
     captured = capsys.readouterr()
     assert 'Version submitted successfully' in captured.out
-
-def test_fairing_user_agent_in_http_requests_gcpserving_deploy_api(httpmock, capsys):
-    with patch('httplib2.Http', new=httpmock) as mock_http:
-        deployer = GCPServingDeployer(
-                project_id='test_project', model_dir='test_model_dir',
-                model_name='test_model', version_name='test_version')
-        deployer.deploy(None)
-        captured = capsys.readouterr()
-        expected_pattern = r'HTTPMock url:https://ml.googleapis.* user-agent:kubeflow-fairing/0.5.2'
-        print(captured.out)
-        assert len(re.findall(expected_pattern, captured.out)) > 0

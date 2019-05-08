@@ -101,12 +101,3 @@ def test_top_level_params_override_job_config():
     }
 
     assert request == desired
-
-def test_fairing_user_agent_in_http_requests_gcpjob_deploy_api(httpmock, capsys):
-    with patch('httplib2.Http', new=httpmock) as mock_http:
-        job = GCPJob()
-        job.deploy(create_test_pod_spec())
-        captured = capsys.readouterr()
-        expected_pattern = r'HTTPMock url:https://ml.googleapis.* user-agent:kubeflow-fairing/0.5.2'
-        print(captured.out)
-        assert len(re.findall(expected_pattern, captured.out)) > 0
