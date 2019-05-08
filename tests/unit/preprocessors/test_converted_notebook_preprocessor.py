@@ -23,7 +23,6 @@ def test_get_command():
     command = preprocessor.get_command()
     conv_notebook_context_path = posixpath.join(DEFAULT_DEST_PREFIX, CONVERTED_NOTEBOOK_PATH)
     expected_command = 'python {}'.format(conv_notebook_context_path)
-    print(command)
     assert command == expected_command.split()
 
 def test_context_tar_gz():
