@@ -97,4 +97,3 @@ def test_top_level_params_override_job_config():
     }
 
     assert request == desired
-
