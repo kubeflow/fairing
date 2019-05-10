@@ -11,6 +11,8 @@ from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.cloud import gcp
 import fairing.ml_tasks.utils as ml_tasks_utils
+from fairing.constants import constants
+from fairing.kubernetes.manager import KubeManager
 
 @six.add_metaclass(abc.ABCMeta)
 class BackendInterface(object):
@@ -68,11 +70,36 @@ class GKEBackend(KubernetesBackend):
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
-        return super(GKEBackend, self).get_builder(preprocessor,
-                                                   base_image,
-                                                   registry,
-                                                   needs_deps_installation,
-                                                   pod_spec_mutators)
+
+        if (fairing.utils.is_running_in_k8s() or \
+            not ml_tasks_utils.is_docker_daemon_exists()) and \
+                KubeManager().secret_exists(constants.GCP_CREDS_SECRET_NAME, self._namespace):
+            return ClusterBuilder(preprocessor=preprocessor,
+                                  base_image=base_image,
+                                  registry=registry,
+                                  pod_spec_mutators=pod_spec_mutators,
+                                  namespace=self._namespace)
+        elif ml_tasks_utils.is_docker_daemon_exists():
+            return DockerBuilder(preprocessor=preprocessor,
+                                 base_image=base_image,
+                                 registry=registry)
+        elif not needs_deps_installation:
+            return AppendBuilder(preprocessor=preprocessor,
+                                 base_image=base_image,
+                                 registry=registry)
+        else:
+            msg = ["Not able to guess the right builder for this job!"]
+            if KubeManager().secret_exists(constants.GCP_CREDS_SECRET_NAME, self._namespace):
+                msg.append("It seems you don't have permission to list/access secrets in your Kubeflow cluster."
+                    "We need this permission in order to build a docker image using Kubeflow cluster."
+                    "Adding Kubeneters Admin role to the service account you are using might solve this issue.")
+            if not fairing.utils.is_running_in_k8s():
+                msg.append(" Also If you are using 'sudo' to access docker in your system you can solve this problem"
+                "by adding your username to the docker group. Reference: "
+                "https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user"
+                "You need to logout and login to get change activated.")
+            message = " ".join(msg)
+            raise RuntimeError(message)
     
     def get_training_deployer(self):
         return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
