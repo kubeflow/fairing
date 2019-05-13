@@ -1,6 +1,7 @@
 from fairing import utils
 from fairing.deployers.deployer import DeployerInterface
 from fairing.cloud.gcp import guess_project_name
+from fairing import http_utils
 
 from oauth2client.client import GoogleCredentials
 from googleapiclient import discovery
@@ -25,8 +26,8 @@ class GCPJob(DeployerInterface):
         self._region = region or 'us-central1'
         self._job_config = job_config or {}
         self.scale_tier = scale_tier
-
         self._ml = discovery.build('ml', 'v1')
+        self._ml._http = http_utils.configure_http_instance(self._ml._http)
 
     def create_request_dict(self, pod_template_spec):
         """Return the request to be sent to the ML Engine API."""
