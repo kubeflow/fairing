@@ -56,11 +56,16 @@ def guess_project_name(credentials_file=None):
 
     return project_id
 
+
 def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
-    if kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
-        add_gcp_credentials(kube_manager, pod_spec, namespace)
-    else:
-        logger.warning("Not able to find gcp credentials secret: {}".format(constants.GCP_CREDS_SECRET_NAME))
+    try:
+        if kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
+            add_gcp_credentials(kube_manager, pod_spec, namespace)
+        else:
+            logger.warning("Not able to find gcp credentials secret: {}".format(constants.GCP_CREDS_SECRET_NAME))
+    except Exception as e:
+        logger.warn("could not check for secret: {}".format(e))
+
 
 def add_gcp_credentials(kube_manager, pod_spec, namespace):
     if not kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
