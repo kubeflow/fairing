@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name='fairing',
-    version='0.5.2',
+    version='0.5.3',
     author="Kubeflow Authors",
     description="Python SDK for building, training, and deploying ML models",
     url="https://github.com/kubeflow/fairing",

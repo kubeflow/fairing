@@ -5,6 +5,7 @@ import httplib2
 from unittest.mock import patch
 from kubernetes import client
 
+import fairing
 from fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from fairing.deployers.gcp.gcp import GCPJob
 
@@ -21,7 +22,7 @@ def test_fairing_user_agent_in_http_requests_gcpjob_deploy_api(httpmock, capsys)
         job = GCPJob()
         job.deploy(create_test_pod_spec())
         captured = capsys.readouterr()
-        expected_pattern = r'HTTPMock url:https://ml.googleapis.* user-agent:kubeflow-fairing/0.5.2'
+        expected_pattern = r'HTTPMock url:https://ml.googleapis.* user-agent:kubeflow-fairing/{}'.format(fairing.__version__)
         print(captured.out)
         assert len(re.findall(expected_pattern, captured.out)) > 0
 
@@ -32,6 +33,6 @@ def test_fairing_user_agent_in_http_requests_gcpserving_deploy_api(httpmock, cap
                 model_name='test_model', version_name='test_version')
         deployer.deploy(None)
         captured = capsys.readouterr()
-        expected_pattern = r'HTTPMock url:https://ml.googleapis.* user-agent:kubeflow-fairing/0.5.2'
+        expected_pattern = r'HTTPMock url:https://ml.googleapis.* user-agent:kubeflow-fairing/{}'.format(fairing.__version__)
         print(captured.out)
         assert len(re.findall(expected_pattern, captured.out)) > 0
