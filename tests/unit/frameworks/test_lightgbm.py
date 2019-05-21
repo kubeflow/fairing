@@ -21,13 +21,30 @@ EXMAPLE_CONFIG_FILE_NAME = "/config-file.conf"
 
 def test_context_files_list():
     output_map = lightgbm.generate_context_files(
-        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME)
+        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, False)
     actual = list(output_map.values())
     actual.sort()
     expected = [
         posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf.original'),
         posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf'),
-        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh'),
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'utils.py')
+    ]
+    expected.sort()
+    assert actual == expected
+
+
+def test_context_files_list_dist():
+    output_map = lightgbm.generate_context_files(
+        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, True)
+    actual = list(output_map.values())
+    actual.sort()
+    expected = [
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf.original'),
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf'),
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh'),
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'lightgbm_dist_training_init.py'),
+        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'utils.py')
     ]
     expected.sort()
     assert actual == expected
@@ -35,7 +52,7 @@ def test_context_files_list():
 
 def test_entrypoint_content():
     output_map = lightgbm.generate_context_files(
-        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME)
+        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, False)
     entrypoint_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
     entrypoint_file = None
     for k, v in output_map.items():
@@ -55,7 +72,7 @@ gsutil cp {0}/model.txt gs://lightgbm-test/model.txt
 
 def test_final_config():
     output_map = lightgbm.generate_context_files(
-        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME)
+        EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, False)
     config_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf')
     config_file_local = None
     for k, v in output_map.items():
