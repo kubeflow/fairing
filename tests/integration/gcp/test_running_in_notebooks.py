@@ -34,3 +34,17 @@ def test_xgboost_highlevel_apis():
         "Prediction endpoint: http", #create endpoint success
     ]
     run_notebook_test(notebook_abs_path, expected_messages)
+
+def test_lightgbm():
+    file_dir = os.path.dirname(__file__)
+    notebook_rel_path = "../../../examples/lightgbm/distributed-training.ipynb"
+    notebook_abs_path = os.path.normpath(os.path.join(file_dir, notebook_rel_path))
+    # TODO (karthikv2k): find a better way to test notebook execution success
+    expected_messages = [
+        "[LightGBM] [Info] Finished initializing network", #dist training setup
+        "[LightGBM] [Info] Iteration:10, valid_1 l2 : 0.2",
+        "[LightGBM] [Info] Finished training",
+        "Prediction mean: 0.5",
+        ", count: 500"
+    ]
+    run_notebook_test(notebook_abs_path, expected_messages)

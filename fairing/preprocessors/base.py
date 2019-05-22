@@ -90,7 +90,7 @@ class BasePreProcessor(object):
         self.input_files = self.preprocess()
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
             for dst, src in self.context_map().items():
-                logging.info("Context: %s, Adding %s at %s", output_file,
+                logging.debug("Context: %s, Adding %s at %s", output_file,
                              src, dst)
                 tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
         self._context_tar_path = output_file
