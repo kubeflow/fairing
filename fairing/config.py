@@ -108,12 +108,13 @@ class Config(object):
         return preprocessor, builder, deployer
 
     def deploy(self, pod_spec):
-        self.get_deployer().deploy(pod_spec)
+        return self.get_deployer().deploy(pod_spec)
 
     def fn(self, fn):
         def ret_fn():
             self.set_preprocessor('function', function_obj=fn)
             self.run()
         return ret_fn
+
 
 config = Config()

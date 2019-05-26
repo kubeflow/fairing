@@ -67,6 +67,8 @@ class Job(DeployerInterface):
         if self.stream_log:
             self.get_logs()
 
+        return name
+
     def create_resource(self):
         self._created_job = self.backend.create_job(self.namespace, self.deployment_spec)
         return self._created_job.metadata.name
