@@ -68,6 +68,7 @@ class GCPJob(DeployerInterface):
             ).execute()
             print('Job submitted successfully.')
             self.get_logs()
+            return self._job_name
         except errors.HttpError as err:
             print('There was an error submitting the job.')
             print(err._get_reason())

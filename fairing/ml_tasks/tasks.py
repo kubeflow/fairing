@@ -52,7 +52,7 @@ class TrainJob(BaseTask):
     def submit(self):
         self._build()
         deployer = self._backend.get_training_deployer()
-        deployer.deploy(self.pod_spec)
+        return deployer.deploy(self.pod_spec)
 
 
 class PredictionEndpoint(BaseTask):
