@@ -35,7 +35,7 @@ def nslookup(hostname, retries=600):
     Does nslookup for the hostname and returns the IPs for it.
     Attributes:
         hostname: hostname to be looked up
-        retries: #retries before failing. In autoscalled cluster, it might take upto 10mins
+        retries: #retries before failing. In autoscaled cluster, it might take upto 10mins
                 to create a new node so the default value is set high.
     """
     last_exception = None
