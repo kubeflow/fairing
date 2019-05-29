@@ -4,6 +4,7 @@ from fairing.builders.append.append import AppendBuilder
 from fairing.deployers.job.job import Job
 from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.constants import constants
+from fairing.kubernetes import utils as k8s_utils
 from configparser import ConfigParser
 from . import lightgbm_dist_training_init
 from . import utils
@@ -25,7 +26,7 @@ MLIST_FIELDS = ["machine_list_filename",
                 "machine_list_file", "machine_list", "mlist"]
 OUTPUT_MODEL_FIELDS = ["output_model", "model_output", "model_out"]
 INPUT_MODEL_FIELDS = ["input_model", "model_input", "model_in"]
-OUTPUT_RESULT_FIELDS = ["output_result", "predict_result", "prediction_result", 
+OUTPUT_RESULT_FIELDS = ["output_result", "predict_result", "prediction_result",
                         "predict_name", "prediction_name", "pred_name", "name_pred"]
 MACHINE_FIELDS = ["machines", "workers", "nodes"]
 ENTRYPOINT = posixpath.join(constants.DEFAULT_DEST_PREFIX, "entrypoint.sh")
@@ -99,7 +100,7 @@ def generate_context_files(config, config_file_name, distributed):
     # config will be modified inplace so taking a copy
     config = config.copy()  # shallow copy is good enough
     remote_files = [(copy_files_before,
-                        [TRAIN_DATA_FIELDS, TEST_DATA_FIELDS, INPUT_MODEL_FIELDS]),
+                     [TRAIN_DATA_FIELDS, TEST_DATA_FIELDS, INPUT_MODEL_FIELDS]),
                     (copy_files_after,
                         [OUTPUT_MODEL_FIELDS, OUTPUT_RESULT_FIELDS])]
     for copy_files, field_names_list in remote_files:
@@ -137,7 +138,11 @@ def generate_context_files(config, config_file_name, distributed):
 def execute(config,
             docker_registry,
             base_image="gcr.io/kubeflow-fairing/lightgbm:latest",
-            namespace="kubeflow"):
+            namespace="kubeflow",
+            stream_log=True,
+            cores_per_worker=None,
+            memory_per_worker=None,
+            pod_spec_mutators=None):
     """
     Runs the LightGBM CLI in a single pod in user's Kubeflow cluster.
     Users can configure it to be a train, predict, and other supported tasks
@@ -149,6 +154,12 @@ def execute(config,
         docker_registry: registry to push the built docker image
         base_image: base image to use for this job. It should have lightgbm installed and should be in PATH variable.
         namespace: Kubernetes namespace to use
+        stream_log: True - streams logs from the first worker in the training job after job launch till the training is finished.
+                    Flase - no logs are streamed after the job launch. An async job launch use case.
+        cores_per_worker: #cpu cores allocated per worker
+        memory_per_worker: memory allocated per worker in GB, it can be fractional.
+        pod_spec_mutators: list of functions that is used to mutate the podsspec. e.g. fairing.cloud.gcp.add_gcp_credentials_if_exists
+                           This can used to set things like volumes and security context.
     """
 
     config_file_name = None
@@ -187,14 +198,22 @@ def execute(config,
     builder.build()
     pod_spec = builder.generate_pod_spec()
 
+    pod_spec_mutators = pod_spec_mutators or []
+    pod_spec_mutators.append(fairing.cloud.gcp.add_gcp_credentials_if_exists)
+    pod_spec_mutators.append(k8s_utils.get_resource_mutator(
+        cores_per_worker, memory_per_worker))
+
     if num_machines == 1:
         # non-distributed mode
-        deployer = Job(namespace=namespace, pod_spec_mutators=[
-            fairing.cloud.gcp.add_gcp_credentials_if_exists])
+        deployer = Job(namespace=namespace,
+                       pod_spec_mutators=pod_spec_mutators,
+                       stream_log=stream_log)
     else:
         # distributed mode
-        deployer = TfJob(namespace=namespace, pod_spec_mutators=[
-            fairing.cloud.gcp.add_gcp_credentials_if_exists],
-            chief_count=1,
-            worker_count=num_machines-1)
+        deployer = TfJob(namespace=namespace,
+                         pod_spec_mutators=pod_spec_mutators,
+                         chief_count=1,
+                         worker_count=num_machines-1,
+                         stream_log=stream_log)
     deployer.deploy(pod_spec)
+    return deployer

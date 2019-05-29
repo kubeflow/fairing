@@ -17,8 +17,12 @@ RUN mkdir -p /builder && \
 ENV PATH=/builder/google-cloud-sdk/bin/:$PATH
 
 RUN apt-get update && \
-    apt-get install -y cmake build-essential gcc g++ git wget && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y cmake build-essential gcc g++ git wget python-dev python-setuptools && \
+    rm -rf /var/lib/apt/lists/* && \
+    #https://cloud.google.com/storage/docs/gsutil/addlhelp/CRC32CandInstallingcrcmod
+    #crcmod is used to speed up downloads
+    pip uninstall crcmod && \
+    pip install --no-cache-dir -U crcmod
 
 RUN git clone --recursive --branch stable https://github.com/Microsoft/LightGBM && \
     mkdir LightGBM/build && \
