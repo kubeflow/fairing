@@ -76,7 +76,7 @@ class KubeManager(object):
                              event['object'])
                 ing = svc.status.load_balancer.ingress
                 if ing is not None and len(ing) > 0:
-                    url = "http://{}:5000/predict".format(ing[0].ip)
+                    url = "http://{}:5000/predict".format(ing[0].ip or ing[0].hostname)
                     return url
         except ValueError as v:
             logger.error("error getting status for {} {}".format(name, str(v)))
