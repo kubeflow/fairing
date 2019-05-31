@@ -5,6 +5,7 @@ from fairing.deployers.job.job import Job
 from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.constants import constants
 from fairing.kubernetes import utils as k8s_utils
+from fairing.cloud import storage
 from configparser import ConfigParser
 from . import lightgbm_dist_training_init
 from . import utils
@@ -64,13 +65,16 @@ def _generate_entrypoint(copy_files_before, copy_files_after, config_file, init_
         buf.extend(init_cmds)
 
     for k, v in copy_files_before.items():
-        copy_cmd = _get_cmd_for_file_transfer(k)
-        buf.append("{} cp {} {}".format(copy_cmd, k, v))
+        storage_obj = storage.get_storage_class(k)()
+        if storage_obj.exists(k):
+            buf.append(storage_obj.copy_cmd(k, v))
+        else:
+            raise RuntimeError("Remote file {} does't exist".format(k))
     buf.append("echo 'All files are copied!'")
     buf.append("{} config={}".format(LIGHTGBM_EXECUTABLE, config_file))
     for k, v in copy_files_after.items():
-        copy_cmd = _get_cmd_for_file_transfer(k)
-        buf.append("{} cp {} {}".format(copy_cmd, v, k))
+        storage_obj = storage.get_storage_class(k)()
+        buf.append(storage_obj.copy_cmd(v, k))
     _, file_name = tempfile.mkstemp()
     with open(file_name, 'w') as fh:
         content = "\n".join(buf)
@@ -80,22 +84,38 @@ def _generate_entrypoint(copy_files_before, copy_files_after, config_file, init_
     os.chmod(file_name, st.st_mode | stat.S_IEXEC)
     return file_name
 
-# Using shell commands to do the file copy instead of using python libs
-# CLIs like gsutil, s3cmd are optimized and can be easily configured by
-# the user using boto.cfg in the base docker image.
 
-
-def _get_cmd_for_file_transfer(src_path):
-    if src_path.startswith("gcs://") or src_path.startswith("gs://"):
-        return "gsutil"
+def _add_train_weight_file(config, dst_base_dir):
+    _, field_value = utils.get_config_value(config, TRAIN_DATA_FIELDS)
+    if field_value is None:
+        return [], []
     else:
-        raise RuntimeError("can't find a copy command for {}".format(src_path))
+        src_paths = field_value.split(",")
+        weight_paths = [x+".weight" for x in src_paths]
+        weight_paths_found = []
+        weight_paths_dst = []
+        for path in weight_paths:            
+            found = os.path.exists(path)
+            if not found:
+                # in case the path is local and doesn't exist
+                storage_class = storage.lookup_storage_class(path)
+                if storage_class:
+                    found = storage_class().exists(path)
+            if found:
+                weight_paths_found.append(path)
+                file_name = os.path.split(path)[-1]
+                weight_paths_dst.append(
+                    posixpath.join(dst_base_dir, file_name))
+        return weight_paths_found, weight_paths_dst
 
 
 def generate_context_files(config, config_file_name, distributed):
     output_map = {}
     copy_files_before = {}
     copy_files_after = {}
+
+    src_paths, dst_paths = _add_train_weight_file(config, constants.DEFAULT_DEST_PREFIX)
+    _update_maps(output_map, copy_files_before, src_paths, dst_paths)
 
     # config will be modified inplace so taking a copy
     config = config.copy()  # shallow copy is good enough
