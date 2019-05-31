@@ -41,6 +41,7 @@ def test_lightgbm():
     notebook_abs_path = os.path.normpath(os.path.join(file_dir, notebook_rel_path))
     # TODO (karthikv2k): find a better way to test notebook execution success
     expected_messages = [
+        "Copying gs://fairing-lightgbm/regression-example/regression.train.weight",
         "[LightGBM] [Info] Finished initializing network", #dist training setup
         "[LightGBM] [Info] Iteration:10, valid_1 l2 : 0.2",
         "[LightGBM] [Info] Finished training",
