@@ -93,7 +93,9 @@ class Job(DeployerInterface):
         job_spec = k8s_client.V1JobSpec(
             template=pod_template_spec,
             parallelism=self.runs,
-            completions=self.runs)
+            completions=self.runs,
+            backoff_limit=0,
+        )
         
         return k8s_client.V1Job(
             api_version="batch/v1",
