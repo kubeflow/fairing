@@ -53,21 +53,31 @@ def add_aws_credentials_if_exists(kube_manager, pod_spec, namespace):
 def add_aws_credentials(kube_manager, pod_spec, namespace):
     if not kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
         raise ValueError('Unable to mount credentials: '
-        + 'Secret aws-credentials not found in namespace {}'.format(namespace))
+        + 'Secret aws-secret not found in namespace {}'.format(namespace))
 
-    # Set appropriate secrets and volumes to enable kubeflow-user service
+    # Set appropriate secrets env to enable kubeflow-user service
     # account.
-    volume_mount = client.V1VolumeMount(
-        name='aws-credentials', mount_path='/root/.aws/', read_only=True)
-    if pod_spec.containers[0].volume_mounts:
-        pod_spec.containers[0].volume_mounts.append(volume_mount)
-    else:
-        pod_spec.containers[0].volume_mounts = [volume_mount]
+    env = [
+        client.V1EnvVar(
+            name='AWS_ACCESS_KEY_ID',
+            value_from=client.V1EnvVarSource(
+                secret_key_ref=client.V1SecretKeySelector(
+                    name=constants.AWS_CREDS_SECRET_NAME,
+                    key='AWS_ACCESS_KEY_ID'
+                )
+            )
+        ),
+        client.V1EnvVar(
+            name='AWS_SECRET_ACCESS_KEY',
+            value_from=client.V1EnvVarSource(
+                secret_key_ref=client.V1SecretKeySelector(
+                    name=constants.AWS_CREDS_SECRET_NAME,
+                    key='AWS_SECRET_ACCESS_KEY'
+                )
+            )
+        )]
 
-    volume = client.V1Volume(
-        name='aws-credentials',
-        secret=client.V1SecretVolumeSource(secret_name=constants.AWS_CREDS_SECRET_NAME))
-    if pod_spec.volumes:
-        pod_spec.volumes.append(volume)
+    if pod_spec.containers[0].env:
+        pod_spec.containers[0].env.extend(env)
     else:
-        pod_spec.volumes = [volume]
+        pod_spec.containers[0].env = env
