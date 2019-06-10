@@ -55,6 +55,7 @@ class Job(DeployerInterface):
             fn(self.backend, pod_spec, self.namespace)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
         pod_template_spec.spec.restart_policy = 'Never'
+        pod_template_spec.spec.containers[0].name = 'fairing-job'
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)
         if self.output:
             api = k8s_client.ApiClient()
