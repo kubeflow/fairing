@@ -27,7 +27,19 @@ def parse_cluster_spec_env():
             hosts.append(host)
             ports.append(port)
     ips = [nslookup(host) for host in hosts]
-    return hosts, ips, ports
+
+    # Finding the RANK of the current node using hostname or ip address of the current node
+    cur_hostname = socket.gethostname()
+    cur_host_ip = socket.gethostbyname(cur_hostname)
+    if cur_hostname and cur_hostname in hosts:
+        rank = hosts.index(cur_hostname)
+    elif cur_host_ip and cur_host_ip in ips:
+        rank = ips.index(cur_host_ip)
+    else:
+        print("Can't find rank for current host (hostname={}, ip={})".format(cur_hostname, cur_host_ip))
+        rank = 0
+
+    return hosts, ips, ports, rank
 
 
 def nslookup(hostname, retries=600):
@@ -116,7 +128,8 @@ def get_config_value(config, field_names):
 
 
 def init_lightgbm_env(config_file, mlist_file):
-    hosts, ips, ports = parse_cluster_spec_env()
+    hosts, ips, ports, rank = parse_cluster_spec_env()
+    #print("Rank: {}".format(rank))
     if len(set(ports)) > 1:
         raise RuntimeError(
             "Expecting cluster spec to have same port for all instances/pods."
@@ -127,3 +140,4 @@ def init_lightgbm_env(config_file, mlist_file):
     logger.info("Cluster setup:")
     for x,y,z in zip(hosts, ips, ports):
         logger.info("{}\t{}\t{}".format(x,y,z))
+    return rank
