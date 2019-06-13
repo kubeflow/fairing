@@ -30,7 +30,7 @@ class FunctionPreProcessor(BasePreProcessor):
                  function_obj,
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map=None,
-                 input_files=[]):
+                 input_files=None):
         super().__init__(
             output_map=output_map,
             path_prefix=path_prefix,

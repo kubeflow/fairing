@@ -96,3 +96,9 @@ def add_gcp_credentials(kube_manager, pod_spec, namespace):
         pod_spec.volumes.append(volume)
     else:
         pod_spec.volumes = [volume]
+
+def get_default_docker_registry():
+    try:
+        return 'gcr.io/{}/fairing-job'.format(guess_project_name())
+    except:
+        return None

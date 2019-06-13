@@ -23,13 +23,15 @@ class BasePreProcessor(object):
     """
     def __init__(
         self,
-        input_files=[],
-        command=["python"],
+        input_files=None,
+        command=None,
         executable=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
         output_map=None
     ):
         self.executable = executable
+        input_files = input_files or []
+        command = command or ["python"]
         self.input_files = set([os.path.normpath(f) for f in input_files])
         output_map = output_map if output_map else {}
         normalized_map = {}
