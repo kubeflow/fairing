@@ -76,5 +76,4 @@ class TensorflowModel():
 
 if __name__ == '__main__':
     fairing.config.set_builder(name='cluster')
-    fairing.config.set_model(TensorflowModel())
     fairing.config.run()
