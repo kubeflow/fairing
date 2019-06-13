@@ -4,11 +4,22 @@ import fairing
 from docker.errors import DockerException
 from fairing.functions.function_shim import get_execution_obj_type, ObjectType
 from fairing.preprocessors.function import FunctionPreProcessor
+from fairing.preprocessors.base import BasePreProcessor
+from fairing.preprocessors.full_notebook import FullNotebookPreProcessor
 
-
-def guess_preprocessor(entry_point, *args, **kwargs):
+def guess_preprocessor(entry_point, input_files, output_map):
     if get_execution_obj_type(entry_point) != ObjectType.NOT_SUPPORTED:
-        return FunctionPreProcessor(entry_point, *args, **kwargs)
+        return FunctionPreProcessor(function_obj=entry_point,
+                                    input_files=input_files,
+                                    output_map=output_map)
+    elif isinstance(entry_point, str) and entry_point.endswith(".py"):
+        input_files.add(entry_point)
+        return BasePreProcessor(executable=entry_point,
+                                input_files=input_files,
+                                output_map=output_map)
+    elif isinstance(entry_point, str) and entry_point.endswith(".ipynb"):
+        return FullNotebookPreProcessor(notebook_file=entry_point, input_files=input_files
+                                        , output_map=output_map)
     else:
         # TODO (karthikv2k) Handle other entrypoints like python files and full notebooks
         raise NotImplementedError(
