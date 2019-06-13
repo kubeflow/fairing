@@ -14,6 +14,7 @@ import os
 import posixpath
 import stat
 import logging
+import collections
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +31,15 @@ INPUT_MODEL_FIELDS = ["input_model", "model_input", "model_in"]
 OUTPUT_RESULT_FIELDS = ["output_result", "predict_result", "prediction_result",
                         "predict_name", "prediction_name", "pred_name", "name_pred"]
 MACHINE_FIELDS = ["machines", "workers", "nodes"]
+TREE_LEARNER_FIELDS = ["tree_learner",
+                       "tree", "tree_type", "tree_learner_type"]
 ENTRYPOINT = posixpath.join(constants.DEFAULT_DEST_PREFIX, "entrypoint.sh")
 LIGHTGBM_EXECUTABLE = "lightgbm"
 CONFIG_FILE_NAME = "config.conf"
 MLIST_FILE_NAME = "mlist.txt"
 BLACKLISTED_FIELDS = PORT_FIELDS + MLIST_FIELDS + MACHINE_FIELDS
+WEIGHT_FILE_EXT = ".weight"
+DATA_PARALLEL_MODES = ["data", "voting"]
 
 
 def _modify_paths_in_config(config, field_names, dst_base_dir):
@@ -58,18 +63,36 @@ def _update_maps(output_map, copy_files, src_paths, dst_paths):
             copy_files[src_path] = dst_path
 
 
-def _generate_entrypoint(copy_files_before, copy_files_after, config_file, init_cmds=None):
+def _get_commands_for_file_ransfer(files_map):
+    cmds = []
+    for k, v in files_map.items():
+        storage_obj = storage.get_storage_class(k)()
+        if storage_obj.exists(k):
+            cmds.append(storage_obj.copy_cmd(k, v))
+        else:
+            raise RuntimeError("Remote file {} does't exist".format(k))
+    return cmds
+
+
+def _generate_entrypoint(copy_files_before, copy_files_after, config_file, init_cmds=None, copy_patitioned_files=None):
     buf = ["#!/bin/sh",
            "set -e"]
     if init_cmds:
         buf.extend(init_cmds)
+    # In data prallel mode, copying files based on RANK of the worker in the cluster.
+    # The data is partitioned (#partitions=#workers) and each worker gets one partition of the data.
+    if copy_patitioned_files and len(copy_patitioned_files) > 0:
+        buf.append("case $RANK in")
+        for rank, files in copy_patitioned_files.items():
+            buf.append("\t{})".format(rank))
+            buf.extend(
+                ["\t\t"+cmd for cmd in _get_commands_for_file_ransfer(files)])
+            buf.append("\t\t;;")
+        buf.append("esac")
 
-    for k, v in copy_files_before.items():
-        storage_obj = storage.get_storage_class(k)()
-        if storage_obj.exists(k):
-            buf.append(storage_obj.copy_cmd(k, v))
-        else:
-            raise RuntimeError("Remote file {} does't exist".format(k))
+    # copying files that are common to all workers
+    buf.extend(_get_commands_for_file_ransfer(copy_files_before))
+
     buf.append("echo 'All files are copied!'")
     buf.append("{} config={}".format(LIGHTGBM_EXECUTABLE, config_file))
     for k, v in copy_files_after.items():
@@ -91,10 +114,10 @@ def _add_train_weight_file(config, dst_base_dir):
         return [], []
     else:
         src_paths = field_value.split(",")
-        weight_paths = [x+".weight" for x in src_paths]
+        weight_paths = [x+WEIGHT_FILE_EXT for x in src_paths]
         weight_paths_found = []
         weight_paths_dst = []
-        for path in weight_paths:            
+        for path in weight_paths:
             found = os.path.exists(path)
             if not found:
                 # in case the path is local and doesn't exist
@@ -109,27 +132,60 @@ def _add_train_weight_file(config, dst_base_dir):
         return weight_paths_found, weight_paths_dst
 
 
-def generate_context_files(config, config_file_name, distributed):
-    output_map = {}
-    copy_files_before = {}
-    copy_files_after = {}
+def generate_context_files(config, config_file_name, num_machines):
+    # Using ordered dict to have consistent behaviour around order in which 
+    # files are copied in the worker nodes.
+    output_map = collections.OrderedDict()
+    copy_files_before = collections.OrderedDict()
+    copy_files_after = collections.OrderedDict()
+    copy_patitioned_files = collections.OrderedDict()
 
-    src_paths, dst_paths = _add_train_weight_file(config, constants.DEFAULT_DEST_PREFIX)
-    _update_maps(output_map, copy_files_before, src_paths, dst_paths)
-
-    # config will be modified inplace so taking a copy
+    # config will be modified inplace in this function so taking a copy
     config = config.copy()  # shallow copy is good enough
+
+    _, tree_learner = utils.get_config_value(config, TREE_LEARNER_FIELDS)
+    parition_data = tree_learner and tree_learner.lower() in DATA_PARALLEL_MODES
     remote_files = [(copy_files_before,
-                     [TRAIN_DATA_FIELDS, TEST_DATA_FIELDS, INPUT_MODEL_FIELDS]),
+                     [TEST_DATA_FIELDS, INPUT_MODEL_FIELDS]),
                     (copy_files_after,
                         [OUTPUT_MODEL_FIELDS, OUTPUT_RESULT_FIELDS])]
+
+    if parition_data:
+        train_data_field, train_data_value = utils.get_config_value(
+            config, TRAIN_DATA_FIELDS)
+        train_files = train_data_value.split(",")
+        if len(train_files) != num_machines:
+            raise RuntimeError("#Training files listed in the {}={} field in the config should be equal to the "
+                               "num_machines={} config value.".format(train_data_field, train_data_value, num_machines))
+        weight_src_paths, weight_dst_paths = _add_train_weight_file(config, constants.DEFAULT_DEST_PREFIX)
+        dst = posixpath.join(constants.DEFAULT_DEST_PREFIX, "train_data")
+        config[train_data_field] = dst
+        for i, f in enumerate(train_files):
+            copy_patitioned_files[i] = collections.OrderedDict()
+            copy_patitioned_files[i][f] = dst
+            if f+WEIGHT_FILE_EXT in weight_src_paths:
+                copy_patitioned_files[i][f +
+                                         WEIGHT_FILE_EXT] = dst+WEIGHT_FILE_EXT
+    else:
+        train_data_field, train_data_value = utils.get_config_value(
+            config, TRAIN_DATA_FIELDS)
+        if len(train_data_value.split(",")) > 1:
+            raise RuntimeError("{} has more than one file specified but tree-learner is set to {} which can't"
+                               " handle multiple files. For distributing data across multiple workers, please use one of {} as"
+                               " a tree-learner method. For more information please refer the LightGBM parallel guide"
+                               " https://github.com/microsoft/LightGBM/blob/master/docs/Parallel-Learning-Guide.rst".format(
+                                   train_data_field, tree_learner, DATA_PARALLEL_MODES))
+        remote_files[0][1].insert(0, TRAIN_DATA_FIELDS)
+        weight_src_paths, weight_dst_paths = _add_train_weight_file(config, constants.DEFAULT_DEST_PREFIX)
+        _update_maps(output_map, copy_files_before, weight_src_paths, weight_dst_paths)
+
     for copy_files, field_names_list in remote_files:
         for field_names in field_names_list:
             src_paths, dst_paths = _modify_paths_in_config(
                 config, field_names, constants.DEFAULT_DEST_PREFIX)
             _update_maps(output_map, copy_files, src_paths, dst_paths)
 
-    if len(output_map) + len(copy_files_before) == 0:
+    if len(output_map) + len(copy_files_before) + len(copy_patitioned_files) == 0:
         raise RuntimeError("Both train and test data is missing in the config")
     modified_config_file_name = utils.save_properties_config_file(config)
     config_in_docker = posixpath.join(
@@ -138,16 +194,16 @@ def generate_context_files(config, config_file_name, distributed):
     output_map[config_file_name] = config_in_docker + ".original"
 
     init_cmds = None
-    if distributed:
+    if num_machines > 1:
         init_file = lightgbm_dist_training_init.__file__
         init_file_name = os.path.split(init_file)[1]
         output_map[init_file] = os.path.join(
             constants.DEFAULT_DEST_PREFIX, init_file_name)
-        init_cmds = ["python {} {} {}".format(init_file_name,
-                                              CONFIG_FILE_NAME,
-                                              MLIST_FILE_NAME)]
+        init_cmds = ["RANK=`python {} {} {}`".format(init_file_name,
+                                                     CONFIG_FILE_NAME,
+                                                     MLIST_FILE_NAME)]
     entrypoint_file_name = _generate_entrypoint(
-        copy_files_before, copy_files_after, config_in_docker, init_cmds)
+        copy_files_before, copy_files_after, config_in_docker, init_cmds, copy_patitioned_files)
     output_map[entrypoint_file_name] = ENTRYPOINT
     output_map[utils.__file__] = os.path.join(
         constants.DEFAULT_DEST_PREFIX, "utils.py")
@@ -209,7 +265,7 @@ def execute(config,
     if num_machines > 1:
         config['machine_list_file'] = "mlist.txt"
     output_map = generate_context_files(
-        config, config_file_name, num_machines > 1)
+        config, config_file_name, num_machines)
 
     preprocessor = BasePreProcessor(
         command=[ENTRYPOINT], output_map=output_map)
