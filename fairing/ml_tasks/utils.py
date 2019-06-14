@@ -13,7 +13,7 @@ def guess_preprocessor(entry_point, input_files, output_map):
                                     input_files=input_files,
                                     output_map=output_map)
     elif isinstance(entry_point, str) and entry_point.endswith(".py"):
-        input_files.add(entry_point)
+        input_files.append(entry_point)
         return BasePreProcessor(executable=entry_point,
                                 input_files=input_files,
                                 output_map=output_map)

@@ -27,7 +27,7 @@ class BaseTask:
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None, input_files=None, backend=None, pod_spec_mutators=None):
         self._backend = backend or KubernetesBackend()
         self._pod_spec_mutators = pod_spec_mutators or []
-        input_files = input_files or set()
+        input_files = input_files or []
         output_map = {}
 
         preprocessor = guess_preprocessor(entry_point,
