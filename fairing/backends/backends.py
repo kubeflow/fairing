@@ -45,8 +45,9 @@ class BackendInterface(object):
 
 class KubernetesBackend(BackendInterface):
 
-    def __init__(self, namespace=None):
+    def __init__(self, namespace=None, context_source=None):
         self._namespace = namespace
+        self._context_source = context_source
     
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         if not needs_deps_installation:
@@ -58,7 +59,8 @@ class KubernetesBackend(BackendInterface):
                                   base_image=base_image,
                                   registry=registry,
                                   pod_spec_mutators=pod_spec_mutators,
-                                  namespace=self._namespace)
+                                  namespace=self._namespace,
+                                  context_source=self._context_source)
         elif ml_tasks_utils.is_docker_daemon_exists():
             return DockerBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
@@ -75,8 +77,8 @@ class KubernetesBackend(BackendInterface):
 
 class GKEBackend(KubernetesBackend):
 
-    def __init__(self, namespace=None):
-        super(GKEBackend, self).__init__(namespace)
+    def __init__(self, namespace=None, context_source=None):
+        super(GKEBackend, self).__init__(namespace, context_source)
     
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
@@ -125,13 +127,13 @@ class GKEBackend(KubernetesBackend):
 
 class KubeflowBackend(KubernetesBackend):
 
-    def __init__(self, namespace="kubeflow"):
-        super(KubeflowBackend, self).__init__(namespace)
+    def __init__(self, namespace="kubeflow", context_source=None):
+        super(KubeflowBackend, self).__init__(namespace, context_source)
 
 class KubeflowGKEBackend(GKEBackend):
 
-    def __init__(self, namespace="kubeflow"):
-        super(KubeflowGKEBackend, self).__init__(namespace)
+    def __init__(self, namespace="kubeflow", context_source=None):
+        super(KubeflowGKEBackend, self).__init__(namespace, context_source)
 
 class GCPManagedBackend(BackendInterface):
 
