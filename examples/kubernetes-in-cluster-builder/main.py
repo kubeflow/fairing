@@ -75,5 +75,4 @@ class MyModel(object):
 
 
 if __name__ == '__main__':
-    fairing.config.set_model(MyModel())
     fairing.config.run()
