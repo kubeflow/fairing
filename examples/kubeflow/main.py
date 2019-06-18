@@ -21,7 +21,6 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
-import fairing
 
 INPUT_DATA_DIR = '/tmp/tensorflow/mnist/input_data/'
 MAX_STEPS = 2000
@@ -34,8 +33,6 @@ HIDDEN_2 = 32
 # we are instead appending HOSTNAME to the logdir
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
-MODEL_DIR = os.path.join(LOG_DIR, 'model.ckpt')
-
 
 class TensorflowModel():
     def train(self, **kwargs):
@@ -75,5 +72,12 @@ class TensorflowModel():
 
 
 if __name__ == '__main__':
-    fairing.config.set_builder(name='cluster')
-    fairing.config.run()
+    if os.getenv('FAIRING_RUNTIME', None) is None:
+        import fairing
+        fairing.config.set_preprocessor('python', input_files=[__file__])
+        fairing.config.set_builder(name='docker', registry='<your-registry-name>',
+                                   base_image='tensorflow/tensorflow:1.13.1-py3')
+        fairing.config.run()
+    else:
+        remote_train = TensorflowModel()
+        remote_train.train()
