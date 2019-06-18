@@ -4,6 +4,7 @@ import sys
 
 import fairing
 from fairing.builders.docker.docker import DockerBuilder
+from fairing.builders.cluster import gcs_context
 from fairing.builders.cluster.cluster import ClusterBuilder
 from fairing.builders.append.append import AppendBuilder
 from fairing.deployers.gcp.gcp import GCPJob
@@ -78,6 +79,7 @@ class KubernetesBackend(BackendInterface):
 class GKEBackend(KubernetesBackend):
 
     def __init__(self, namespace=None, context_source=None):
+        context_source = context_source or gcs_context.GCSContextSource(namespace=namespace)
         super(GKEBackend, self).__init__(namespace, context_source)
     
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
@@ -156,7 +158,8 @@ class GCPManagedBackend(BackendInterface):
             return ClusterBuilder(preprocessor=preprocessor,
                                   base_image=base_image,
                                   registry=registry,
-                                  pod_spec_mutators=pod_spec_mutators)
+                                  pod_spec_mutators=pod_spec_mutators,
+                                  context_source=gcs_context.GCSContextSource(namespace="kubeflow"))
         elif ml_tasks_utils.is_docker_daemon_exists():
             return DockerBuilder(preprocessor=preprocessor,
                                  base_image=base_image,

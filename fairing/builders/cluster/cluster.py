@@ -45,7 +45,7 @@ class ClusterBuilder(BaseBuilder):
             )
         self.manager = KubeManager()
         if context_source is None:
-            context_source = gcs_context.GCSContextSource(namespace=namespace)
+            raise RuntimeError("context_source is not specified")
         self.context_source = context_source
         self.pod_spec_mutators = pod_spec_mutators or []
         self.namespace = namespace
