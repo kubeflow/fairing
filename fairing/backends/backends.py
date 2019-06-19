@@ -131,23 +131,26 @@ class GKEBackend(KubernetesBackend):
 
 class AWSBackend(KubernetesBackend):
 
-    def __init__(self, namespace=None, region=None):
-        self.region = region
-        super(AWSBackend, self).__init__(namespace)
+    def __init__(self, namespace=None, build_context_source=None, region=None):
+        self._region = region
+        build_context_source = build_context_source or s3_context.S3ContextSource(region=region)
+        super(AWSBackend, self).__init__(namespace, build_context_source)
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
-        context_source = context_source or s3_context.S3ContextSource(namespace=self._namespace, region=self.region)
+        if aws.is_ecr_registry(registry):
+            pod_spec_mutators.append(aws.add_ecr_config)
         return super(AWSBackend, self).get_builder(preprocessor,
                                                    base_image,
                                                    registry,
                                                    needs_deps_installation,
-                                                   pod_spec_mutators,
-                                                   context_source)
+                                                   pod_spec_mutators)
 
-    def get_training_deployer(self):
-        return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
+    def get_training_deployer(self, pod_spec_mutators = None):
+        pod_spec_mutators = pod_spec_mutators or []
+        pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
+        return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
     def get_serving_deployer(self, model_class):
         return Serving(model_class, namespace=self._namespace)
@@ -164,11 +167,8 @@ class KubeflowGKEBackend(GKEBackend):
 
 class KubeflowAWSBackend(AWSBackend):
 
-    def __init__(self, namespace="kubeflow", region="us-east-1"):
-        super(KubeflowAWSBackend, self).__init__(namespace, region)
-
-    def get_training_deployer(self):
-        return Job(namespace=self._namespace, pod_spec_mutators=[aws.add_aws_credentials_if_exists])
+    def __init__(self, namespace="kubeflow", build_context_source=None, region=None):
+        super(KubeflowAWSBackend, self).__init__(namespace, build_context_source, region)
 
 class GCPManagedBackend(BackendInterface):
 

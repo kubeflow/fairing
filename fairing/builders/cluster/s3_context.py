@@ -11,12 +11,10 @@ class S3ContextSource(ContextSourceInterface):
     def __init__(self,
                  aws_account=None,
                  credentials_file=None,
-                 namespace='default',
                  region=None):
         self.aws_account = aws_account
         self.manager = KubeManager()
-        self.namespace = namespace
-        self.region = region
+        self.region = region or 'us-east-1'
 
     def prepare(self, context_filename):
         if self.aws_account is None:
@@ -41,14 +39,6 @@ class S3ContextSource(ContextSourceInterface):
         if not push:
             args.append("--no-push")
 
-        if not self.manager.secret_exists('ecr-config', self.namespace):
-            secret = client.V1Secret(
-                metadata = client.V1ObjectMeta(name='ecr-config'),
-                string_data={
-                    'config.json': '{"credsStore": "ecr-login"}'
-                })
-            self.manager.create_secret(self.namespace, secret)
-
         return client.V1PodSpec(
                 containers=[client.V1Container(
                     name='kaniko',
@@ -58,12 +48,6 @@ class S3ContextSource(ContextSourceInterface):
                           "--context=" + self.uploaded_context_url],
                     env=[client.V1EnvVar(
                         name='AWS_REGION',
-                        value=self.region)],
-                    volume_mounts=[client.V1VolumeMount(
-                        name='ecr-config', mount_path='/kaniko/.docker/', read_only=True)]
+                        value=self.region)]
                 )],
-                volumes=[client.V1Volume(
-                    name='ecr-config',
-                    secret=client.V1SecretVolumeSource(secret_name='ecr-config'))],
-                restart_policy='Never'
-            )
+                restart_policy='Never')

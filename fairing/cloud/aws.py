@@ -6,6 +6,7 @@ import logging
 
 import os
 import json
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -81,3 +82,33 @@ def add_aws_credentials(kube_manager, pod_spec, namespace):
         pod_spec.containers[0].env.extend(env)
     else:
         pod_spec.containers[0].env = env
+
+def add_ecr_config(kube_manager, pod_spec, namespace):
+    if not kube_manager.secret_exists('ecr-config', namespace):
+        secret = client.V1Secret(
+            metadata = client.V1ObjectMeta(name='ecr-config'),
+            string_data={
+                'config.json': '{"credsStore": "ecr-login"}'
+            })
+        kube_manager.create_secret(namespace, secret)
+
+    volume_mount=client.V1VolumeMount(
+            name='ecr-config', mount_path='/kaniko/.docker/', read_only=True)
+
+    if pod_spec.containers[0].volume_mounts:
+        pod_spec.containers[0].volume_mounts.append(volume_mount)
+    else:
+        pod_spec.containers[0].volume_mounts = [volume_mount]
+
+    volume=client.V1Volume(
+            name='ecr-config',
+            secret=client.V1SecretVolumeSource(secret_name='ecr-config'))
+
+    if pod_spec.volumes:
+        pod_spec.volumes.append(volume)
+    else:
+        pod_spec.volumes = [volume]
+
+def is_ecr_registry(registry):
+    pattern = r'(.+)\.dkr\.ecr\.(.+)\.amazonaws\.com'
+    return bool(re.match(pattern, registry))
