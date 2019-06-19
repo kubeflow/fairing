@@ -31,8 +31,6 @@ import logging
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-import fairing
-
 
 MAX_STEPS = 1000
 LEARNING_RATE = 0.001
@@ -230,6 +228,12 @@ class TensorflowModel(object):
 
 
 if __name__ == '__main__':
-    fairing.config.set_builder(name='docker', registry='gcr.io/mrick-gcp', base_image='tensorflow/tensorflow')
-    fairing.config.set_deployer(name='tfjob', namespace='default', worker_count=1, ps_count=1)
-    fairing.config.run()
+    if os.getenv('FAIRING_RUNTIME', None) is None:
+        import fairing
+        fairing.config.set_preprocessor('python', input_files=[__file__])
+        fairing.config.set_builder(name='docker', registry='gcr.io/mrick-gcp', base_image='tensorflow/tensorflow')
+        fairing.config.set_deployer(name='tfjob', namespace='default', worker_count=1, ps_count=1)
+        fairing.config.run()
+    else:
+        remote_train = TensorflowModel()
+        remote_train.train()
