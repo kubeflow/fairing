@@ -6,11 +6,13 @@ import fairing
 from fairing.builders.docker.docker import DockerBuilder
 from fairing.builders.cluster import gcs_context
 from fairing.builders.cluster.cluster import ClusterBuilder
+from fairing.builders.cluster import s3_context
 from fairing.builders.append.append import AppendBuilder
 from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
+from fairing.cloud import aws
 from fairing.cloud import gcp
 import fairing.ml_tasks.utils as ml_tasks_utils
 from fairing.constants import constants
@@ -49,7 +51,7 @@ class KubernetesBackend(BackendInterface):
     def __init__(self, namespace=None, build_context_source=None):
         self._namespace = namespace
         self._build_context_source = build_context_source
-    
+
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         if not needs_deps_installation:
             return AppendBuilder(preprocessor=preprocessor,
@@ -127,6 +129,29 @@ class GKEBackend(KubernetesBackend):
     def get_docker_registry(self):
         return fairing.cloud.gcp.get_default_docker_registry()
 
+class AWSBackend(KubernetesBackend):
+
+    def __init__(self, namespace=None, region=None):
+        self.region = region
+        super(AWSBackend, self).__init__(namespace)
+
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+        pod_spec_mutators = pod_spec_mutators or []
+        pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
+        context_source = context_source or s3_context.S3ContextSource(namespace=self._namespace, region=self.region)
+        return super(AWSBackend, self).get_builder(preprocessor,
+                                                   base_image,
+                                                   registry,
+                                                   needs_deps_installation,
+                                                   pod_spec_mutators,
+                                                   context_source)
+
+    def get_training_deployer(self):
+        return Job(namespace=self._namespace, pod_spec_mutators=[gcp.add_gcp_credentials_if_exists])
+
+    def get_serving_deployer(self, model_class):
+        return Serving(model_class, namespace=self._namespace)
+
 class KubeflowBackend(KubernetesBackend):
 
     def __init__(self, namespace="kubeflow", build_context_source=None):
@@ -136,6 +161,14 @@ class KubeflowGKEBackend(GKEBackend):
 
     def __init__(self, namespace="kubeflow", build_context_source=None):
         super(KubeflowGKEBackend, self).__init__(namespace, build_context_source)
+
+class KubeflowAWSBackend(AWSBackend):
+
+    def __init__(self, namespace="kubeflow", region="us-east-1"):
+        super(KubeflowAWSBackend, self).__init__(namespace, region)
+
+    def get_training_deployer(self):
+        return Job(namespace=self._namespace, pod_spec_mutators=[aws.add_aws_credentials_if_exists])
 
 class GCPManagedBackend(BackendInterface):
 
