@@ -140,6 +140,7 @@ class AWSBackend(KubernetesBackend):
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
         if aws.is_ecr_registry(registry):
             pod_spec_mutators.append(aws.add_ecr_config)
+            aws.create_ecr_registry(registry, constants.DEFAULT_IMAGE_NAME)
         return super(AWSBackend, self).get_builder(preprocessor,
                                                    base_image,
                                                    registry,

@@ -85,6 +85,7 @@ def add_aws_credentials(kube_manager, pod_spec, namespace):
     else:
         pod_spec.containers[0].env = env
 
+
 def add_ecr_config(kube_manager, pod_spec, namespace):
     if not kube_manager.secret_exists('ecr-config', namespace):
         secret = client.V1Secret(
@@ -111,6 +112,23 @@ def add_ecr_config(kube_manager, pod_spec, namespace):
     else:
         pod_spec.volumes = [volume]
 
+
 def is_ecr_registry(registry):
     pattern = r'(.+)\.dkr\.ecr\.(.+)\.amazonaws\.com'
     return bool(re.match(pattern, registry))
+
+
+def create_ecr_registry(registry, repository):
+    registry = registry.split('.')
+    registry_id = registry[0]
+    region = registry[3]
+
+    ecr_client = boto3.client('ecr', region_name=region)
+
+    try:
+        ecr_client.describe_repositories(
+                    registryId=registry_id,
+                    repositoryNames=[repository])
+    except ClientError:
+        ecr_client.create_repository(repositoryName=repository)
+
