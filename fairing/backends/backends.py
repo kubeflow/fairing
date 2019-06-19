@@ -131,9 +131,8 @@ class GKEBackend(KubernetesBackend):
 
 class AWSBackend(KubernetesBackend):
 
-    def __init__(self, namespace=None, build_context_source=None, region=None):
-        self._region = region
-        build_context_source = build_context_source or s3_context.S3ContextSource(region=region)
+    def __init__(self, namespace=None, build_context_source=None):
+        build_context_source = build_context_source or s3_context.S3ContextSource()
         super(AWSBackend, self).__init__(namespace, build_context_source)
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
@@ -167,8 +166,8 @@ class KubeflowGKEBackend(GKEBackend):
 
 class KubeflowAWSBackend(AWSBackend):
 
-    def __init__(self, namespace="kubeflow", build_context_source=None, region=None):
-        super(KubeflowAWSBackend, self).__init__(namespace, build_context_source, region)
+    def __init__(self, namespace="kubeflow", build_context_source=None):
+        super(KubeflowAWSBackend, self).__init__(namespace, build_context_source)
 
 class GCPManagedBackend(BackendInterface):
 

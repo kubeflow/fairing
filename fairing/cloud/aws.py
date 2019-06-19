@@ -28,8 +28,10 @@ class S3Uploader(object):
         try:
             self.storage_client.head_bucket(Bucket=bucket_name)
         except ClientError:
-            self.storage_client.create_bucket(Bucket=bucket_name,
-                                              CreateBucketConfiguration={'LocationConstraint': self.region})
+            bucket = {'Bucket': bucket_name}
+            if(self.region != 'us-east-1'):
+                bucket['CreateBucketConfiguration'] = {'LocationConstraint': self.region}
+            self.storage_client.create_bucket(**bucket)
 
 
 def guess_account_id():

@@ -10,11 +10,12 @@ from fairing.builders.cluster.context_source import ContextSourceInterface
 class S3ContextSource(ContextSourceInterface):
     def __init__(self,
                  aws_account=None,
-                 credentials_file=None,
-                 region=None):
+                 region=None,
+                 bucket_name=None):
         self.aws_account = aws_account
         self.manager = KubeManager()
         self.region = region or 'us-east-1'
+        self.bucket_name = bucket_name
 
     def prepare(self, context_filename):
         if self.aws_account is None:
@@ -24,8 +25,9 @@ class S3ContextSource(ContextSourceInterface):
     def upload_context(self, context_filename):
         s3_uploader = aws.S3Uploader(self.region)
         context_hash = utils.crc(context_filename)
+        bucket_name = self.bucket_name or 'kubeflow-' + self.aws_account + '-' + self.region
         return s3_uploader.upload_to_bucket(
-                    bucket_name='kubeflow-' + self.aws_account + '-' + self.region,
+                    bucket_name=bucket_name,
                     blob_name='fairing_builds/' + context_hash,
                     file_to_upload=context_filename)
 
