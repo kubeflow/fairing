@@ -11,6 +11,7 @@ from google.cloud import storage
 from fairing import TrainJob
 from fairing.backends import KubernetesBackend, KubeflowBackend
 from fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
+from fairing.builders.cluster import gcs_context
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)
@@ -31,7 +32,8 @@ def run_submission_with_function_preprocessor(capsys, deployer="job", builder="a
     base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
     if builder=='cluster':
         fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY,
-                                   pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials])
+                                   pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
+                                   context_source=gcs_context.GCSContextSource(namespace=namespace))
     else:
         fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY)
     fairing.config.set_deployer(deployer, namespace=namespace)
