@@ -1,5 +1,6 @@
 import argparse
 import cloudpickle
+import sys
 import types
 from enum import Enum
 import logging
@@ -29,6 +30,14 @@ def get_execution_obj_type(obj):
 
     return ObjectType.NOT_SUPPORTED
 
+# compare the Python major and minor version for local and remote python
+def compare_version(local_python_version):
+    remote_python_version = ".".join([str(x) for x in sys.version_info[0:2]])
+    if local_python_version != remote_python_version:
+        raise RuntimeError('The Python version ' + remote_python_version + ' mismatches with Python '
+                        + local_python_version + ' in the local environment.')
+
+
 def call(serialized_fn_file):
     with open(serialized_fn_file, 'rb') as f:
         obj = cloudpickle.load(f)
@@ -45,5 +54,7 @@ def call(serialized_fn_file):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Shim for calling a serialized function')
     parser.add_argument('--serialized_fn_file', action="store")
+    parser.add_argument('--python_version', action="store")
     args = parser.parse_args()
+    compare_version(args.python_version)
     call(args.serialized_fn_file)
