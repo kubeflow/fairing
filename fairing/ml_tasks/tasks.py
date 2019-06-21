@@ -79,14 +79,16 @@ class TrainJob(BaseTask):
 
 class PredictionEndpoint(BaseTask):
 
-    def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None, backend=None):
+    def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None, backend=None,
+                 service_type='LoadBalancer'):
         self.model_class = model_class
+        self.service_type = service_type
         super().__init__(model_class, base_docker_image, docker_registry, input_files, backend=backend)
 
     def create(self):
         self._build()
         logging.info("Deploying the endpoint.")
-        self._deployer = self._backend.get_serving_deployer(self.model_class.__name__)
+        self._deployer = self._backend.get_serving_deployer(self.model_class.__name__, service_type=self.service_type)
         self.url = self._deployer.deploy(self.pod_spec)
         logger.warning("Prediction endpoint: {}".format(self.url))
 

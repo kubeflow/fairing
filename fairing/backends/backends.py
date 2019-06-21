@@ -75,8 +75,8 @@ class KubernetesBackend(BackendInterface):
     def get_training_deployer(self, pod_spec_mutators = None):
         return Job(self._namespace, pod_spec_mutators=pod_spec_mutators)
     
-    def get_serving_deployer(self, model_class):
-        return Serving(model_class, namespace=self._namespace)
+    def get_serving_deployer(self, model_class, service_type='LoadBalancer'):
+        return Serving(model_class, namespace=self._namespace, service_type=service_type)
 
 class GKEBackend(KubernetesBackend):
 
@@ -123,8 +123,8 @@ class GKEBackend(KubernetesBackend):
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
     
-    def get_serving_deployer(self, model_class):
-        return Serving(model_class, namespace=self._namespace)
+    def get_serving_deployer(self, model_class, service_type='LoadBalancer'):
+        return Serving(model_class, namespace=self._namespace, service_type=service_type)
 
     def get_docker_registry(self):
         return fairing.cloud.gcp.get_default_docker_registry()
