@@ -11,3 +11,11 @@ GOOGLE_CREDS_ENV = 'GOOGLE_APPLICATION_CREDENTIALS'
 GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 
 DEFAULT_USER_AGENT = 'kubeflow-fairing/{VERSION}'
+
+#TFJob Constants
+TF_JOB_GROUP = "kubeflow.org"
+TF_JOB_KIND = "TFJob"
+TF_JOB_PLURAL = "tfjobs"
+TF_JOB_VERSION = "v1beta2"
+TF_JOB_DEFAULT_NAME = 'fairing-tfjob-'
+TF_JOB_DEPLOYER_TYPE = 'tfjob'

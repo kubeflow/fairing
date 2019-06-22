@@ -1,15 +1,11 @@
 from kubernetes import client, config, watch
 from fairing.utils import is_running_in_k8s
+from fairing.constants import constants
 
 import logging
 logger = logging.getLogger(__name__)
 
 MAX_STREAM_BYTES = 1024
-TF_JOB_GROUP = "kubeflow.org"
-TF_JOB_KIND = "TFJob"
-TF_JOB_PLURAL = "tfjobs"
-TF_JOB_VERSION = "v1beta2"
-
 
 class KubeManager(object):
     """Handles communication with Kubernetes' client."""
@@ -29,10 +25,10 @@ class KubeManager(object):
         """Create the provided TFJob in the specified namespace"""
         api_instance = client.CustomObjectsApi()
         return api_instance.create_namespaced_custom_object(
-            TF_JOB_GROUP,
-            TF_JOB_VERSION,
+            constants.TF_JOB_GROUP,
+            constants.TF_JOB_VERSION,
             namespace,
-            TF_JOB_PLURAL,
+            constants.TF_JOB_PLURAL,
             job
         )
 
