@@ -61,6 +61,10 @@ class KubeManager(object):
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
+    def create_secret(self, namespace, secret):
+        api_instance = client.CoreV1Api()
+        return api_instance.create_namespaced_secret(namespace, secret)
+
     def get_service_external_endpoint(self, name, namespace, selectors=None):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
