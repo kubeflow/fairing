@@ -1,6 +1,7 @@
 import cloudpickle
 import fairing
 import glob
+import logging
 import os
 import sys
 import types
@@ -11,6 +12,9 @@ from enum import Enum
 from fairing.constants import constants
 from .base import BasePreProcessor
 from fairing.functions.function_shim import get_execution_obj_type, ObjectType
+from fairing.notebook import notebook_util
+
+logger = logging.getLogger(__name__)
 
 FUNCTION_SHIM = 'function_shim.py'
 SERIALIZED_FN_FILE = 'pickled_fn.p'
@@ -36,6 +40,11 @@ class FunctionPreProcessor(BasePreProcessor):
             output_map=output_map,
             path_prefix=path_prefix,
             input_files=input_files)
+
+        if not notebook_util.is_in_notebook():
+            logger.warning("The FunctionPreProcessor is optimized for using in a notebook or IPython environment. "
+                           "For it to work, the python version should be same for both local python and the python in "
+                           "the docker. Please look at alternatives like BasePreprocessor or FullNotebookPreprocessor.")
 
         if get_execution_obj_type(function_obj) ==  ObjectType.NOT_SUPPORTED:
             raise RuntimeError("Object must of type function or a class")
