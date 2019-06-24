@@ -214,6 +214,10 @@
                     name: "create-pr-symlink",
                     template: "create-pr-symlink",
                   },
+                  {
+                    name: "pylint-checking",
+                    template: "pylint-checking",
+                  },
                 ],
               ],
             },
@@ -260,6 +264,13 @@
               "create_pr_symlink",
               "--bucket=" + bucket,
             ]),  // create-pr-symlink
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("pylint-checking", testWorkerImage, [
+              "python",
+              "-m",
+              "kubeflow.testing.test_py_lint",
+              "--artifacts_dir=" + artifactsDir,
+              "--src_dir=" + srcDir,
+            ]),  // pylint-checking
             $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("copy-artifacts", testWorkerImage, [
               "python",
               "-m",
