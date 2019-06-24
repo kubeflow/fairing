@@ -13,3 +13,12 @@ GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 AWS_CREDS_SECRET_NAME = 'aws-secret'
 
 DEFAULT_USER_AGENT = 'kubeflow-fairing/{VERSION}'
+
+# KFServing constants
+KFSERVING_GROUP = "serving.kubeflow.org"
+KFSERVING_KIND = "KFService"
+KFSERVING_PLURAL = "kfservices"
+KFSERVING_VERSION = "v1alpha1"
+KFSERVING_DEFAULT_NAME = 'fairing-kfserving-'
+KFSERVING_DEPLOYER_TYPE = 'kfservice'
+KFSERVING_CONTAINER_NAME = 'user-container'

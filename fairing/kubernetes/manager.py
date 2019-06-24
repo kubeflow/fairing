@@ -1,5 +1,6 @@
 from kubernetes import client, config, watch
 from fairing.utils import is_running_in_k8s
+from fairing.constants import constants
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,6 +41,25 @@ class KubeManager(object):
         """Create an V1Deployment in the specified namespace"""
         api_instance = client.AppsV1Api()
         return api_instance.create_namespaced_deployment(namespace, deployment)
+
+    def create_kfserving(self, namespace, kfservice):
+        api_instance = client.CustomObjectsApi()
+        return api_instance.create_namespaced_custom_object(
+            constants.KFSERVING_GROUP,
+            constants.KFSERVING_VERSION,
+            namespace,
+            constants.KFSERVING_PLURAL,
+            kfservice)
+
+    def delete_kfserving(self, name, namespace):
+        api_instance = client.CustomObjectsApi()
+        return api_instance.delete_namespaced_custom_object(
+            constants.KFSERVING_GROUP,
+            constants.KFSERVING_VERSION,
+            namespace,
+            constants.KFSERVING_PLURAL,
+            name,
+            client.V1DeleteOptions())
 
     def delete_job(self, name, namespace):
         """Delete the specified job"""
@@ -87,7 +107,7 @@ class KubeManager(object):
         except client.rest.ApiException as e:
             logger.error("error getting status for {} {}".format(name, str(e)))
 
-    def log(self, name, namespace, selectors=None):
+    def log(self, name, namespace, selectors=None, container='', follow=True):
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         # Retry to allow starting of pod
@@ -111,9 +131,10 @@ class KubeManager(object):
                                 pod.status.container_statuses[0].ready)
                     tail = v1.read_namespaced_pod_log(pod.metadata.name,
                                                       namespace,
-                                                      follow=True,
+                                                      follow=follow,
                                                       _preload_content=False,
-                                                      pretty='pretty')
+                                                      pretty='pretty',
+                                                      container=container)
                     break
                 elif (event['type'] == 'DELETED'
                       or pod.status.phase == 'Failed'
@@ -124,9 +145,10 @@ class KubeManager(object):
                                  pod.status.container_statuses[0].state.terminated.message)
                     tail = v1.read_namespaced_pod_log(pod.metadata.name,
                                                       namespace,
-                                                      follow=True,
+                                                      follow=follow,
                                                       _preload_content=False,
-                                                      pretty='pretty')
+                                                      pretty='pretty',
+                                                      container=container)
                     break
         except ValueError as v:
             logger.error("error getting status for {} {}".format(name, str(v)))
