@@ -21,3 +21,13 @@ TF_JOB_PLURAL = "tfjobs"
 TF_JOB_VERSION = "v1beta2"
 TF_JOB_DEFAULT_NAME = 'fairing-tfjob-'
 TF_JOB_DEPLOYER_TYPE = 'tfjob'
+
+# KFServing constants
+KFSERVING_GROUP = "serving.kubeflow.org"
+KFSERVING_KIND = "KFService"
+KFSERVING_PLURAL = "kfservices"
+KFSERVING_VERSION = "v1alpha1"
+KFSERVING_DEFAULT_NAME = 'fairing-kfserving-'
+KFSERVING_DEPLOYER_TYPE = 'kfservice'
+KFSERVING_CONTAINER_NAME = 'user-container'
+
