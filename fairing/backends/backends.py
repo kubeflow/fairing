@@ -7,12 +7,14 @@ from fairing.builders.docker.docker import DockerBuilder
 from fairing.builders.cluster import gcs_context
 from fairing.builders.cluster.cluster import ClusterBuilder
 from fairing.builders.cluster import s3_context
+from fairing.builders.cluster import azurestorage_context
 from fairing.builders.append.append import AppendBuilder
 from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.cloud import aws
+from fairing.cloud import azure
 from fairing.cloud import gcp
 import fairing.ml_tasks.utils as ml_tasks_utils
 from fairing.constants import constants
@@ -155,6 +157,32 @@ class AWSBackend(KubernetesBackend):
     def get_serving_deployer(self, model_class):
         return Serving(model_class, namespace=self._namespace)
 
+class AzureBackend(KubernetesBackend):
+
+    def __init__(self, namespace=None, build_context_source=None):
+        build_context_source = build_context_source or azurestorage_context.StorageContextSource()
+        build_context_source.namespace = namespace
+        super(AzureBackend, self).__init__(namespace, build_context_source)
+
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+        pod_spec_mutators = pod_spec_mutators or []
+        if not azure.is_acr_registry(registry):
+            raise Exception(f"'{registry}' is not an Azure Container Registry")
+        pod_spec_mutators.append(azure.add_acr_config)
+        pod_spec_mutators.append(azure.add_azure_files)
+        return super(AzureBackend, self).get_builder(preprocessor,
+                                                   base_image,
+                                                   registry,
+                                                   needs_deps_installation,
+                                                   pod_spec_mutators)
+
+    def get_training_deployer(self, pod_spec_mutators = None):
+        pod_spec_mutators = pod_spec_mutators or []
+        return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
+
+    def get_serving_deployer(self, model_class):
+        return Serving(model_class, namespace=self._namespace)
+
 class KubeflowBackend(KubernetesBackend):
 
     def __init__(self, namespace="kubeflow", build_context_source=None):
@@ -169,6 +197,12 @@ class KubeflowAWSBackend(AWSBackend):
 
     def __init__(self, namespace="kubeflow", build_context_source=None):
         super(KubeflowAWSBackend, self).__init__(namespace, build_context_source)
+
+class KubeflowAzureBackend(AzureBackend):
+
+    def __init__(self, namespace="kubeflow", build_context_source=None):
+        super(KubeflowAzureBackend, self).__init__(namespace, build_context_source)
+
 
 class GCPManagedBackend(BackendInterface):
 
