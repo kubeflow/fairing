@@ -1,4 +1,4 @@
-import abc 
+import abc
 import six
 
 

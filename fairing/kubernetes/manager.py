@@ -101,7 +101,7 @@ class KubeManager(object):
         api_instance = client.CoreV1Api()
         return api_instance.create_namespaced_secret(namespace, secret)
 
-    def get_service_external_endpoint(self, name, namespace, selectors=None):
+    def get_service_external_endpoint(self, name, namespace, selectors=None): #pylint:disable=inconsistent-return-statements
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         w = watch.Watch()
@@ -112,10 +112,10 @@ class KubeManager(object):
                                   label_selector=label_selector_str):
                 svc = event['object']
                 logger.debug("Event: %s %s",
-                              event['type'],
+                             event['type'],
                              event['object'])
                 ing = svc.status.load_balancer.ingress
-                if ing is not None and len(ing) > 0:
+                if ing is not None and len(ing) > 0: #pylint:disable=len-as-condition
                     url = "http://{}:5000/predict".format(ing[0].ip or ing[0].hostname)
                     return url
         except ValueError as v:
@@ -138,10 +138,10 @@ class KubeManager(object):
                              pod.metadata.name,
                              pod.status.phase)
                 if pod.status.phase == 'Pending':
-                    logger.warn('Waiting for {} to start...'.format(pod.metadata.name))
+                    logger.warning('Waiting for {} to start...'.format(pod.metadata.name))
                     continue
                 elif ((pod.status.phase == 'Running'
-                      and pod.status.container_statuses[0].ready)
+                       and pod.status.container_statuses[0].ready)
                       or pod.status.phase == 'Succeeded'):
                     logger.info("Pod started running %s",
                                 pod.status.container_statuses[0].ready)

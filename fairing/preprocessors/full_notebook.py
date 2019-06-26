@@ -44,4 +44,3 @@ class FullNotebookPreProcessor(BasePreProcessor):
     # We don't want to set a default executable for the full_notebook preprocessor.
     def set_default_executable(self):
         pass
-

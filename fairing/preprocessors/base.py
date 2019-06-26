@@ -5,7 +5,6 @@ from fairing import utils
 import os
 import fairing
 import tarfile
-import glob
 import logging
 import posixpath
 import tempfile
@@ -21,14 +20,12 @@ class BasePreProcessor(object):
     command - the command to pass to the builder
 
     """
-    def __init__(
-        self,
-        input_files=None,
-        command=None,
-        executable=None,
-        path_prefix=constants.DEFAULT_DEST_PREFIX,
-        output_map=None
-    ):
+    def __init__(self,
+                 input_files=None,
+                 command=None,
+                 executable=None,
+                 path_prefix=constants.DEFAULT_DEST_PREFIX,
+                 output_map=None):
         self.executable = executable
         input_files = input_files or []
         command = command or ["python"]
@@ -46,13 +43,14 @@ class BasePreProcessor(object):
 
     # TODO: Add workaround for users who do not want to set an executable for
     # their command.
-    def set_default_executable(self):
+    def set_default_executable(self): #pylint:disable=inconsistent-return-statements
         if self.executable is not None:
             return self.executable
         if len(self.input_files) == 1:
             self.executable = list(self.input_files)[0]
             return
-        python_files = [item for item in self.input_files if item.endswith(".py") and item is not '__init__.py']
+        python_files = [item for item in self.input_files if item.endswith(".py")
+                        and item is not '__init__.py'] #pylint:disable=literal-comparison
         if len(python_files) == 1:
             self.executable = python_files[0]
             return
@@ -93,7 +91,7 @@ class BasePreProcessor(object):
         with tarfile.open(output_file, "w:gz", dereference=True) as tar:
             for dst, src in self.context_map().items():
                 logging.debug("Context: %s, Adding %s at %s", output_file,
-                             src, dst)
+                              src, dst)
                 tar.add(src, filter=reset_tar_mtime, arcname=dst, recursive=False)
         self._context_tar_path = output_file
         return output_file, utils.crc(self._context_tar_path)

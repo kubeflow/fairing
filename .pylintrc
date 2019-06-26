@@ -11,7 +11,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=docker_session_.py,oci_compat_.py,__init__.py,v2_compat_.py,append_.py,retry_.py,transport_pool_.py,save_.py,docker_creds_.py,metadata_.py,docker_image_.py,docker_digest_.py,v1_compat_.py,docker_http_.py,docker_name_.py,docker_image_list_.py,nested_.py,util_.py,monitor_.py,test_notebook.py
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -144,7 +144,17 @@ disable=print-statement,
         wrong-import-order,
         fixme,
         invalid-name,
-        no-member
+        no-member,
+        attribute-defined-outside-init,
+        broad-except,
+        no-else-return,
+        too-many-locals,
+        no-self-use,
+        logging-format-interpolation,
+        too-many-arguments,
+        no-name-in-module,
+        too-few-public-methods,
+        too-many-instance-attributes
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

@@ -6,13 +6,11 @@ from fairing.preprocessors.function import FunctionPreProcessor
 from fairing.builders.append.append import AppendBuilder
 from fairing.builders.docker.docker import DockerBuilder
 from fairing.builders.cluster.cluster import ClusterBuilder
-from fairing.builders.builder import BuilderInterface
 
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.deployers.gcp.gcp import GCPJob
-from fairing.deployers.deployer import DeployerInterface
 from fairing.deployers.kfserving.kfserving import KFServing
 
 from fairing.notebook import notebook_util
