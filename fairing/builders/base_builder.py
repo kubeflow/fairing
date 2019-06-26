@@ -9,7 +9,7 @@ from fairing.cloud import gcp
 logger = logging.getLogger(__name__)
 
 
-class BaseBuilder(BuilderInterface):
+class BaseBuilder(BuilderInterface): #pylint:disable=too-many-instance-attributes
     """A builder using the local Docker client"""
 
     def __init__(self,

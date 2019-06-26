@@ -8,7 +8,6 @@ from fairing.builders.base_builder import BaseBuilder
 from fairing.builders import dockerfile
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
-from fairing.builders.cluster import gcs_context
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +26,7 @@ class ClusterBuilder(BaseBuilder):
                                                  cluster build
         push {bool} -- Whether or not to push the image to the registry
     """
+
     def __init__(self,
                  registry=None,
                  image_name=constants.DEFAULT_IMAGE_NAME,
@@ -38,12 +38,11 @@ class ClusterBuilder(BaseBuilder):
                  namespace=None,
                  dockerfile_path=None):
         super().__init__(
-                registry=registry,
-                image_name=image_name,
-                push=push,
-                preprocessor=preprocessor,
-                base_image=base_image,
-            )
+            registry=registry,
+            image_name=image_name,
+            push=push,
+            preprocessor=preprocessor,
+            base_image=base_image)
         self.manager = KubeManager()
         if context_source is None:
             raise RuntimeError("context_source is not specified")
@@ -66,7 +65,8 @@ class ClusterBuilder(BaseBuilder):
         self.context_source.prepare(context_path)
         labels = {'fairing-builder': 'kaniko'}
         labels['fairing-build-id'] = str(uuid.uuid1())
-        pod_spec = self.context_source.generate_pod_spec(self.image_tag, self.push)
+        pod_spec = self.context_source.generate_pod_spec(
+            self.image_tag, self.push)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
         build_pod = client.V1Pod(

@@ -1,4 +1,3 @@
-from fairing import utils
 from fairing.deployers.deployer import DeployerInterface
 from fairing.cloud.gcp import guess_project_name
 from fairing import http_utils
@@ -18,7 +17,7 @@ class GCPServingDeployer(DeployerInterface):
         self._version_name = version_name
         self._deploy_kwargs = deploy_kwargs
         self._ml = discovery.build('ml', 'v1')
-        self._ml._http = http_utils.configure_http_instance(self._ml._http)
+        self._ml._http = http_utils.configure_http_instance(self._ml._http) #pylint:disable=protected-access
 
         # Set default deploy kwargs
         if 'runtime_version' not in self._deploy_kwargs:

@@ -1,4 +1,4 @@
-import abc 
+import abc
 import six
 import sys
 import logging
@@ -10,7 +10,6 @@ from fairing.builders.cluster.cluster import ClusterBuilder
 from fairing.builders.cluster import s3_context
 from fairing.builders.append.append import AppendBuilder
 from fairing.deployers.gcp.gcp import GCPJob
-from fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.cloud import aws
@@ -21,6 +20,7 @@ from fairing.kubernetes.manager import KubeManager
 
 logger = logging.getLogger(__name__)
 
+
 @six.add_metaclass(abc.ABCMeta)
 class BackendInterface(object):
 
@@ -30,7 +30,7 @@ class BackendInterface(object):
         raise NotImplementedError('BackendInterface.get_builder')
 
     @abc.abstractmethod
-    def get_training_deployer(self, pod_spec_mutators = None):
+    def get_training_deployer(self, pod_spec_mutators=None):
         """Creates a deployer to be used with a training job"""
         raise NotImplementedError('BackendInterface.get_training_deployer')
 
@@ -38,28 +38,32 @@ class BackendInterface(object):
     def get_serving_deployer(self, model_class):
         """Creates a deployer to be used with a serving job"""
         raise NotImplementedError('BackendInterface.get_serving_deployer')
-    
+
     def get_base_contanier(self):
         "Returns the approriate base container for the current environment"
         py_version = ".".join([str(x) for x in sys.version_info[0:3]])
-        base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
+        base_image = 'registry.hub.docker.com/library/python:{}'.format(
+            py_version)
         return base_image
 
     def get_docker_registry(self):
         "Returns the approriate docker registry for the current environment"
         return None
 
+
 class KubernetesBackend(BackendInterface):
 
     def __init__(self, namespace=None, build_context_source=None):
         if not namespace and not fairing.utils.is_running_in_k8s():
             logger.warning("Can't determine namespace automatically. "
-            "Using 'default' namespace but recomend to provide namespace explicitly. "
-            "Using 'default' namespace might result in unable to mount some required secrets in cloud backends.")
+                           "Using 'default' namespace but recomend to provide namespace explicitly"
+                           ". Using 'default' namespace might result in unable to mount some "
+                           "required secrets in cloud backends.")
         self._namespace = namespace or fairing.utils.get_default_target_namespace()
         self._build_context_source = build_context_source
 
-    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,  # pylint:disable=arguments-differ
+                    pod_spec_mutators=None):
         if not needs_deps_installation:
             return AppendBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
@@ -77,22 +81,28 @@ class KubernetesBackend(BackendInterface):
                                  registry=registry)
         else:
             # TODO (karthikv2k): Add more info on how to reolve this issue
-            raise RuntimeError("Not able to guess the right builder for this job!")
-    
-    def get_training_deployer(self, pod_spec_mutators = None):
+            raise RuntimeError(
+                "Not able to guess the right builder for this job!")
+
+    def get_training_deployer(self, pod_spec_mutators=None):
         return Job(self._namespace, pod_spec_mutators=pod_spec_mutators)
-    
-    def get_serving_deployer(self, model_class, service_type='LoadBalancer', pod_spec_mutators=None):
+
+    def get_serving_deployer(self, model_class, service_type='LoadBalancer', # pylint:disable=arguments-differ
+                             pod_spec_mutators=None):
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
+
 
 class GKEBackend(KubernetesBackend):
 
     def __init__(self, namespace=None, build_context_source=None):
         super(GKEBackend, self).__init__(namespace, build_context_source)
-        self._build_context_source = gcs_context.GCSContextSource(namespace=self._namespace)
-    
-    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+        self._build_context_source = gcs_context.GCSContextSource(
+            namespace=self._namespace)
+
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,
+                    pod_spec_mutators=None):
+
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
 
@@ -100,8 +110,8 @@ class GKEBackend(KubernetesBackend):
             return AppendBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
                                  registry=registry)
-        elif (fairing.utils.is_running_in_k8s() or \
-            not ml_tasks_utils.is_docker_daemon_exists()) and \
+        elif (fairing.utils.is_running_in_k8s() or
+              not ml_tasks_utils.is_docker_daemon_exists()) and \
                 KubeManager().secret_exists(constants.GCP_CREDS_SECRET_NAME, self._namespace):
             return ClusterBuilder(preprocessor=preprocessor,
                                   base_image=base_image,
@@ -116,28 +126,32 @@ class GKEBackend(KubernetesBackend):
         else:
             msg = ["Not able to guess the right builder for this job!"]
             if KubeManager().secret_exists(constants.GCP_CREDS_SECRET_NAME, self._namespace):
-                msg.append("It seems you don't have permission to list/access secrets in your Kubeflow cluster."
-                    "We need this permission in order to build a docker image using Kubeflow cluster."
-                    "Adding Kubeneters Admin role to the service account you are using might solve this issue.")
+                msg.append("It seems you don't have permission to list/access secrets in your "
+                           "Kubeflow cluster. We need this permission in order to build a docker "
+                           "image using Kubeflow cluster. Adding Kubeneters Admin role to the "
+                           "service account you are using might solve this issue.")
             if not fairing.utils.is_running_in_k8s():
-                msg.append(" Also If you are using 'sudo' to access docker in your system you can solve this problem"
-                "by adding your username to the docker group. Reference: "
-                "https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user"
-                "You need to logout and login to get change activated.")
+                msg.append(" Also If you are using 'sudo' to access docker in your system you can"
+                           " solve this problem by adding your username to the docker group. "
+                           "Reference: https://docs.docker.com/install/linux/linux-postinstall/"
+                           "#manage-docker-as-a-non-root-user You need to logout and login to "
+                           "get change activated.")
             message = " ".join(msg)
             raise RuntimeError(message)
-    
-    def get_training_deployer(self, pod_spec_mutators = None):
+
+    def get_training_deployer(self, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
-    
-    def get_serving_deployer(self, model_class, service_type='LoadBalancer', pod_spec_mutators=None):
+
+    def get_serving_deployer(self, model_class, service_type='LoadBalancer',
+                             pod_spec_mutators=None):
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
 
     def get_docker_registry(self):
         return fairing.cloud.gcp.get_default_docker_registry()
+
 
 class AWSBackend(KubernetesBackend):
 
@@ -145,7 +159,8 @@ class AWSBackend(KubernetesBackend):
         build_context_source = build_context_source or s3_context.S3ContextSource()
         super(AWSBackend, self).__init__(namespace, build_context_source)
 
-    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,
+                    pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
         if aws.is_ecr_registry(registry):
@@ -157,13 +172,14 @@ class AWSBackend(KubernetesBackend):
                                                    needs_deps_installation,
                                                    pod_spec_mutators)
 
-    def get_training_deployer(self, pod_spec_mutators = None):
+    def get_training_deployer(self, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
-    def get_serving_deployer(self, model_class, pod_spec_mutators=None):
+    def get_serving_deployer(self, model_class, pod_spec_mutators=None): # pylint:disable=arguments-differ
         return Serving(model_class, namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
+
 
 class KubeflowBackend(KubernetesBackend):
 
@@ -172,17 +188,22 @@ class KubeflowBackend(KubernetesBackend):
             namespace = "kubeflow"
         super(KubeflowBackend, self).__init__(namespace, build_context_source)
 
+
 class KubeflowGKEBackend(GKEBackend):
 
     def __init__(self, namespace=None, build_context_source=None):
         if not namespace and not fairing.utils.is_running_in_k8s():
             namespace = "kubeflow"
-        super(KubeflowGKEBackend, self).__init__(namespace, build_context_source)
+        super(KubeflowGKEBackend, self).__init__(
+            namespace, build_context_source)
+
 
 class KubeflowAWSBackend(AWSBackend):
 
-    def __init__(self, namespace=None, build_context_source=None):
-        super(KubeflowAWSBackend, self).__init__(namespace, build_context_source)
+    def __init__(self, namespace=None, build_context_source=None): # pylint:disable=useless-super-delegation
+        super(KubeflowAWSBackend, self).__init__(
+            namespace, build_context_source)
+
 
 class GCPManagedBackend(BackendInterface):
 
@@ -190,9 +211,10 @@ class GCPManagedBackend(BackendInterface):
         super(GCPManagedBackend, self).__init__()
         self._project_id = project_id or gcp.guess_project_name()
         self._region = region or 'us-central1'
-        self._training_scale_tier =  training_scale_tier or 'BASIC'
-    
-    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+        self._training_scale_tier = training_scale_tier or 'BASIC'
+
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,  # pylint:disable=arguments-differ
+                    pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         # TODO (karthikv2k): Add cloud build as the deafult
@@ -214,14 +236,16 @@ class GCPManagedBackend(BackendInterface):
                                  registry=registry)
         else:
             # TODO (karthikv2k): Add more info on how to reolve this issue
-            raise RuntimeError("Not able to guess the right builder for this job!")       
+            raise RuntimeError(
+                "Not able to guess the right builder for this job!")
 
-    def get_training_deployer(self, pod_spec_mutators = None):
+    def get_training_deployer(self, pod_spec_mutators=None):
         return GCPJob(self._project_id, self._region, self._training_scale_tier)
 
-    def get_serving_deployer(self, model_class, pod_spec_mutators=None):
+    def get_serving_deployer(self, model_class, pod_spec_mutators=None): # pylint:disable=arguments-differ
         # currently GCP serving deployer doesn't implement deployer interface
-        raise NotImplementedError("GCP managed serving is not integrated into high level API yet.")
+        raise NotImplementedError(
+            "GCP managed serving is not integrated into high level API yet.")
 
     def get_docker_registry(self):
         return fairing.cloud.gcp.get_default_docker_registry()

@@ -1,7 +1,6 @@
 import logging
 import nbconvert
 import re
-import tempfile
 from nbconvert.preprocessors import Preprocessor as NbPreProcessor
 from fairing.constants import constants
 from pathlib import Path
@@ -21,7 +20,7 @@ class FilterMagicCommands(NbPreProcessor):
                 filtered.append(line)
         return '\n'.join(filtered)
 
-    def preprocess_cell(self, cell, resources, index):
+    def preprocess_cell(self, cell, resources, index): #pylint:disable=unused-argument
         if cell['cell_type'] == 'code':
             cell['source'] = self.filter_magic_commands(cell['source'])
         return cell, resources
@@ -32,14 +31,13 @@ class FilterIncludeCell(NbPreProcessor):
     _pattern = re.compile('.*fairing:include-cell.*')
 
     def filter_include_cell(self, src):
-        filtered = []
         for line in src.splitlines():
             match = self._pattern.match(line)
             if match:
                 return src
         return ''
 
-    def preprocess_cell(self, cell, resources, index):
+    def preprocess_cell(self, cell, resources, index): #pylint:disable=unused-argument
         if cell['cell_type'] == 'code':
             cell['source'] = self.filter_include_cell(cell['source'])
 
@@ -47,7 +45,7 @@ class FilterIncludeCell(NbPreProcessor):
 
 
 class ConvertNotebookPreprocessor(BasePreProcessor):
-    def __init__(self,
+    def __init__(self, #pylint:disable=dangerous-default-value
                  notebook_file=None,
                  notebook_preprocessor=FilterMagicCommands,
                  executable=None,
@@ -75,7 +73,8 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
         contents, _ = exporter.from_filename(self.notebook_file)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         if converted_notebook.exists() and not self.overwrite:
-            raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
+            raise Exception('Default path {} exists but overwrite flag\
+                            is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
             logging.info('Converting {} to {}'.format(self.notebook_file, converted_notebook))
             f.write(contents)
@@ -85,7 +84,7 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
 
 class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
     """Create an entrpoint using pyfire."""
-    def __init__(self,
+    def __init__(self, #pylint:disable=dangerous-default-value
                  class_name=None,
                  notebook_file=None,
                  notebook_preprocessor=FilterIncludeCell,
@@ -127,7 +126,8 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
         contents = "\n".join(lines)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         if converted_notebook.exists() and not self.overwrite:
-            raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
+            raise Exception('Default path {} exists but overwrite flag\
+                            is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
             logging.info('Converting {} to {}'.format(self.notebook_file, converted_notebook))
             f.write(contents)

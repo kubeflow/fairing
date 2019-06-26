@@ -29,8 +29,8 @@ LEARNING_RATE = 0.3
 HIDDEN_1 = 128
 HIDDEN_2 = 32
 
-# HACK: Ideally we would want to have a unique subpath for each instance of the job, but since we can't
-# we are instead appending HOSTNAME to the logdir
+# HACK: Ideally we would want to have a unique subpath for each instance of the job,
+#  but since we can't, we are instead appending HOSTNAME to the logdir
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 
@@ -75,7 +75,8 @@ if __name__ == '__main__':
     if os.getenv('FAIRING_RUNTIME', None) is None:
         import fairing
         fairing.config.set_preprocessor('python', input_files=[__file__])
-        fairing.config.set_builder('append', base_image='tensorflow/tensorflow:1.13.1-py3')
+        fairing.config.set_builder(
+            'append', base_image='tensorflow/tensorflow:1.13.1-py3')
         fairing.config.run()
     else:
         train()

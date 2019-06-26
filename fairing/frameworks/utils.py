@@ -20,8 +20,8 @@ def parse_cluster_spec_env():
     ports = []
     for val in cluster.values():
         if not isinstance(val, list):
-            raise ValueError(
-                "Expecting list type values in cluster spec dict. cluster spec: {}".format(env_config))
+            raise ValueError("Expecting list type values in cluster spec dict. \
+                             cluster spec: {}".format(env_config))
         for item in val:
             host, port = item.split(":")
             hosts.append(host)
@@ -36,7 +36,8 @@ def parse_cluster_spec_env():
     elif cur_host_ip and cur_host_ip in ips:
         rank = ips.index(cur_host_ip)
     else:
-        print("Can't find rank for current host (hostname={}, ip={})".format(cur_hostname, cur_host_ip))
+        print("Can't find rank for current host (hostname={}, \
+              ip={})".format(cur_hostname, cur_host_ip))
         rank = 0
 
     return hosts, ips, ports, rank
@@ -57,10 +58,10 @@ def nslookup(hostname, retries=600):
             ais = socket.getaddrinfo(hostname, 0, 0, 0, 0)
             return ais[0][-1][0]
         except Exception as e:
-            logger.info("not able to lookup ip for {}".format(hostname))
+            logger.info("not able to lookup ip for %s", hostname)
             last_exception = e
     if last_exception:
-        raise last_exception
+        raise last_exception #pylint:disable=raising-bad-type
 
 
 def write_ip_list_file(file_name, ips, port=None):
@@ -110,7 +111,7 @@ def scrub_fields(config, filed_names):
     for field in filed_names:
         if field in config:
             config.pop(field)
-            logger.info("Ignoring {} filed in the config".format(field))
+            logger.info("Ignoring %s filed in the config", field)
 
 
 def get_config_value(config, field_names):
@@ -121,7 +122,7 @@ def get_config_value(config, field_names):
     if len(buf.items()) > 1:
         raise RuntimeError(
             "More than one field alias is specified: {}".format(buf))
-    if len(buf.items()) > 0:
+    if len(buf.items()) > 0: #pylint:disable=no-else-return,len-as-condition
         return list(buf.items())[0]
     else:
         return None, None
@@ -138,6 +139,6 @@ def init_lightgbm_env(config_file, mlist_file):
     write_ip_list_file(mlist_file, ips, port)
     update_config_file(config_file, "local_port", port)
     logger.info("Cluster setup:")
-    for x,y,z in zip(hosts, ips, ports):
-        logger.info("{}\t{}\t{}".format(x,y,z))
+    for x, y, z in zip(hosts, ips, ports):
+        logger.info("{}\t{}\t{}".format(x, y, z)) #pylint:disable=logging-format-interpolation
     return rank

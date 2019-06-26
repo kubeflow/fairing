@@ -3,7 +3,6 @@ from fairing.deployers.deployer import DeployerInterface
 from fairing.cloud.gcp import guess_project_name
 from fairing import http_utils
 
-from oauth2client.client import GoogleCredentials
 from googleapiclient import discovery
 from googleapiclient import errors
 
@@ -27,7 +26,7 @@ class GCPJob(DeployerInterface):
         self._job_config = job_config or {}
         self.scale_tier = scale_tier
         self._ml = discovery.build('ml', 'v1')
-        self._ml._http = http_utils.configure_http_instance(self._ml._http)
+        self._ml._http = http_utils.configure_http_instance(self._ml._http) #pylint:disable=protected-access
 
     def create_request_dict(self, pod_template_spec):
         """Return the request to be sent to the ML Engine API."""
@@ -62,7 +61,7 @@ class GCPJob(DeployerInterface):
         try:
             print('Creating training job with the following options: {}'.format(
                 str(request_dict)))
-            response = self._ml.projects().jobs().create(
+            response = self._ml.projects().jobs().create( #pylint:disable=unused-variable
                 parent='projects/{}'.format(self._project_id),
                 body=request_dict
             ).execute()
@@ -71,7 +70,7 @@ class GCPJob(DeployerInterface):
             return self._job_name
         except errors.HttpError as err:
             print('There was an error submitting the job.')
-            print(err._get_reason())
+            print(err._get_reason()) #pylint:disable=protected-access
 
     def get_logs(self):
         """Streams the logs for the training job"""
