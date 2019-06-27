@@ -1,17 +1,14 @@
 from kubernetes import client as k8s_client
 
+from fairing.constants import constants
 from fairing.deployers.job.job import Job
-from fairing.kubernetes.manager import TF_JOB_VERSION
-DEFAULT_JOB_NAME = 'fairing-tfjob-'
-DEPLOYER_TYPE = 'tfjob'
-
 
 class TfJob(Job):
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
-                 chief_count=1, runs=1, job_name=DEFAULT_JOB_NAME, stream_log=True, labels=None,
+                 chief_count=1, runs=1, job_name=constants.TF_JOB_DEFAULT_NAME, stream_log=True, labels=None,
                  pod_spec_mutators=None):
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
-                                    deployer_type=DEPLOYER_TYPE, labels=labels,
+                                    deployer_type=constants.TF_JOB_DEPLOYER_TYPE, labels=labels,
                                     pod_spec_mutators=pod_spec_mutators)
         self.distribution = {
             'Worker': worker_count,
@@ -48,8 +45,8 @@ class TfJob(Job):
             spec['tfReplicaSpecs']['PS'] = ps_replica_spec
 
         tf_job = {}
-        tf_job['kind'] = 'TFJob'
-        tf_job['apiVersion'] = 'kubeflow.org/' + TF_JOB_VERSION
+        tf_job['kind'] = constants.TF_JOB_KIND
+        tf_job['apiVersion'] = 'kubeflow.org/' + constants.TF_JOB_VERSION
         tf_job['metadata'] = k8s_client.V1ObjectMeta(generate_name=self.job_name)
         tf_job['spec'] = spec
 
