@@ -1,5 +1,4 @@
 from kubernetes import client as k8s_client
-
 from fairing.constants import constants
 from fairing.deployers.job.job import Job
 
@@ -18,7 +17,10 @@ class TfJob(Job):
 
     def create_resource(self):
         self.created_tfjob = self.backend.create_tf_job(self.namespace, self.deployment_spec)
-        return self.created_tfjob['metadata']['name']
+        if self.created_tfjob:
+            return self.created_tfjob['metadata']['name']
+        else:
+            raise RuntimeError("Error happens while creating TFJob.")
 
     def generate_deployment_spec(self, pod_template_spec):
         """Returns a TFJob template"""
