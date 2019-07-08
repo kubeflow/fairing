@@ -6,6 +6,8 @@ from pathlib import Path
 
 import fairing
 from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
+from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessorWithFire
+from fairing.preprocessors.converted_notebook import FilterIncludeCell
 from fairing.constants.constants import DEFAULT_DEST_PREFIX
 
 NOTEBOOK_PATH = os.path.relpath(
@@ -33,3 +35,24 @@ def test_context_tar_gz():
     notebook_context_path = posixpath.join(relative_path_prefix, CONVERTED_NOTEBOOK_PATH)
     tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
     assert "print('Hello World')" in tar_notebook.read().decode()
+
+def test_filter_include_cell():
+    preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH,
+                                               notebook_preprocessor=FilterIncludeCell)
+    context_file, _ = preprocessor.context_tar_gz()
+    tar = tarfile.open(context_file)
+    relative_path_prefix = posixpath.relpath(DEFAULT_DEST_PREFIX, "/")
+    notebook_context_path = posixpath.join(relative_path_prefix, CONVERTED_NOTEBOOK_PATH)
+    tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
+    tar_notebook_text = tar_notebook.read().decode()
+    assert "print('This cell includes fairing:include-cell')" in tar_notebook_text
+
+def test_context_tar_gz_with_fire():
+    preprocessor = ConvertNotebookPreprocessorWithFire(notebook_file=NOTEBOOK_PATH)
+    context_file, _ = preprocessor.context_tar_gz()
+    tar = tarfile.open(context_file)
+    relative_path_prefix = posixpath.relpath(DEFAULT_DEST_PREFIX, "/")
+    notebook_context_path = posixpath.join(relative_path_prefix, CONVERTED_NOTEBOOK_PATH)
+    tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
+    tar_notebook_text = tar_notebook.read().decode()
+    assert "fire.Fire(None)" in tar_notebook_text

@@ -3,8 +3,13 @@
 
 # # Test Notebook
 
-# In[ ]:
+# fairing:include-cell
+print('This cell includes fairing:include-cell')
 
 
-print('Hello World')
-
+if __name__ == "__main__":
+  import fire
+  import logging
+  logging.basicConfig(format='%(message)s')
+  logging.getLogger().setLevel(logging.INFO)
+  fire.Fire(None)
