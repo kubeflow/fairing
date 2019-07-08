@@ -1,15 +1,18 @@
+import logging
 from kubernetes import client as k8s_client
 
 from fairing.constants import constants
 from fairing.deployers.job.job import Job
 
+logger = logging.getLogger(__name__)
+
 class TfJob(Job):
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
                  chief_count=1, runs=1, job_name=constants.TF_JOB_DEFAULT_NAME, stream_log=True, labels=None,
-                 pod_spec_mutators=None):
+                 pod_spec_mutators=None, cleanup=False):
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
                                     deployer_type=constants.TF_JOB_DEPLOYER_TYPE, labels=labels,
-                                    pod_spec_mutators=pod_spec_mutators)
+                                    pod_spec_mutators=pod_spec_mutators, cleanup=cleanup)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
@@ -67,3 +70,7 @@ class TfJob(Job):
             'tf-job-name': name
         }
         self.backend.log(name, namespace, labels)
+
+        if self.cleanup:
+            logger.warn("Cleaning up TFJob {}...".format(name))
+            self.backend.delete_tf_job(name, self.namespace)
