@@ -24,13 +24,17 @@ class KubeManager(object):
     def create_tf_job(self, namespace, job):
         """Create the provided TFJob in the specified namespace"""
         api_instance = client.CustomObjectsApi()
-        return api_instance.create_namespaced_custom_object(
-            constants.TF_JOB_GROUP,
-            constants.TF_JOB_VERSION,
-            namespace,
-            constants.TF_JOB_PLURAL,
-            job
-        )
+        try:
+            return api_instance.create_namespaced_custom_object(
+                constants.TF_JOB_GROUP,
+                constants.TF_JOB_VERSION,
+                namespace,
+                constants.TF_JOB_PLURAL,
+                job
+            )
+        except client.rest.ApiException:
+            raise RuntimeError("Failed to create TFJob. Perhaps the CRD TFJob version "
+                               "{} in not installed?".format(constants.TF_JOB_VERSION))
 
     def create_deployment(self, namespace, deployment):
         """Create an V1Deployment in the specified namespace"""
