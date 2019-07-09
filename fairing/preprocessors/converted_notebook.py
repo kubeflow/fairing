@@ -1,5 +1,6 @@
 import nbconvert
 import re
+import tempfile
 from nbconvert.preprocessors import Preprocessor as NbPreProcessor
 from fairing.constants import constants
 from pathlib import Path
@@ -70,6 +71,10 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         contents, _ = exporter.from_filename(self.notebook_file)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
+        if converted_notebook.exists():
+            dir_name = Path(self.notebook_file).parent
+            _, file_name = tempfile.mkstemp(suffix=".py", dir=dir_name)
+            converted_notebook = Path(file_name[file_name.find(str(dir_name)):])
         with open(converted_notebook, 'w') as f:
             f.write(contents)
         self.executable = converted_notebook
@@ -117,6 +122,10 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
 
         contents = "\n".join(lines)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
+        if converted_notebook.exists():
+            dir_name = Path(self.notebook_file).parent
+            _, file_name = tempfile.mkstemp(suffix=".py", dir=dir_name)
+            converted_notebook = Path(file_name[file_name.find(str(dir_name)):])
         with open(converted_notebook, 'w') as f:
             f.write(contents)
             f.write("\n")

@@ -17,23 +17,29 @@ CONVERTED_NOTEBOOK_PATH = NOTEBOOK_PATH.replace(".ipynb",".py")
 def test_preprocess():
     preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH)
     files = preprocessor.preprocess()
-    assert Path(CONVERTED_NOTEBOOK_PATH) in files
+    converted_notebook_path = posixpath.join(os.path.dirname(NOTEBOOK_PATH), os.path.basename(preprocessor.executable))
+    os.remove(converted_notebook_path)
+    assert Path(converted_notebook_path) in files
 
 def test_get_command():
     preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH)
     preprocessor.preprocess()
     command = preprocessor.get_command()
-    conv_notebook_context_path = posixpath.join(DEFAULT_DEST_PREFIX, CONVERTED_NOTEBOOK_PATH)
+    converted_notebook_path = posixpath.join(os.path.dirname(NOTEBOOK_PATH), os.path.basename(preprocessor.executable))
+    conv_notebook_context_path = posixpath.join(DEFAULT_DEST_PREFIX, converted_notebook_path)
     expected_command = 'python {}'.format(conv_notebook_context_path)
+    os.remove(converted_notebook_path)
     assert command == expected_command.split()
 
 def test_context_tar_gz():
     preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH)
     context_file, _ = preprocessor.context_tar_gz()
     tar = tarfile.open(context_file)
-    relative_path_prefix = posixpath.relpath(DEFAULT_DEST_PREFIX, "/") 
-    notebook_context_path = posixpath.join(relative_path_prefix, CONVERTED_NOTEBOOK_PATH)
+    relative_path_prefix = posixpath.relpath(DEFAULT_DEST_PREFIX, "/")
+    converted_notebook_path = posixpath.join(os.path.dirname(NOTEBOOK_PATH), os.path.basename(preprocessor.executable))
+    notebook_context_path = posixpath.join(relative_path_prefix, converted_notebook_path)
     tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
+    os.remove(converted_notebook_path)
     assert "print('Hello World')" in tar_notebook.read().decode()
 
 def test_filter_include_cell():
@@ -42,9 +48,11 @@ def test_filter_include_cell():
     context_file, _ = preprocessor.context_tar_gz()
     tar = tarfile.open(context_file)
     relative_path_prefix = posixpath.relpath(DEFAULT_DEST_PREFIX, "/")
-    notebook_context_path = posixpath.join(relative_path_prefix, CONVERTED_NOTEBOOK_PATH)
+    converted_notebook_path = posixpath.join(os.path.dirname(NOTEBOOK_PATH), os.path.basename(preprocessor.executable))
+    notebook_context_path = posixpath.join(relative_path_prefix, converted_notebook_path)
     tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
     tar_notebook_text = tar_notebook.read().decode()
+    os.remove(converted_notebook_path)
     assert "print('This cell includes fairing:include-cell')" in tar_notebook_text
 
 def test_context_tar_gz_with_fire():
@@ -52,7 +60,9 @@ def test_context_tar_gz_with_fire():
     context_file, _ = preprocessor.context_tar_gz()
     tar = tarfile.open(context_file)
     relative_path_prefix = posixpath.relpath(DEFAULT_DEST_PREFIX, "/")
-    notebook_context_path = posixpath.join(relative_path_prefix, CONVERTED_NOTEBOOK_PATH)
+    converted_notebook_path = posixpath.join(os.path.dirname(NOTEBOOK_PATH), os.path.basename(preprocessor.executable))
+    notebook_context_path = posixpath.join(relative_path_prefix, converted_notebook_path)
     tar_notebook = tar.extractfile(tar.getmember(notebook_context_path))
     tar_notebook_text = tar_notebook.read().decode()
+    os.remove(converted_notebook_path)
     assert "fire.Fire(None)" in tar_notebook_text
