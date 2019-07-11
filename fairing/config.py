@@ -13,6 +13,7 @@ from fairing.deployers.serving.serving import Serving
 from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.deployers.gcp.gcp import GCPJob
 from fairing.deployers.deployer import DeployerInterface
+from fairing.deployers.kfserving.kfserving import KFServing
 
 from fairing.notebook import notebook_util
 
@@ -41,6 +42,7 @@ deployer_map = {
     'tfjob': TfJob,
     'gcp': GCPJob,
     'serving': Serving,
+    'kfserving': KFServing,
 }
 
 
