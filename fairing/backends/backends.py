@@ -186,13 +186,6 @@ class AzureBackend(KubernetesBackend):
                                                    needs_deps_installation,
                                                    pod_spec_mutators)
 
-    def get_training_deployer(self, pod_spec_mutators = None):
-        pod_spec_mutators = pod_spec_mutators or []
-        return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
-
-    def get_serving_deployer(self, model_class):
-        return Serving(model_class, namespace=self._namespace)
-
 class KubeflowBackend(KubernetesBackend):
 
     def __init__(self, namespace=None, build_context_source=None):
