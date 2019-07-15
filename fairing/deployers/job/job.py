@@ -109,7 +109,10 @@ class Job(DeployerInterface):
         )
 
     def get_logs(self):
-        self.backend.log(self._created_job.metadata.name, self._created_job.metadata.namespace, self.labels)
+        self.backend.log(self._created_job.metadata.name,
+                         self._created_job.metadata.namespace,
+                         self.labels,
+                         container="fairing-job")
 
         if self.cleanup:
             self.do_cleanup()
