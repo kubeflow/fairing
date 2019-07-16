@@ -84,7 +84,8 @@ class ClusterBuilder(BaseBuilder):
         self.manager.log(
             name=created_pod.metadata.name,
             namespace=created_pod.metadata.namespace,
-            selectors=labels)
+            selectors=labels,
+            container="kaniko")
 
         # clean up created pod and secret
         self.context_source.cleanup()

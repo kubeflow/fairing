@@ -66,4 +66,4 @@ class TfJob(Job):
             'tf-replica-type': 'worker',
             'tf-job-name': name
         }
-        self.backend.log(name, namespace, labels)
+        self.backend.log(name, namespace, labels, container="tensorflow")
