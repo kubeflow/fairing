@@ -36,6 +36,17 @@ class KubeManager(object):
             raise RuntimeError("Failed to create TFJob. Perhaps the CRD TFJob version "
                                "{} in not installed?".format(constants.TF_JOB_VERSION))
 
+    def delete_tf_job(self, name, namespace):
+        """Delete the provided TFJob in the specified namespace"""
+        api_instance = client.CustomObjectsApi()
+        return api_instance.delete_namespaced_custom_object(
+            constants.TF_JOB_GROUP,
+            constants.TF_JOB_VERSION,
+            namespace,
+            constants.TF_JOB_PLURAL,
+            name,
+            client.V1DeleteOptions())
+
     def create_deployment(self, namespace, deployment):
         """Create an V1Deployment in the specified namespace"""
         api_instance = client.AppsV1Api()
