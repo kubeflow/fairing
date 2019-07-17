@@ -3,6 +3,7 @@ import uuid
 
 from kubernetes import client
 
+import fairing
 from fairing.builders.base_builder import BaseBuilder
 from fairing.builders import dockerfile
 from fairing.constants import constants
@@ -34,7 +35,7 @@ class ClusterBuilder(BaseBuilder):
                  push=True,
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  pod_spec_mutators=None,
-                 namespace="kubeflow",
+                 namespace=None,
                  dockerfile_path=None):
         super().__init__(
                 registry=registry,
@@ -48,7 +49,7 @@ class ClusterBuilder(BaseBuilder):
             raise RuntimeError("context_source is not specified")
         self.context_source = context_source
         self.pod_spec_mutators = pod_spec_mutators or []
-        self.namespace = namespace
+        self.namespace = namespace or fairing.utils.get_default_target_namespace()
 
     def build(self):
         logging.info("Building image using cluster builder.")

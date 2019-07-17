@@ -45,7 +45,8 @@ def run_submission_with_function_preprocessor(capsys, deployer="job", builder="a
     if builder=='cluster':
         fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY,
                                    pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
-                                   context_source=gcs_context.GCSContextSource(namespace=namespace))
+                                   context_source=gcs_context.GCSContextSource(namespace=namespace),
+                                   namespace=namespace)
     else:
         fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY)
 

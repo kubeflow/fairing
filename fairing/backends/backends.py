@@ -1,6 +1,7 @@
 import abc 
 import six
 import sys
+import logging
 
 import fairing
 from fairing.builders.docker.docker import DockerBuilder
@@ -17,6 +18,8 @@ from fairing.cloud import gcp
 import fairing.ml_tasks.utils as ml_tasks_utils
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
+
+logger = logging.getLogger(__name__)
 
 @six.add_metaclass(abc.ABCMeta)
 class BackendInterface(object):
@@ -49,7 +52,11 @@ class BackendInterface(object):
 class KubernetesBackend(BackendInterface):
 
     def __init__(self, namespace=None, build_context_source=None):
-        self._namespace = namespace
+        if not namespace and not fairing.utils.is_running_in_k8s():
+            logger.warning("Can't determine namespace automatically. "
+            "Using 'default' namespace but recomend to provide namespace explicitly. "
+            "Using 'default' namespace might result in unable to mount some required secrets in cloud backends.")
+        self._namespace = namespace or fairing.utils.get_default_target_namespace()
         self._build_context_source = build_context_source
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
@@ -81,8 +88,8 @@ class KubernetesBackend(BackendInterface):
 class GKEBackend(KubernetesBackend):
 
     def __init__(self, namespace=None, build_context_source=None):
-        build_context_source = build_context_source or gcs_context.GCSContextSource(namespace=namespace)
         super(GKEBackend, self).__init__(namespace, build_context_source)
+        self._build_context_source = gcs_context.GCSContextSource(namespace=self._namespace)
     
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
@@ -99,7 +106,8 @@ class GKEBackend(KubernetesBackend):
                                   base_image=base_image,
                                   registry=registry,
                                   pod_spec_mutators=pod_spec_mutators,
-                                  namespace=self._namespace)
+                                  namespace=self._namespace,
+                                  context_source=self._build_context_source)
         elif ml_tasks_utils.is_docker_daemon_exists():
             return DockerBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
@@ -157,17 +165,21 @@ class AWSBackend(KubernetesBackend):
 
 class KubeflowBackend(KubernetesBackend):
 
-    def __init__(self, namespace="kubeflow", build_context_source=None):
+    def __init__(self, namespace=None, build_context_source=None):
+        if not namespace and not fairing.utils.is_running_in_k8s():
+            namespace = "kubeflow"
         super(KubeflowBackend, self).__init__(namespace, build_context_source)
 
 class KubeflowGKEBackend(GKEBackend):
 
-    def __init__(self, namespace="kubeflow", build_context_source=None):
+    def __init__(self, namespace=None, build_context_source=None):
+        if not namespace and not fairing.utils.is_running_in_k8s():
+            namespace = "kubeflow"
         super(KubeflowGKEBackend, self).__init__(namespace, build_context_source)
 
 class KubeflowAWSBackend(AWSBackend):
 
-    def __init__(self, namespace="kubeflow", build_context_source=None):
+    def __init__(self, namespace=None, build_context_source=None):
         super(KubeflowAWSBackend, self).__init__(namespace, build_context_source)
 
 class GCPManagedBackend(BackendInterface):
@@ -192,7 +204,8 @@ class GCPManagedBackend(BackendInterface):
                                   base_image=base_image,
                                   registry=registry,
                                   pod_spec_mutators=pod_spec_mutators,
-                                  context_source=gcs_context.GCSContextSource(namespace="kubeflow"))
+                                  context_source=gcs_context.GCSContextSource(
+                                      namespace=fairing.utils.get_default_target_namespace()))
         elif ml_tasks_utils.is_docker_daemon_exists():
             return DockerBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
