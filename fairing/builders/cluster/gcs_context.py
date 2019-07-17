@@ -36,16 +36,15 @@ class GCSContextSource(ContextSourceInterface):
     def generate_pod_spec(self, image_name, push):
         args = ["--dockerfile=Dockerfile",
                           "--destination=" + image_name,
-                          "--context=" + self.uploaded_context_url]
+                          "--context=" + self.uploaded_context_url,
+                          "--cache=true"]
         if not push:
             args.append("--no-push")
         return client.V1PodSpec(
                 containers=[client.V1Container(
                     name='kaniko',
                     image='gcr.io/kaniko-project/executor:v0.7.0',
-                    args=["--dockerfile=Dockerfile",
-                          "--destination=" + image_name,
-                          "--context=" + self.uploaded_context_url],
+                    args=args,
                 )],
                 restart_policy='Never'
             )

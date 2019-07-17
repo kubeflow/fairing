@@ -214,7 +214,7 @@ def generate_context_files(config, config_file_name, num_machines):
 def execute(config,
             docker_registry,
             base_image="gcr.io/kubeflow-fairing/lightgbm:latest",
-            namespace="kubeflow",
+            namespace=None,
             stream_log=True,
             cores_per_worker=None,
             memory_per_worker=None,
@@ -237,7 +237,9 @@ def execute(config,
         pod_spec_mutators: list of functions that is used to mutate the podsspec. e.g. fairing.cloud.gcp.add_gcp_credentials_if_exists
                            This can used to set things like volumes and security context.
     """
-
+    if not namespace and not fairing.utils.is_running_in_k8s():
+        namespace = "kubeflow"
+    namespace = namespace or fairing.utils.get_default_target_namespace()
     config_file_name = None
     if isinstance(config, str):
         config_file_name = config
