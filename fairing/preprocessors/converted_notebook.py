@@ -76,9 +76,9 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
         contents, _ = exporter.from_filename(self.notebook_file)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         if converted_notebook.exists():
-            dir_name = Path(self.notebook_file).parent
+            dir_name = Path(self.notebook_file).absolute().parent
             _, file_name = tempfile.mkstemp(suffix=".py", dir=dir_name)
-            converted_notebook = Path(file_name[file_name.find(str(dir_name)):])
+            converted_notebook = Path(file_name[file_name.rfind('/')+1:])
         with open(converted_notebook, 'w') as f:
             f.write(contents)
         self.executable = converted_notebook
@@ -133,9 +133,9 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
         contents = "\n".join(lines)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         if converted_notebook.exists():
-            dir_name = Path(self.notebook_file).parent
+            dir_name = Path(self.notebook_file).absolute().parent
             _, file_name = tempfile.mkstemp(suffix=".py", dir=dir_name)
-            converted_notebook = Path(file_name[file_name.find(str(dir_name)):])
+            converted_notebook = Path(file_name[file_name.rfind('/')+1:])
         with open(converted_notebook, 'w') as f:
             f.write(contents)
             f.write("\n")
