@@ -21,7 +21,7 @@ def test_preprocess():
     os.remove(converted_notebook_path)
     assert Path(converted_notebook_path) in files
 
-def test_not_overwrite_flag():
+def test_not_overwrite_file_for_multiple_runs():
     preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH)
     files = preprocessor.preprocess()
     files_should_not_overwrite = preprocessor.preprocess()
