@@ -109,7 +109,7 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
 
     def preprocess(self):
         if self.not_overwrite:
-            results =  [self.executable]
+            results = [self.executable]
             results.extend(self.input_files)
             return results
         self.not_overwrite = True
@@ -148,6 +148,6 @@ if __name__ == "__main__":
   fire.Fire({0})
 """.format(self.class_name))
         self.executable = converted_notebook
-        results =  [converted_notebook]
+        results = [converted_notebook]
         results.extend(self.input_files)
         return results
