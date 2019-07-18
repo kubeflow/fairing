@@ -65,8 +65,12 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
 
         self.notebook_file = notebook_file
         self.notebook_preprocessor = notebook_preprocessor
+        self.not_overwrite = False
 
     def preprocess(self):
+        if self.not_overwrite:
+            return [self.executable]
+        self.not_overwrite = True
         exporter = nbconvert.PythonExporter()
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         contents, _ = exporter.from_filename(self.notebook_file)
@@ -101,8 +105,14 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
             output_map=output_map)
 
         self.class_name = class_name
+        self.not_overwrite = False
 
     def preprocess(self):
+        if self.not_overwrite:
+            results =  [self.executable]
+            results.extend(self.input_files)
+            return results
+        self.not_overwrite = True
         exporter = nbconvert.PythonExporter()
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         processed, _ = exporter.from_filename(self.notebook_file)
