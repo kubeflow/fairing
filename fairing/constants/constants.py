@@ -14,6 +14,13 @@ AWS_CREDS_SECRET_NAME = 'aws-secret'
 
 DEFAULT_USER_AGENT = 'kubeflow-fairing/{VERSION}'
 
+# Job Constants
+JOB_DEFAULT_NAME = 'fairing-job-'
+JOB_DEPLOPYER_TYPE = 'job'
+
+# Serving Constants
+SERVING_DEPLOPYER_TYPE = 'serving'
+
 #TFJob Constants
 TF_JOB_GROUP = "kubeflow.org"
 TF_JOB_KIND = "TFJob"

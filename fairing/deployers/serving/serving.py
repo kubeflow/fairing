@@ -3,12 +3,11 @@ import uuid
 import logging
 
 from kubernetes import client as k8s_client
+from fairing.constants import constants
 from fairing.deployers.job.job import Job
 from kubernetes.client.rest import ApiException
 
 logger = logging.getLogger(__name__)
-DEPLOPYER_TYPE = 'serving'
-
 
 class Serving(Job):
     """
@@ -24,7 +23,7 @@ class Serving(Job):
     # https://github.com/kubeflow/fairing/blob/master/examples/prediction/xgboost-high-level-apis.ipynb
     def __init__(self, serving_class, namespace=None, runs=1, labels=None,
                  service_type="LoadBalancer"):
-        super(Serving, self).__init__(namespace, runs, deployer_type=DEPLOPYER_TYPE, labels=labels)
+        super(Serving, self).__init__(namespace, runs, deployer_type=constants.SERVING_DEPLOPYER_TYPE, labels=labels)
         self.serving_class = serving_class
         self.service_type = service_type
 

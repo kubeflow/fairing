@@ -5,14 +5,12 @@ import uuid
 from kubernetes import client as k8s_client
 
 from fairing import utils
+from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
 from fairing.deployers.deployer import DeployerInterface
 
 
 logger = logging.getLogger(__name__)
-DEFAULT_JOB_NAME = 'fairing-job-'
-DEPLOPYER_TYPE = 'job'
-
 
 class Job(DeployerInterface):
     """Handle all the k8s' template building for a training 
@@ -24,8 +22,8 @@ class Job(DeployerInterface):
     """
 
     def __init__(self, namespace=None, runs=1, output=None,
-                 cleanup=True, labels=None, job_name=DEFAULT_JOB_NAME,
-                 stream_log=True, deployer_type=DEPLOPYER_TYPE,
+                 cleanup=True, labels=None, job_name=constants.JOB_DEFAULT_NAME,
+                 stream_log=True, deployer_type=constants.JOB_DEPLOPYER_TYPE,
                  pod_spec_mutators=None):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
@@ -34,6 +32,7 @@ class Job(DeployerInterface):
 
         # Used as pod and job name
         self.job_name = job_name
+        self.deployer_type = deployer_type
         self.deployment_spec = None
         self.runs = runs
         self.output = output
@@ -63,7 +62,7 @@ class Job(DeployerInterface):
             print(json.dumps(job_output))
 
         name = self.create_resource()
-        logger.warn("Training job {} launched.".format(name))
+        logger.warning("The {} {} launched.".format(self.deployer_type, name))
 
         if self.stream_log:
             self.get_logs()
