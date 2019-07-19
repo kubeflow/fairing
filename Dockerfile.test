@@ -28,4 +28,4 @@ RUN pip install -e .
 COPY . /opt/fairing
 RUN python setup.py install
 
-ENTRYPOINT pytest
+ENTRYPOINT ["pytest"]
