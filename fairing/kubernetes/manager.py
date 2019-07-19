@@ -124,6 +124,7 @@ class KubeManager(object):
             logger.error("error getting status for {} {}".format(name, str(e)))
 
     def log(self, name, namespace, selectors=None, container='', follow=True):
+        tail = ''
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         # Retry to allow starting of pod
