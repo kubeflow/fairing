@@ -107,4 +107,5 @@ class PredictionEndpoint(BaseTask):
         logger.warning(r.text)
 
     def delete(self):
+        logging.info("Deleting the endpoint.")
         self._deployer.delete()
