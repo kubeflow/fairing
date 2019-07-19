@@ -21,13 +21,13 @@ def test_preprocess():
     os.remove(converted_notebook_path)
     assert Path(converted_notebook_path) in files
 
-def test_not_overwrite_file_for_multiple_runs():
+def test_overwrite_file_for_multiple_runs():
     preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH)
     files = preprocessor.preprocess()
-    files_should_not_overwrite = preprocessor.preprocess()
+    files_overwrite = preprocessor.preprocess()
     converted_notebook_path = posixpath.join(os.path.dirname(NOTEBOOK_PATH), os.path.basename(preprocessor.executable))
     os.remove(converted_notebook_path)
-    assert files == files_should_not_overwrite
+    assert files == files_overwrite
 
 def test_get_command():
     preprocessor = ConvertNotebookPreprocessor(notebook_file=NOTEBOOK_PATH)
