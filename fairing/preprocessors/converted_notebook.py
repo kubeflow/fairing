@@ -74,7 +74,7 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
         contents, _ = exporter.from_filename(self.notebook_file)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         if converted_notebook.exists() and not self.overwrite:
-            raise Exception('Default path {} has existed but overwrite flag is False'.format(converted_notebook))
+            raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
             f.write(contents)
         self.executable = converted_notebook
@@ -125,7 +125,7 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
         contents = "\n".join(lines)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         if converted_notebook.exists() and not self.overwrite:
-            raise Exception('Default path {} has existed but overwrite flag is False'.format(converted_notebook))
+            raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
             f.write(contents)
             f.write("\n")
