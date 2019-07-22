@@ -52,7 +52,8 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                  executable=None,
                  command=["python"],
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map=None):
+                 output_map=None,
+                 overwrite=True):
 
         super().__init__(
             executable=executable,
@@ -65,16 +66,15 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
 
         self.notebook_file = notebook_file
         self.notebook_preprocessor = notebook_preprocessor
+        self.overwrite = overwrite
 
     def preprocess(self):
         exporter = nbconvert.PythonExporter()
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         contents, _ = exporter.from_filename(self.notebook_file)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
-        if converted_notebook.exists():
-            dir_name = Path(self.notebook_file).parent
-            _, file_name = tempfile.mkstemp(suffix=".py", dir=dir_name)
-            converted_notebook = Path(file_name[file_name.find(str(dir_name)):])
+        if converted_notebook.exists() and not self.overwrite:
+            raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
             f.write(contents)
         self.executable = converted_notebook
@@ -90,7 +90,8 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
                  executable=None,
                  command=["python"],
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
-                 output_map=None):
+                 output_map=None,
+                 overwrite=True):
 
         super().__init__(
             notebook_file=notebook_file,
@@ -101,6 +102,7 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
             output_map=output_map)
 
         self.class_name = class_name
+        self.overwrite = overwrite
 
     def preprocess(self):
         exporter = nbconvert.PythonExporter()
@@ -122,10 +124,8 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
 
         contents = "\n".join(lines)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
-        if converted_notebook.exists():
-            dir_name = Path(self.notebook_file).parent
-            _, file_name = tempfile.mkstemp(suffix=".py", dir=dir_name)
-            converted_notebook = Path(file_name[file_name.find(str(dir_name)):])
+        if converted_notebook.exists() and not self.overwrite:
+            raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
             f.write(contents)
             f.write("\n")
@@ -138,6 +138,6 @@ if __name__ == "__main__":
   fire.Fire({0})
 """.format(self.class_name))
         self.executable = converted_notebook
-        results =  [converted_notebook]
+        results = [converted_notebook]
         results.extend(self.input_files)
         return results
