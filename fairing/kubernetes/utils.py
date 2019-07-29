@@ -1,4 +1,6 @@
 from kubernetes.client.models.v1_resource_requirements import V1ResourceRequirements
+from fairing.constants import constants
+from kubernetes import client
 
 def get_resource_mutator(cpu=None, memory=None):
     def _resource_mutator(kube_manager, pod_spec, namespace):
@@ -22,3 +24,24 @@ def get_resource_mutator(cpu=None, memory=None):
             else:
                 pod_spec.containers[0].resources = V1ResourceRequirements(limits=limits)
     return _resource_mutator
+
+
+def mounting_pvc(pvc_name, pvc_mount_path=constants.PVC_DEFAULT_MOUNT_PATH):
+    '''The function for pod_spec_mutators to mount persistent volume claim'''
+    mounting_name = str(constants.PVC_DEFAULT_VOLUME_NAME) + pvc_name
+    def _mounting_pvc(kube_manager, pod_spec, namespace):
+        volume_mount = client.V1VolumeMount(
+            name=mounting_name, mount_path=pvc_mount_path)
+        if pod_spec.containers[0].volume_mounts:
+            pod_spec.containers[0].volume_mounts.append(volume_mount)
+        else:
+            pod_spec.containers[0].volume_mounts = [volume_mount]
+
+        volume = client.V1Volume(
+            name=mounting_name,
+            persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=pvc_name))
+        if pod_spec.volumes:
+            pod_spec.volumes.append(volume)
+        else:
+            pod_spec.volumes = [volume]
+    return _mounting_pvc

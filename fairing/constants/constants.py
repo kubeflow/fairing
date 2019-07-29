@@ -38,3 +38,6 @@ KFSERVING_DEFAULT_NAME = 'fairing-kfserving-'
 KFSERVING_DEPLOYER_TYPE = 'kfservice'
 KFSERVING_CONTAINER_NAME = 'user-container'
 
+# persistent volume claim constants
+PVC_DEFAULT_MOUNT_PATH = '/mnt'
+PVC_DEFAULT_VOLUME_NAME = 'fairing-volume-'

@@ -82,8 +82,9 @@ class KubernetesBackend(BackendInterface):
     def get_training_deployer(self, pod_spec_mutators = None):
         return Job(self._namespace, pod_spec_mutators=pod_spec_mutators)
     
-    def get_serving_deployer(self, model_class, service_type='LoadBalancer'):
-        return Serving(model_class, namespace=self._namespace, service_type=service_type)
+    def get_serving_deployer(self, model_class, service_type='LoadBalancer', pod_spec_mutators=None):
+        return Serving(model_class, namespace=self._namespace, service_type=service_type,
+                       pod_spec_mutators=pod_spec_mutators)
 
 class GKEBackend(KubernetesBackend):
 
@@ -131,8 +132,9 @@ class GKEBackend(KubernetesBackend):
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
     
-    def get_serving_deployer(self, model_class, service_type='LoadBalancer'):
-        return Serving(model_class, namespace=self._namespace, service_type=service_type)
+    def get_serving_deployer(self, model_class, service_type='LoadBalancer', pod_spec_mutators=None):
+        return Serving(model_class, namespace=self._namespace, service_type=service_type,
+                       pod_spec_mutators=pod_spec_mutators)
 
     def get_docker_registry(self):
         return fairing.cloud.gcp.get_default_docker_registry()
@@ -160,8 +162,8 @@ class AWSBackend(KubernetesBackend):
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
-    def get_serving_deployer(self, model_class):
-        return Serving(model_class, namespace=self._namespace)
+    def get_serving_deployer(self, model_class, pod_spec_mutators=None):
+        return Serving(model_class, namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
 class KubeflowBackend(KubernetesBackend):
 
@@ -217,7 +219,7 @@ class GCPManagedBackend(BackendInterface):
     def get_training_deployer(self, pod_spec_mutators = None):
         return GCPJob(self._project_id, self._region, self._training_scale_tier)
 
-    def get_serving_deployer(self, model_class):
+    def get_serving_deployer(self, model_class, pod_spec_mutators=None):
         # currently GCP serving deployer doesn't implement deployer interface
         raise NotImplementedError("GCP managed serving is not integrated into high level API yet.")
 
