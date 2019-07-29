@@ -4,6 +4,8 @@ import uuid
 
 from kubernetes import client as k8s_client
 
+import fairing
+import fairing.cloud.onprem
 from fairing import utils
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
@@ -24,7 +26,7 @@ class Job(DeployerInterface):
     def __init__(self, namespace=None, runs=1, output=None,
                  cleanup=True, labels=None, job_name=constants.JOB_DEFAULT_NAME,
                  stream_log=True, deployer_type=constants.JOB_DEPLOPYER_TYPE,
-                 pod_spec_mutators=None):
+                 pvc_name=None, pvc_mount_path=None, pod_spec_mutators=None):
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()
         else:
@@ -39,8 +41,12 @@ class Job(DeployerInterface):
         self.backend = KubeManager()
         self.cleanup = cleanup
         self.stream_log = stream_log
+        self.pvc_name = pvc_name
+        self.pvc_mount_path = pvc_mount_path
         self.set_labels(labels, deployer_type)
         self.pod_spec_mutators = pod_spec_mutators or []
+        if self.pvc_name:
+            self.pod_spec_mutators.append(fairing.cloud.onprem.add_pvc_to_pod_spec)
 
     def set_labels(self, labels, deployer_type):
         self.labels = {'fairing-deployer': deployer_type}
@@ -51,7 +57,10 @@ class Job(DeployerInterface):
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
         for fn in self.pod_spec_mutators:
-            fn(self.backend, pod_spec, self.namespace)
+            if fn == fairing.cloud.onprem.add_pvc_to_pod_spec:
+                fn(self.backend, pod_spec, self.namespace, self.pvc_name, self.pvc_mount_path)
+            else:
+                fn(self.backend, pod_spec, self.namespace)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
         pod_template_spec.spec.restart_policy = 'Never'
         pod_template_spec.spec.containers[0].name = 'fairing-job'
