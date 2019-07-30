@@ -22,14 +22,17 @@ class Serving(Job):
     # a port. But this breaks the post submit test
     # https://github.com/kubeflow/fairing/blob/master/examples/prediction/xgboost-high-level-apis.ipynb
     def __init__(self, serving_class, namespace=None, runs=1, labels=None,
-                 service_type="LoadBalancer"):
+                 service_type="LoadBalancer", pod_spec_mutators=None):
         super(Serving, self).__init__(namespace, runs, deployer_type=constants.SERVING_DEPLOPYER_TYPE, labels=labels)
         self.serving_class = serving_class
         self.service_type = service_type
+        self.pod_spec_mutators = pod_spec_mutators or []
 
     def deploy(self, pod_spec):
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
+        for fn in self.pod_spec_mutators:
+            fn(self.backend, pod_spec, self.namespace)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
         pod_template_spec.spec.containers[0].command = ["seldon-core-microservice", self.serving_class, "REST", "--service-type=MODEL", "--persistence=0"]
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)
