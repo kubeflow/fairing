@@ -86,7 +86,7 @@ class FunctionPreProcessor(BasePreProcessor):
 
         local_python_version = ".".join([str(x) for x in sys.version_info[0:3]])
 
-        self.command = ["python", os.path.join(self.path_prefix, FUNCTION_SHIM),
+        self.command = ["python3", os.path.join(self.path_prefix, FUNCTION_SHIM),
                         "--serialized_fn_file", payload_file_in_context, 
                         "--python_version", local_python_version]
 
