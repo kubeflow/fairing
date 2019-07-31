@@ -1,9 +1,4 @@
-import pytest
-import fairing
-import sys
-import io
 import tempfile
-import random
 import papermill
 import os
 import logging
@@ -12,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 def execute_notebook(notebook_path, parameters=None):
     temp_dir = tempfile.mkdtemp()
-    notebook_output_path = os.path.join(temp_dir,"out.ipynb")
+    notebook_output_path = os.path.join(temp_dir, "out.ipynb")
 
     papermill.execute_notebook(notebook_path, notebook_output_path,
                                cwd=os.path.dirname(notebook_path),
