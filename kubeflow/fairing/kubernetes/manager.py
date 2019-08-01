@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 MAX_STREAM_BYTES = 1024
 
+
 class KubeManager(object):
     """Handles communication with Kubernetes' client."""
 
@@ -48,7 +49,9 @@ class KubeManager(object):
             )
         except client.rest.ApiException:
             raise RuntimeError("Failed to create TFJob. Perhaps the CRD TFJob version "
-                               "{} in not installed?".format(constants.TF_JOB_VERSION))
+                               "{} in not installed(If you use different version you can pass it "
+                               "as ENV variable called "
+                               "`TF_JOB_VERSION`)?".format(constants.TF_JOB_VERSION))
 
     def delete_tf_job(self, name, namespace):
         """Delete the provided TFJob in the specified namespace.

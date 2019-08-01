@@ -46,7 +46,7 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
         self.pod_spec_mutators = pod_spec_mutators or []
 
     def set_anotations(self, annotations):
-        self.annotations = {'cluster-autoscaler.kubernetes.io/safe-to-evict': 'false'}
+        self.annotations = {}
         if annotations:
             self.annotations.update(annotations)
 
