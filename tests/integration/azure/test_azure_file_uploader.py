@@ -5,9 +5,9 @@ from azure.mgmt.storage.models import StorageAccount
 
 from fairing.cloud.azure import AzureFileUploader
 
-STORAGE_ACCOUNT_NAME = os.environ.get('AZ_STORAGE_ACCOUNT_NAME')
-RESOURCE_GROUP = os.environ.get('AZ_RESOURCE_GROUP')
-REGION = os.environ.get('AZ_REGION')
+STORAGE_ACCOUNT_NAME = os.environ.get('AZURE_STORAGE_ACCOUNT')
+RESOURCE_GROUP = os.environ.get('AZURE_RESOURCE_GROUP')
+REGION = os.environ.get('AZURE_REGION')
 
 def test_storage_account_creation():
     credentials = ServicePrincipalCredentials(
