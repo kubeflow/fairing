@@ -1,0 +1,513 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kubeflow.fairing.cloud package &mdash; Fairing V0.6.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Fairing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">kubeflow.fairing.cloud package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.cloud.aws">kubeflow.fairing.cloud.aws module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.cloud.azure">kubeflow.fairing.cloud.azure module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.cloud.docker">kubeflow.fairing.cloud.docker module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.cloud.gcp">kubeflow.fairing.cloud.gcp module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.cloud.storage">kubeflow.fairing.cloud.storage module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.cloud">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Fairing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>kubeflow.fairing.cloud package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/kubeflow.fairing.cloud.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kubeflow-fairing-cloud-package">
+<h1>kubeflow.fairing.cloud package<a class="headerlink" href="#kubeflow-fairing-cloud-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kubeflow.fairing.cloud.aws">
+<span id="kubeflow-fairing-cloud-aws-module"></span><h2>kubeflow.fairing.cloud.aws module<a class="headerlink" href="#module-kubeflow.fairing.cloud.aws" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.cloud.aws.S3Uploader">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">S3Uploader</code><span class="sig-paren">(</span><em class="sig-param">region</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.S3Uploader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For AWS S3 up load</p>
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.aws.S3Uploader.create_bucket_if_not_exists">
+<code class="sig-name descname">create_bucket_if_not_exists</code><span class="sig-paren">(</span><em class="sig-param">bucket_name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.S3Uploader.create_bucket_if_not_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create bucket if this bucket not exists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bucket_name</strong> – Bucket name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.aws.S3Uploader.upload_to_bucket">
+<code class="sig-name descname">upload_to_bucket</code><span class="sig-paren">(</span><em class="sig-param">blob_name</em>, <em class="sig-param">bucket_name</em>, <em class="sig-param">file_to_upload</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.S3Uploader.upload_to_bucket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload a file to an S3 bucket</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blob_name</strong> – S3 object name</p></li>
+<li><p><strong>bucket_name</strong> – Bucket to upload to</p></li>
+<li><p><strong>file_to_upload</strong> – File to upload</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.aws.add_aws_credentials">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">add_aws_credentials</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.add_aws_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>add AWS credential</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kube_manager</strong> – kube manager for handles communication with Kubernetes’ client</p></li>
+<li><p><strong>pod_spec</strong> – pod spec like volumes and security context</p></li>
+<li><p><strong>namespace</strong> – The custom resource</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.aws.add_aws_credentials_if_exists">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">add_aws_credentials_if_exists</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.add_aws_credentials_if_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>add AWS credential</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kube_manager</strong> – kube manager for handles communication with Kubernetes’ client</p></li>
+<li><p><strong>pod_spec</strong> – pod spec like volumes and security context</p></li>
+<li><p><strong>namespace</strong> – The custom resource</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.aws.add_ecr_config">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">add_ecr_config</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.add_ecr_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>add secret</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kube_manager</strong> – kube manager for handles communication with Kubernetes’ client</p></li>
+<li><p><strong>pod_spec</strong> – pod spec like volumes and security context</p></li>
+<li><p><strong>namespace</strong> – The custom resource</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.aws.create_ecr_registry">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">create_ecr_registry</code><span class="sig-paren">(</span><em class="sig-param">registry</em>, <em class="sig-param">repository</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.create_ecr_registry" title="Permalink to this definition">¶</a></dt>
+<dd><p>create secret registry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>registry</strong> – registry</p></li>
+<li><p><strong>repository</strong> – repository name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.aws.guess_account_id">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">guess_account_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.guess_account_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get account id</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.aws.is_ecr_registry">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.aws.</code><code class="sig-name descname">is_ecr_registry</code><span class="sig-paren">(</span><em class="sig-param">registry</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.aws.is_ecr_registry" title="Permalink to this definition">¶</a></dt>
+<dd><p>verify secrte registy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>registry</strong> – registry</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.cloud.azure">
+<span id="kubeflow-fairing-cloud-azure-module"></span><h2>kubeflow.fairing.cloud.azure module<a class="headerlink" href="#module-kubeflow.fairing.cloud.azure" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">AzureFileUploader</code><span class="sig-paren">(</span><em class="sig-param">namespace</em>, <em class="sig-param">credentials=None</em>, <em class="sig-param">subscription_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.create_share_if_not_exists">
+<code class="sig-name descname">create_share_if_not_exists</code><span class="sig-paren">(</span><em class="sig-param">share_service</em>, <em class="sig-param">share_name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.create_share_if_not_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.create_storage_account_if_not_exists">
+<code class="sig-name descname">create_storage_account_if_not_exists</code><span class="sig-paren">(</span><em class="sig-param">region</em>, <em class="sig-param">resource_group_name</em>, <em class="sig-param">storage_account_name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.create_storage_account_if_not_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the storage account if it does not exist.</p>
+<p>In either case, returns the StorageAccount class that matches the given arguments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.delete_uncompressed_files">
+<code class="sig-name descname">delete_uncompressed_files</code><span class="sig-paren">(</span><em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.delete_uncompressed_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.get_storage_credentials">
+<code class="sig-name descname">get_storage_credentials</code><span class="sig-paren">(</span><em class="sig-param">resource_group_name</em>, <em class="sig-param">storage_account_name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.get_storage_credentials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.uncompress_tar_gz_file">
+<code class="sig-name descname">uncompress_tar_gz_file</code><span class="sig-paren">(</span><em class="sig-param">tar_gz_file</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.uncompress_tar_gz_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.upload_tar_gz_contents">
+<code class="sig-name descname">upload_tar_gz_contents</code><span class="sig-paren">(</span><em class="sig-param">share_service</em>, <em class="sig-param">share_name</em>, <em class="sig-param">dir_name</em>, <em class="sig-param">tar_gz_file</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.upload_tar_gz_contents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.azure.AzureFileUploader.upload_to_share">
+<code class="sig-name descname">upload_to_share</code><span class="sig-paren">(</span><em class="sig-param">region</em>, <em class="sig-param">resource_group_name</em>, <em class="sig-param">storage_account_name</em>, <em class="sig-param">share_name</em>, <em class="sig-param">dir_name</em>, <em class="sig-param">tar_gz_file_to_upload</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.AzureFileUploader.upload_to_share" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.add_acr_config">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">add_acr_config</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.add_acr_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.add_azure_files">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">add_azure_files</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.add_azure_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.create_storage_creds_secret">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">create_storage_creds_secret</code><span class="sig-paren">(</span><em class="sig-param">namespace</em>, <em class="sig-param">context_hash</em>, <em class="sig-param">storage_account_name</em>, <em class="sig-param">storage_key</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.create_storage_creds_secret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.delete_storage_creds_secret">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">delete_storage_creds_secret</code><span class="sig-paren">(</span><em class="sig-param">namespace</em>, <em class="sig-param">context_hash</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.delete_storage_creds_secret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.get_azure_credentials">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">get_azure_credentials</code><span class="sig-paren">(</span><em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.get_azure_credentials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.get_plain_secret_value">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">get_plain_secret_value</code><span class="sig-paren">(</span><em class="sig-param">secret_data</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.get_plain_secret_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.azure.is_acr_registry">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.azure.</code><code class="sig-name descname">is_acr_registry</code><span class="sig-paren">(</span><em class="sig-param">registry</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.azure.is_acr_registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.cloud.docker">
+<span id="kubeflow-fairing-cloud-docker-module"></span><h2>kubeflow.fairing.cloud.docker module<a class="headerlink" href="#module-kubeflow.fairing.cloud.docker" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.docker.add_docker_credentials">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.docker.</code><code class="sig-name descname">add_docker_credentials</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.docker.add_docker_credentials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.docker.add_docker_credentials_if_exists">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.docker.</code><code class="sig-name descname">add_docker_credentials_if_exists</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.docker.add_docker_credentials_if_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.docker.create_docker_secret">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.docker.</code><code class="sig-name descname">create_docker_secret</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.docker.create_docker_secret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.docker.get_docker_secret">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.docker.</code><code class="sig-name descname">get_docker_secret</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.docker.get_docker_secret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.cloud.gcp">
+<span id="kubeflow-fairing-cloud-gcp-module"></span><h2>kubeflow.fairing.cloud.gcp module<a class="headerlink" href="#module-kubeflow.fairing.cloud.gcp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.cloud.gcp.GCSUploader">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.cloud.gcp.</code><code class="sig-name descname">GCSUploader</code><span class="sig-paren">(</span><em class="sig-param">credentials_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.GCSUploader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.gcp.GCSUploader.get_or_create_bucket">
+<code class="sig-name descname">get_or_create_bucket</code><span class="sig-paren">(</span><em class="sig-param">bucket_name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.GCSUploader.get_or_create_bucket" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.gcp.GCSUploader.upload_to_bucket">
+<code class="sig-name descname">upload_to_bucket</code><span class="sig-paren">(</span><em class="sig-param">blob_name</em>, <em class="sig-param">bucket_name</em>, <em class="sig-param">file_to_upload</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.GCSUploader.upload_to_bucket" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.gcp.add_gcp_credentials">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.gcp.</code><code class="sig-name descname">add_gcp_credentials</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.add_gcp_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Note: This method will be deprecated soon and will become unavailable by 1.0.
+All future access will use Workload Identity.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.gcp.add_gcp_credentials_if_exists">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.gcp.</code><code class="sig-name descname">add_gcp_credentials_if_exists</code><span class="sig-paren">(</span><em class="sig-param">kube_manager</em>, <em class="sig-param">pod_spec</em>, <em class="sig-param">namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.add_gcp_credentials_if_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.gcp.get_default_docker_registry">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.gcp.</code><code class="sig-name descname">get_default_docker_registry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.get_default_docker_registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.gcp.guess_project_name">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.gcp.</code><code class="sig-name descname">guess_project_name</code><span class="sig-paren">(</span><em class="sig-param">credentials_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.gcp.guess_project_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.cloud.storage">
+<span id="kubeflow-fairing-cloud-storage-module"></span><h2>kubeflow.fairing.cloud.storage module<a class="headerlink" href="#module-kubeflow.fairing.cloud.storage" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.cloud.storage.GCSStorage">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.cloud.storage.</code><code class="sig-name descname">GCSStorage</code><a class="headerlink" href="#kubeflow.fairing.cloud.storage.GCSStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kubeflow.fairing.cloud.storage.Storage" title="kubeflow.fairing.cloud.storage.Storage"><code class="xref py py-class docutils literal notranslate"><span class="pre">kubeflow.fairing.cloud.storage.Storage</span></code></a></p>
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.storage.GCSStorage.copy_cmd">
+<code class="sig-name descname">copy_cmd</code><span class="sig-paren">(</span><em class="sig-param">src_url</em>, <em class="sig-param">dst_url</em>, <em class="sig-param">recursive=True</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.storage.GCSStorage.copy_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets a command to copy files from/to remote storage from/to local FS</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.storage.GCSStorage.exists">
+<code class="sig-name descname">exists</code><span class="sig-paren">(</span><em class="sig-param">url</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.storage.GCSStorage.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if the url exists in the given storage</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kubeflow.fairing.cloud.storage.Storage">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.cloud.storage.</code><code class="sig-name descname">Storage</code><a class="headerlink" href="#kubeflow.fairing.cloud.storage.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.storage.Storage.copy_cmd">
+<em class="property">abstract </em><code class="sig-name descname">copy_cmd</code><span class="sig-paren">(</span><em class="sig-param">src_url</em>, <em class="sig-param">dst_url</em>, <em class="sig-param">recursive=True</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.storage.Storage.copy_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets a command to copy files from/to remote storage from/to local FS</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.cloud.storage.Storage.exists">
+<em class="property">abstract </em><code class="sig-name descname">exists</code><span class="sig-paren">(</span><em class="sig-param">url</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.storage.Storage.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if the url exists in the given storage</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.storage.get_storage_class">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.storage.</code><code class="sig-name descname">get_storage_class</code><span class="sig-paren">(</span><em class="sig-param">url</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.storage.get_storage_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.cloud.storage.lookup_storage_class">
+<code class="sig-prename descclassname">kubeflow.fairing.cloud.storage.</code><code class="sig-name descname">lookup_storage_class</code><span class="sig-paren">(</span><em class="sig-param">url</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.cloud.storage.lookup_storage_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.cloud">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kubeflow.fairing.cloud" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kubeflow Author
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

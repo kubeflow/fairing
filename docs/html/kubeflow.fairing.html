@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kubeflow.fairing package &mdash; Fairing V0.6.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Fairing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">kubeflow.fairing package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.config">kubeflow.fairing.config module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.http_utils">kubeflow.fairing.http_utils module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.runtime_config">kubeflow.fairing.runtime_config module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.utils">kubeflow.fairing.utils module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Fairing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>kubeflow.fairing package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/kubeflow.fairing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kubeflow-fairing-package">
+<h1>kubeflow.fairing package<a class="headerlink" href="#kubeflow-fairing-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.backends.html">kubeflow.fairing.backends package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.backends.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.backends.html#module-kubeflow.fairing.backends.backends">kubeflow.fairing.backends.backends module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.backends.html#module-kubeflow.fairing.backends">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.builders.html">kubeflow.fairing.builders package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.builders.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.builders.append.html">kubeflow.fairing.builders.append package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.append.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.append.html#module-kubeflow.fairing.builders.append.append">kubeflow.fairing.builders.append.append module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.append.html#module-kubeflow.fairing.builders.append">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html">kubeflow.fairing.builders.cluster package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#module-kubeflow.fairing.builders.cluster.azurestorage_context">kubeflow.fairing.builders.cluster.azurestorage_context module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#module-kubeflow.fairing.builders.cluster.cluster">kubeflow.fairing.builders.cluster.cluster module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#module-kubeflow.fairing.builders.cluster.context_source">kubeflow.fairing.builders.cluster.context_source module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#module-kubeflow.fairing.builders.cluster.gcs_context">kubeflow.fairing.builders.cluster.gcs_context module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#module-kubeflow.fairing.builders.cluster.s3_context">kubeflow.fairing.builders.cluster.s3_context module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.cluster.html#module-kubeflow.fairing.builders.cluster">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.builders.docker.html">kubeflow.fairing.builders.docker package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.docker.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.docker.html#module-kubeflow.fairing.builders.docker.docker">kubeflow.fairing.builders.docker.docker module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.builders.docker.html#module-kubeflow.fairing.builders.docker">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.builders.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.builders.html#module-kubeflow.fairing.builders.base_builder">kubeflow.fairing.builders.base_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.builders.html#module-kubeflow.fairing.builders.builder">kubeflow.fairing.builders.builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.builders.html#module-kubeflow.fairing.builders.dockerfile">kubeflow.fairing.builders.dockerfile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.builders.html#module-kubeflow.fairing.builders">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.cloud.html">kubeflow.fairing.cloud package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#module-kubeflow.fairing.cloud.aws">kubeflow.fairing.cloud.aws module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#module-kubeflow.fairing.cloud.azure">kubeflow.fairing.cloud.azure module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#module-kubeflow.fairing.cloud.docker">kubeflow.fairing.cloud.docker module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#module-kubeflow.fairing.cloud.gcp">kubeflow.fairing.cloud.gcp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#module-kubeflow.fairing.cloud.storage">kubeflow.fairing.cloud.storage module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.cloud.html#module-kubeflow.fairing.cloud">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.constants.html">kubeflow.fairing.constants package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.constants.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.constants.html#module-kubeflow.fairing.constants.constants">kubeflow.fairing.constants.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.constants.html#module-kubeflow.fairing.constants">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.deployers.html">kubeflow.fairing.deployers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.deployers.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.deployers.gcp.html">kubeflow.fairing.deployers.gcp package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.gcp.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.gcp.html#module-kubeflow.fairing.deployers.gcp.gcp">kubeflow.fairing.deployers.gcp.gcp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.gcp.html#module-kubeflow.fairing.deployers.gcp.gcpserving">kubeflow.fairing.deployers.gcp.gcpserving module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.gcp.html#module-kubeflow.fairing.deployers.gcp">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.deployers.job.html">kubeflow.fairing.deployers.job package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.job.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.job.html#module-kubeflow.fairing.deployers.job.job">kubeflow.fairing.deployers.job.job module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.job.html#module-kubeflow.fairing.deployers.job">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.deployers.kfserving.html">kubeflow.fairing.deployers.kfserving package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.kfserving.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.kfserving.html#module-kubeflow.fairing.deployers.kfserving.kfserving">kubeflow.fairing.deployers.kfserving.kfserving module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.kfserving.html#module-kubeflow.fairing.deployers.kfserving">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.deployers.serving.html">kubeflow.fairing.deployers.serving package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.serving.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.serving.html#module-kubeflow.fairing.deployers.serving.serving">kubeflow.fairing.deployers.serving.serving module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.serving.html#module-kubeflow.fairing.deployers.serving">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kubeflow.fairing.deployers.tfjob.html">kubeflow.fairing.deployers.tfjob package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.tfjob.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.tfjob.html#module-kubeflow.fairing.deployers.tfjob.tfjob">kubeflow.fairing.deployers.tfjob.tfjob module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kubeflow.fairing.deployers.tfjob.html#module-kubeflow.fairing.deployers.tfjob">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.deployers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.deployers.html#module-kubeflow.fairing.deployers.deployer">kubeflow.fairing.deployers.deployer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.deployers.html#module-kubeflow.fairing.deployers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.frameworks.html">kubeflow.fairing.frameworks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.frameworks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.frameworks.html#module-kubeflow.fairing.frameworks.lightgbm">kubeflow.fairing.frameworks.lightgbm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.frameworks.html#module-kubeflow.fairing.frameworks.lightgbm_dist_training_init">kubeflow.fairing.frameworks.lightgbm_dist_training_init module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.frameworks.html#module-kubeflow.fairing.frameworks.utils">kubeflow.fairing.frameworks.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.frameworks.html#module-kubeflow.fairing.frameworks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.functions.html">kubeflow.fairing.functions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.functions.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.functions.html#module-kubeflow.fairing.functions.function_shim">kubeflow.fairing.functions.function_shim module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.functions.html#module-kubeflow.fairing.functions">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.kubernetes.html">kubeflow.fairing.kubernetes package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.kubernetes.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.kubernetes.html#module-kubeflow.fairing.kubernetes.manager">kubeflow.fairing.kubernetes.manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.kubernetes.html#module-kubeflow.fairing.kubernetes.utils">kubeflow.fairing.kubernetes.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.kubernetes.html#module-kubeflow.fairing.kubernetes">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.ml_tasks.html">kubeflow.fairing.ml_tasks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.ml_tasks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.ml_tasks.html#module-kubeflow.fairing.ml_tasks.tasks">kubeflow.fairing.ml_tasks.tasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.ml_tasks.html#module-kubeflow.fairing.ml_tasks.utils">kubeflow.fairing.ml_tasks.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.ml_tasks.html#module-kubeflow.fairing.ml_tasks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.notebook.html">kubeflow.fairing.notebook package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.notebook.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.notebook.html#module-kubeflow.fairing.notebook.notebook_util">kubeflow.fairing.notebook.notebook_util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.notebook.html#module-kubeflow.fairing.notebook">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kubeflow.fairing.preprocessors.html">kubeflow.fairing.preprocessors package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.preprocessors.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.preprocessors.html#module-kubeflow.fairing.preprocessors.base">kubeflow.fairing.preprocessors.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.preprocessors.html#module-kubeflow.fairing.preprocessors.converted_notebook">kubeflow.fairing.preprocessors.converted_notebook module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.preprocessors.html#module-kubeflow.fairing.preprocessors.full_notebook">kubeflow.fairing.preprocessors.full_notebook module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.preprocessors.html#module-kubeflow.fairing.preprocessors.function">kubeflow.fairing.preprocessors.function module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubeflow.fairing.preprocessors.html#module-kubeflow.fairing.preprocessors">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kubeflow.fairing.config">
+<span id="kubeflow-fairing-config-module"></span><h2>kubeflow.fairing.config module<a class="headerlink" href="#module-kubeflow.fairing.config" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.config.Config">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.config.</code><code class="sig-name descname">Config</code><a class="headerlink" href="#kubeflow.fairing.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.deploy">
+<code class="sig-name descname">deploy</code><span class="sig-paren">(</span><em class="sig-param">pod_spec</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.deploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>deploy the job</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pod_spec</strong> – pod spec of the job</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.fn">
+<code class="sig-name descname">fn</code><span class="sig-paren">(</span><em class="sig-param">fn</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fn</strong> – return func that set the preprocessorr and run</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.get_builder">
+<code class="sig-name descname">get_builder</code><span class="sig-paren">(</span><em class="sig-param">preprocessor</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.get_builder" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the builder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>preprocessor</strong> – preprocessor function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.get_deployer">
+<code class="sig-name descname">get_deployer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.get_deployer" title="Permalink to this definition">¶</a></dt>
+<dd><p>get deployer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.get_preprocessor">
+<code class="sig-name descname">get_preprocessor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.get_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the preprocessor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>reset the preprocessor, builder_name and deployer name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>run the pipeline for job</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.set_builder">
+<code class="sig-name descname">set_builder</code><span class="sig-paren">(</span><em class="sig-param">name='append'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.set_builder" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the builder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – builder name (Default value = DEFAULT_BUILDER)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.set_deployer">
+<code class="sig-name descname">set_deployer</code><span class="sig-paren">(</span><em class="sig-param">name='job'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.set_deployer" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the deployer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – deployer name (Default value = DEFAULT_DEPLOYER)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.config.Config.set_preprocessor">
+<code class="sig-name descname">set_preprocessor</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.config.Config.set_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – preprocessor name(Default value = None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.http_utils">
+<span id="kubeflow-fairing-http-utils-module"></span><h2>kubeflow.fairing.http_utils module<a class="headerlink" href="#module-kubeflow.fairing.http_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="kubeflow.fairing.http_utils.configure_http_instance">
+<code class="sig-prename descclassname">kubeflow.fairing.http_utils.</code><code class="sig-name descname">configure_http_instance</code><span class="sig-paren">(</span><em class="sig-param">http=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.http_utils.configure_http_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure http instance to modify the request headers to append or modify user-agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>http</strong> – Body of googleapiclient (Default value = None)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>object: Configurated http contents.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.runtime_config">
+<span id="kubeflow-fairing-runtime-config-module"></span><h2>kubeflow.fairing.runtime_config module<a class="headerlink" href="#module-kubeflow.fairing.runtime_config" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.runtime_config.</code><code class="sig-name descname">RuntimeConfig</code><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A passthrough config shim that runs in the fairing runtime</p>
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.fn">
+<code class="sig-name descname">fn</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.fn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.get_builder">
+<code class="sig-name descname">get_builder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.get_builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.get_deployer">
+<code class="sig-name descname">get_deployer</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.get_deployer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.get_preprocessor">
+<code class="sig-name descname">get_preprocessor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.get_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.set_builder">
+<code class="sig-name descname">set_builder</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.set_builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.set_deployer">
+<code class="sig-name descname">set_deployer</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.set_deployer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.runtime_config.RuntimeConfig.set_preprocessor">
+<code class="sig-name descname">set_preprocessor</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.runtime_config.RuntimeConfig.set_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.utils">
+<span id="kubeflow-fairing-utils-module"></span><h2>kubeflow.fairing.utils module<a class="headerlink" href="#module-kubeflow.fairing.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="kubeflow.fairing.utils.crc">
+<code class="sig-prename descclassname">kubeflow.fairing.utils.</code><code class="sig-name descname">crc</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.utils.crc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a running Cyclic Redundancy Check checksum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> – The file name that’s for crc checksum.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.utils.get_current_k8s_namespace">
+<code class="sig-prename descclassname">kubeflow.fairing.utils.</code><code class="sig-name descname">get_current_k8s_namespace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.utils.get_current_k8s_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current namespace of kubernetes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.utils.get_default_target_namespace">
+<code class="sig-prename descclassname">kubeflow.fairing.utils.</code><code class="sig-name descname">get_default_target_namespace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.utils.get_default_target_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the default target namespace, if running in the kubernetes cluster,
+will be current namespace, Otherwiase, will be “default”.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.utils.get_image">
+<code class="sig-prename descclassname">kubeflow.fairing.utils.</code><code class="sig-name descname">get_image</code><span class="sig-paren">(</span><em class="sig-param">repository</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.utils.get_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full image name by integrating repository and image name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repository</strong> – The name of repository</p></li>
+<li><p><strong>name</strong> – The short image name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>str: Full image name, format: repo/name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.utils.is_running_in_k8s">
+<code class="sig-prename descclassname">kubeflow.fairing.utils.</code><code class="sig-name descname">is_running_in_k8s</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.utils.is_running_in_k8s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if running in the kubernetes cluster.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.utils.random_tag">
+<code class="sig-prename descclassname">kubeflow.fairing.utils.</code><code class="sig-name descname">random_tag</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.utils.random_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random tag.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kubeflow.fairing" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kubeflow Author
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
