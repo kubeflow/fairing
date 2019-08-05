@@ -1,3 +1,4 @@
+import logging
 import nbconvert
 import re
 import tempfile
@@ -76,6 +77,7 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
         if converted_notebook.exists() and not self.overwrite:
             raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
+            logging.info('Converting {} to {}'.format(self.notebook_file, converted_notebook))
             f.write(contents)
         self.executable = converted_notebook
         return [converted_notebook]
@@ -127,8 +129,10 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
         if converted_notebook.exists() and not self.overwrite:
             raise Exception('Default path {} exists but overwrite flag is False'.format(converted_notebook))
         with open(converted_notebook, 'w') as f:
+            logging.info('Converting {} to {}'.format(self.notebook_file, converted_notebook))
             f.write(contents)
             f.write("\n")
+            logging.info('Creating entry point for the class name {}'.format(self.class_name))
             f.write("""
 if __name__ == "__main__":
   import fire
