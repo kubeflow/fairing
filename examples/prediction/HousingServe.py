@@ -33,7 +33,7 @@ class HousingServe(object):
   def predict(self, X, feature_names):
     """Predict using the model for given ndarray."""
     prediction = self.model.predict(data=X)
-    return [[prediction.item(0), prediction.item(1)]]
+    return [prediction]
 
 
 if __name__ == '__main__':
