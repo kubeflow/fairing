@@ -70,7 +70,7 @@ class Config(object):
     def get_preprocessor(self):
         fn = preprocessor_map.get(self._preprocessor_name)
         if fn is None:
-            raise Exception('Builder name not found: {}\nAvailable deployer: {}'.format(
+            raise Exception('Preprocessor name not found: {}\nAvailable preprocessor: {}'.format(
                 self._preprocessor_name, list(preprocessor_map.keys())))
         return fn(**self._preprocessor_kwargs)
 
@@ -81,7 +81,7 @@ class Config(object):
     def get_builder(self, preprocessor):
         fn = builder_map.get(self._builder_name)
         if fn is None:
-            raise Exception('Builder name not found: {}\nAvailable deployer: {}'.format(
+            raise Exception('Builder name not found: {}\nAvailable builder: {}'.format(
                 self._builder_name, list(builder_map.keys())))
         return fn(preprocessor=preprocessor, **self._builder_kwargs)
 
@@ -102,6 +102,7 @@ class Config(object):
         builder = self.get_builder(preprocessor)
         logging.info("Using builder: %s", builder)
         deployer = self.get_deployer()
+        logging.info("Using deployer: %s", builder)
 
         builder.build()
         pod_spec = builder.generate_pod_spec()
