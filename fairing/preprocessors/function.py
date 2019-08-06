@@ -53,10 +53,6 @@ class FunctionPreProcessor(BasePreProcessor):
         self.output_map[os.path.join(fairing_dir, "functions", FUNCTION_SHIM)] = \
             os.path.join(path_prefix, FUNCTION_SHIM)
 
-        # Make sure the user code can be imported as a module
-        self.output_map[os.path.join(fairing_dir, '__init__.py')] = \
-            os.path.join(path_prefix, '__init__.py')
-
         # Make sure fairing can use imported as a module
         self.output_map[os.path.join(fairing_dir, '__init__.py')] = \
             os.path.join(path_prefix, "fairing", '__init__.py')
