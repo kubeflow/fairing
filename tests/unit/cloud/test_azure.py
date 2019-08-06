@@ -15,18 +15,17 @@ TEST_CLIENT_SECRET = str(uuid.uuid4())
 TEST_TENANT_ID = str(uuid.uuid4())
 TEST_SUBSCRIPTION_ID = str(uuid.uuid4())
 
+def encode_value(value):
+    return base64.b64encode(value.encode())
+
 class MockSecret(object):
     def __init__(self):
-        self.data = self
-        self.values = self.secret
-    def secret(self):
-        secret_dict = {
-            'clientId': TEST_CLIENT_ID,
-            'clientSecret': TEST_CLIENT_SECRET,
-            'tenantId': TEST_TENANT_ID,
-            'subscriptionId': TEST_SUBSCRIPTION_ID
+        self.data = {
+            'AZ_CLIENT_ID': encode_value(TEST_CLIENT_ID),
+            'AZ_CLIENT_SECRET': encode_value(TEST_CLIENT_SECRET),
+            'AZ_TENANT_ID': encode_value(TEST_TENANT_ID),
+            'AZ_SUBSCRIPTION_ID': encode_value(TEST_SUBSCRIPTION_ID)
         }
-        return [base64.b64encode(json.dumps(secret_dict).encode())]
 
 # Test that credentials are parsed properly from the Kubernetes secrets.
 @patch.object(KubeManager, 'secret_exists')
@@ -41,9 +40,11 @@ def test_get_azure_credentials(credentials_init_mock,
     manager_init_mock.return_value = None
     read_namespaced_secret_mock.return_value = MockSecret()
     credentials_init_mock.return_value = None
-    get_azure_credentials('kubeflow')
+    credentials, subscription_id = get_azure_credentials('kubeflow')
     credentials_init_mock.assert_called_with(
         client_id=TEST_CLIENT_ID,
         secret=TEST_CLIENT_SECRET,
         tenant=TEST_TENANT_ID
     )
+    assert isinstance(credentials, ServicePrincipalCredentials)
+    assert subscription_id == TEST_SUBSCRIPTION_ID

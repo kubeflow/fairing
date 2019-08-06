@@ -129,15 +129,20 @@ def get_azure_credentials(namespace):
 
     v1 = client.CoreV1Api()
     secret = v1.read_namespaced_secret(secret_name, namespace)
-    secret_base64 = list(secret.data.values())[0]
-    secret_json = base64.b64decode(secret_base64).decode('utf-8')
-    credentials = json.loads(secret_json)
     sp_credentials = ServicePrincipalCredentials(
-        client_id=credentials['clientId'],
-        secret=credentials['clientSecret'],
-        tenant=credentials['tenantId'])
-    subscription_id = credentials['subscriptionId']
+        client_id=get_plain_secret_value(secret.data, 'AZ_CLIENT_ID'),
+        secret=get_plain_secret_value(secret.data, 'AZ_CLIENT_SECRET'),
+        tenant=get_plain_secret_value(secret.data, 'AZ_TENANT_ID')
+    )
+    subscription_id = get_plain_secret_value(secret.data, 'AZ_SUBSCRIPTION_ID')
     return sp_credentials, subscription_id
+
+# Decode plain text value of a secret of given key and raise an exception if the key is not found
+def get_plain_secret_value(secret_data, key):
+    if not key in secret_data:
+        raise Exception(f"Secret with key '{key}'' not found")
+    secret_base64 = secret_data[key]
+    return base64.b64decode(secret_base64).decode('utf-8')
 
 # Create a secret with the credentials to access the storage account for Azure Files
 def create_storage_creds_secret(namespace, context_hash, storage_account_name, storage_key):
