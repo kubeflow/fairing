@@ -174,17 +174,18 @@ class AzureBackend(KubernetesBackend):
         build_context_source.namespace = namespace
         super(AzureBackend, self).__init__(namespace, build_context_source)
 
-    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True, pod_spec_mutators=None):
+    def get_builder(self, preprocessor, base_image, registry,
+                    needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         if not azure.is_acr_registry(registry):
             raise Exception(f"'{registry}' is not an Azure Container Registry")
         pod_spec_mutators.append(azure.add_acr_config)
         pod_spec_mutators.append(azure.add_azure_files)
         return super(AzureBackend, self).get_builder(preprocessor,
-                                                   base_image,
-                                                   registry,
-                                                   needs_deps_installation,
-                                                   pod_spec_mutators)
+                                                     base_image,
+                                                     registry,
+                                                     needs_deps_installation,
+                                                     pod_spec_mutators)
 
 class KubeflowBackend(KubernetesBackend):
 
