@@ -86,7 +86,7 @@ def test_job_submission_without_gcs_access(capsys, temp_gcs_prefix):
         capsys=capsys,
         expected_result=GCS_FAILED_MSG)
 
-def test_tfjob_submission_without_gcs_access(capsys, temp_gcs_prefix):
+def dis_test_tfjob_submission_without_gcs_access(capsys, temp_gcs_prefix):
     run_submission_with_gcs_access(
         'tfjob',
         pod_spec_mutators=[],
