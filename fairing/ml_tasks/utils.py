@@ -1,6 +1,4 @@
 import docker
-import fairing
-
 from docker.errors import DockerException
 from fairing.functions.function_shim import get_execution_obj_type, ObjectType
 from fairing.preprocessors.function import FunctionPreProcessor

@@ -16,6 +16,8 @@
 import fairing
 
 if __name__ == '__main__':
-        fairing.config.set_deployer('kfserving', namespace='kubeflow', framework='tensorflow',
-                                   default_model_uri='gs://kfserving-samples/models/tensorflow/flowers',cleanup=True)
-        fairing.config.run()
+    fairing.config.set_deployer(
+        'kfserving', namespace='kubeflow', framework='tensorflow',
+        default_model_uri='gs://kfserving-samples/models/tensorflow/flowers',
+        cleanup=True)
+    fairing.config.run()

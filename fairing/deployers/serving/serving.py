@@ -3,9 +3,10 @@ import uuid
 import logging
 
 from kubernetes import client as k8s_client
+from kubernetes.client.rest import ApiException
+
 from fairing.constants import constants
 from fairing.deployers.job.job import Job
-from kubernetes.client.rest import ApiException
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,9 @@ class Serving(Job):
     # https://github.com/kubeflow/fairing/blob/master/examples/prediction/xgboost-high-level-apis.ipynb
     def __init__(self, serving_class, namespace=None, runs=1, labels=None,
                  service_type="LoadBalancer", pod_spec_mutators=None):
-        super(Serving, self).__init__(namespace, runs, deployer_type=constants.SERVING_DEPLOPYER_TYPE, labels=labels)
+        super(Serving, self).__init__(namespace, runs,
+                                      deployer_type=constants.SERVING_DEPLOPYER_TYPE,
+                                      labels=labels)
         self.serving_class = serving_class
         self.service_type = service_type
         self.pod_spec_mutators = pod_spec_mutators or []
@@ -34,16 +37,18 @@ class Serving(Job):
         for fn in self.pod_spec_mutators:
             fn(self.backend, pod_spec, self.namespace)
         pod_template_spec = self.generate_pod_template_spec(pod_spec)
-        pod_template_spec.spec.containers[0].command = ["seldon-core-microservice", self.serving_class, "REST", "--service-type=MODEL", "--persistence=0"]
+        pod_template_spec.spec.containers[0].command = ["seldon-core-microservice",
+                                                        self.serving_class, "REST",
+                                                        "--service-type=MODEL", "--persistence=0"]
         self.deployment_spec = self.generate_deployment_spec(pod_template_spec)
         self.service_spec = self.generate_service_spec()
 
         if self.output:
             api = k8s_client.ApiClient()
             job_output = api.sanitize_for_serialization(self.deployment_spec)
-            logger.warn(json.dumps(job_output))
+            logger.warning(json.dumps(job_output))
             service_output = api.sanitize_for_serialization(self.service_spec)
-            logger.warn(json.dumps(service_output))
+            logger.warning(json.dumps(service_output))
 
         v1_api = k8s_client.CoreV1Api()
         apps_v1 = k8s_client.AppsV1Api()
@@ -100,7 +105,7 @@ class Serving(Job):
     def delete(self):
         v1_api = k8s_client.CoreV1Api()
         try:
-            v1_api.delete_namespaced_service(self.service.metadata.name,
+            v1_api.delete_namespaced_service(self.service.metadata.name, #pylint:disable=no-value-for-parameter
                                              self.service.metadata.namespace)
             logger.info("Deleted service: {}/{}".format(self.service.metadata.namespace,
                                                         self.service.metadata.name))
@@ -118,5 +123,5 @@ class Serving(Job):
                                                            self.deployment.metadata.name))
         except ApiException as e:
             logger.error(e)
-            logger.error("Not able to delete deployment: {}/{}".format(self.deployment.metadata.namespace,
-                                                                       self.deployment.metadata.name))
+            logger.error("Not able to delete deployment: {}/{}"\
+                         .format(self.deployment.metadata.namespace, self.deployment.metadata.name))

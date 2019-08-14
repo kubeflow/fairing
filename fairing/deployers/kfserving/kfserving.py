@@ -1,16 +1,15 @@
-import json
 import uuid
 import logging
 
-from fairing.constants import constants
-from fairing.deployers.job.job import Job
-from fairing.deployers.deployer import DeployerInterface
 from kubernetes import client as k8s_client
-from kubernetes.client.rest import ApiException
+
+from fairing.constants import constants
+from fairing.deployers.deployer import DeployerInterface
 from fairing.kubernetes.manager import KubeManager
 from fairing import utils
 
 logger = logging.getLogger(__name__)
+
 
 class KFServing(DeployerInterface):
     """
@@ -23,15 +22,18 @@ class KFServing(DeployerInterface):
         namespace: The k8s namespace where the kfservice will be deployed.
         labels: Labels for the kfservice, separate with commas if have more than one.
         annotations: Annotations for the kfservice, separate with commas if have more than one.
-        custom_default_spec: A flexible custom default specification for arbitrary customer provided containers.
-        custom_canary_spec: A flexible custom canary specification for arbitrary customer provided containers.
+        custom_default_spec: A flexible custom default specification for arbitrary customer
+                            provided containers.
+        custom_canary_spec: A flexible custom canary specification for arbitrary customer
+                            provided containers.
         stream_log: Show log or not when kfservice started, defaults to True.
         cleanup: Delete the kfserving or not, defaults to False.
     """
 
-    def __init__(self, framework, default_model_uri=None, canary_model_uri=None, canary_traffic_percent=0,
-                 namespace=None, labels=None, annotations=None, custom_default_spec=None, 
-                 custom_canary_spec=None, stream_log=True, cleanup=False):
+    def __init__(self, framework, default_model_uri=None, canary_model_uri=None,
+                 canary_traffic_percent=0, namespace=None, labels=None, annotations=None,
+                 custom_default_spec=None, custom_canary_spec=None, stream_log=True,
+                 cleanup=False):
         self.framework = framework
         self.default_model_uri = default_model_uri
         self.canary_model_uri = canary_model_uri
@@ -55,17 +57,19 @@ class KFServing(DeployerInterface):
         if labels:
             self.labels.update(labels)
 
-    def deploy(self, template_spec):
+    def deploy(self, template_spec): # pylint:disable=arguments-differ,unused-argument
         self.kfservice = self.generate_kfservice()
-        self.created_kfserving = self.backend.create_kfserving(self.namespace, self.kfservice)
+        self.created_kfserving = self.backend.create_kfserving(
+            self.namespace, self.kfservice)
         if self.stream_log:
             self.get_logs()
 
         kfservice_name = self.created_kfserving['metadata']['name']
-        logger.warn("Deployed the kfservice {} successfully.".format(kfservice_name))
+        logger.warning(
+            "Deployed the kfservice {} successfully.".format(kfservice_name))
 
         if self.cleanup:
-            logger.warn("Cleaning up kfservice {}...".format(kfservice_name))
+            logger.warning("Cleaning up kfservice {}...".format(kfservice_name))
             self.backend.delete_kfserving(kfservice_name, self.namespace)
 
         return kfservice_name
@@ -74,41 +78,44 @@ class KFServing(DeployerInterface):
 
         spec = {}
         spec['default'] = {}
-        if self.framework != 'custom':
-            if self.default_model_uri != None:
+        if self.framework is not 'custom': # pylint:disable=literal-comparison
+            if self.default_model_uri is not None:
                 spec['default'][self.framework] = {}
                 spec['default'][self.framework]['modelUri'] = self.default_model_uri
             else:
-                raise RuntimeError("The default_model_uri must be defined if the framework is not custom.")
+                raise RuntimeError(
+                    "The default_model_uri must be defined if the framework is not custom.")
         else:
-            if self.custom_default_spec != None:
+            if self.custom_default_spec is not None:
                 # TBD @jinchi Need to validate the custom_default_spec before executing.
-                spec['default'][self.framework] = self.custom_default_spec                
+                spec['default'][self.framework] = self.custom_default_spec
             else:
-                raise RuntimeError("The custom_default_spec must be defined if the framework is custom.")
+                raise RuntimeError(
+                    "The custom_default_spec must be defined if the framework is custom.")
 
         if self.framework != 'custom':
-            if self.canary_model_uri != None:
+            if self.canary_model_uri is not None:
                 spec['canary'] = {}
                 spec['canary'][self.framework] = {}
                 spec['canary'][self.framework]['modelUri'] = self.canary_model_uri
                 spec['canaryTrafficPercent'] = self.canary_traffic_percent
         else:
-            if self.custom_default_spec != None:
+            if self.custom_default_spec is not None:
                 spec['canary'] = {}
                 spec['canary'][self.framework] = self.custom_canary_spec
                 spec['canaryTrafficPercent'] = self.canary_traffic_percent
 
-        metadata=k8s_client.V1ObjectMeta(
-                generate_name = constants.KFSERVING_DEFAULT_NAME,
-                namespace = self.namespace,
-                labels = self.labels,
-                annotations = self.annotations
-            )
+        metadata = k8s_client.V1ObjectMeta(
+            generate_name=constants.KFSERVING_DEFAULT_NAME,
+            namespace=self.namespace,
+            labels=self.labels,
+            annotations=self.annotations
+        )
 
         kfservice = {}
         kfservice['kind'] = constants.KFSERVING_KIND
-        kfservice['apiVersion'] = constants.KFSERVING_GROUP + '/' + constants.KFSERVING_VERSION
+        kfservice['apiVersion'] = constants.KFSERVING_GROUP + \
+            '/' + constants.KFSERVING_VERSION
         kfservice['metadata'] = metadata
         kfservice['spec'] = spec
 
@@ -118,5 +125,5 @@ class KFServing(DeployerInterface):
         name = self.created_kfserving['metadata']['name']
         namespace = self.created_kfserving['metadata']['namespace']
 
-        self.backend.log(name, namespace, self.labels, 
+        self.backend.log(name, namespace, self.labels,
                          container=constants.KFSERVING_CONTAINER_NAME, follow=False)
