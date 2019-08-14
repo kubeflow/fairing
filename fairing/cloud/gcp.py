@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class GCSUploader(object):
     def __init__(
             self,
-            credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV)):
+            credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV)): #pylint:disable=unused-argument
         self.storage_client = storage.Client()
 
     def upload_to_bucket(self,
@@ -49,7 +49,7 @@ def guess_project_name(credentials_file=None):
     # 2. Google Cloud SDK (gcloud)
     # 3. App Engine Identity service
     # 4. Compute Engine Metadata service
-    credentials, project_id = google.auth.default()
+    credentials, project_id = google.auth.default() #pylint:disable=unused-variable
 
     if project_id is None:
         raise Exception('Could not determine project id.')
@@ -62,15 +62,16 @@ def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
         if kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
             add_gcp_credentials(kube_manager, pod_spec, namespace)
         else:
-            logger.warning("Not able to find gcp credentials secret: {}".format(constants.GCP_CREDS_SECRET_NAME))
+            logger.warning("Not able to find gcp credentials secret: {}"\
+                           .format(constants.GCP_CREDS_SECRET_NAME))
     except Exception as e:
-        logger.warn("could not check for secret: {}".format(e))
+        logger.warning("could not check for secret: {}".format(e))
 
 
 def add_gcp_credentials(kube_manager, pod_spec, namespace):
     if not kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
         raise ValueError('Unable to mount credentials: '
-        + 'Secret user-gcp-sa not found in namespace {}'.format(namespace))
+                         + 'Secret user-gcp-sa not found in namespace {}'.format(namespace))
 
     # Set appropriate secrets and volumes to enable kubeflow-user service
     # account.
@@ -100,5 +101,5 @@ def add_gcp_credentials(kube_manager, pod_spec, namespace):
 def get_default_docker_registry():
     try:
         return 'gcr.io/{}/fairing-job'.format(guess_project_name())
-    except:
+    except Exception:
         return None

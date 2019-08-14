@@ -6,7 +6,6 @@ from fairing.deployers.tfjob.tfjob import TfJob
 from fairing.constants import constants
 from fairing.kubernetes import utils as k8s_utils
 from fairing.cloud import storage
-from configparser import ConfigParser
 from . import lightgbm_dist_training_init
 from . import utils
 import tempfile
@@ -74,14 +73,15 @@ def _get_commands_for_file_ransfer(files_map):
     return cmds
 
 
-def _generate_entrypoint(copy_files_before, copy_files_after, config_file, init_cmds=None, copy_patitioned_files=None):
+def _generate_entrypoint(copy_files_before, copy_files_after, config_file,
+                         init_cmds=None, copy_patitioned_files=None):
     buf = ["#!/bin/sh",
            "set -e"]
     if init_cmds:
         buf.extend(init_cmds)
     # In data prallel mode, copying files based on RANK of the worker in the cluster.
     # The data is partitioned (#partitions=#workers) and each worker gets one partition of the data.
-    if copy_patitioned_files and len(copy_patitioned_files) > 0:
+    if copy_patitioned_files and len(copy_patitioned_files) > 0: #pylint:disable=len-as-condition
         buf.append("case $RANK in")
         for rank, files in copy_patitioned_files.items():
             buf.append("\t{})".format(rank))
@@ -133,7 +133,7 @@ def _add_train_weight_file(config, dst_base_dir):
 
 
 def generate_context_files(config, config_file_name, num_machines):
-    # Using ordered dict to have consistent behaviour around order in which 
+    # Using ordered dict to have consistent behaviour around order in which
     # files are copied in the worker nodes.
     output_map = collections.OrderedDict()
     copy_files_before = collections.OrderedDict()
@@ -148,16 +148,18 @@ def generate_context_files(config, config_file_name, num_machines):
     remote_files = [(copy_files_before,
                      [TEST_DATA_FIELDS, INPUT_MODEL_FIELDS]),
                     (copy_files_after,
-                        [OUTPUT_MODEL_FIELDS, OUTPUT_RESULT_FIELDS])]
+                     [OUTPUT_MODEL_FIELDS, OUTPUT_RESULT_FIELDS])]
 
     if parition_data:
         train_data_field, train_data_value = utils.get_config_value(
             config, TRAIN_DATA_FIELDS)
         train_files = train_data_value.split(",")
         if len(train_files) != num_machines:
-            raise RuntimeError("#Training files listed in the {}={} field in the config should be equal to the "
-                               "num_machines={} config value.".format(train_data_field, train_data_value, num_machines))
-        weight_src_paths, weight_dst_paths = _add_train_weight_file(config, constants.DEFAULT_DEST_PREFIX)
+            raise RuntimeError("#Training files listed in the {}={} field in the config should be "
+                               "equal to the num_machines={} config value."\
+                                .format(train_data_field, train_data_value, num_machines))
+        weight_src_paths, weight_dst_paths = _add_train_weight_file(config,
+                                                                    constants.DEFAULT_DEST_PREFIX)
         dst = posixpath.join(constants.DEFAULT_DEST_PREFIX, "train_data")
         config[train_data_field] = dst
         for i, f in enumerate(train_files):
@@ -170,13 +172,16 @@ def generate_context_files(config, config_file_name, num_machines):
         train_data_field, train_data_value = utils.get_config_value(
             config, TRAIN_DATA_FIELDS)
         if len(train_data_value.split(",")) > 1:
-            raise RuntimeError("{} has more than one file specified but tree-learner is set to {} which can't"
-                               " handle multiple files. For distributing data across multiple workers, please use one of {} as"
-                               " a tree-learner method. For more information please refer the LightGBM parallel guide"
-                               " https://github.com/microsoft/LightGBM/blob/master/docs/Parallel-Learning-Guide.rst".format(
+            raise RuntimeError("{} has more than one file specified but tree-learner is set to {} "
+                               "which can't handle multiple files. For distributing data across "
+                               "multiple workers, please use one of {} as a tree-learner method. "
+                               "For more information please refer the LightGBM parallel guide"
+                               " https://github.com/microsoft/LightGBM/blob/master/docs/"
+                               "Parallel-Learning-Guide.rst".format(
                                    train_data_field, tree_learner, DATA_PARALLEL_MODES))
         remote_files[0][1].insert(0, TRAIN_DATA_FIELDS)
-        weight_src_paths, weight_dst_paths = _add_train_weight_file(config, constants.DEFAULT_DEST_PREFIX)
+        weight_src_paths, weight_dst_paths = _add_train_weight_file(config,
+                                                                    constants.DEFAULT_DEST_PREFIX)
         _update_maps(output_map, copy_files_before, weight_src_paths, weight_dst_paths)
 
     for copy_files, field_names_list in remote_files:
@@ -226,15 +231,19 @@ def execute(config,
     Please refere https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
     for more information on config options.
     Attributes:
-        config: LightGBM config - Ref https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
+        config: LightGBM config - Ref
+               https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
         docker_registry: registry to push the built docker image
-        base_image: base image to use for this job. It should have lightgbm installed and should be in PATH variable.
+        base_image: base image to use for this job.
+                    It should have lightgbm installed and should be in PATH variable.
         namespace: Kubernetes namespace to use
-        stream_log: True - streams logs from the first worker in the training job after job launch till the training is finished.
+        stream_log: True - streams logs from the first worker in the training job
+                           after job launch till the training is finished.
                     Flase - no logs are streamed after the job launch. An async job launch use case.
         cores_per_worker: #cpu cores allocated per worker
         memory_per_worker: memory allocated per worker in GB, it can be fractional.
-        pod_spec_mutators: list of functions that is used to mutate the podsspec. e.g. fairing.cloud.gcp.add_gcp_credentials_if_exists
+        pod_spec_mutators: list of functions that is used to mutate the podsspec.
+                           e.g. fairing.cloud.gcp.add_gcp_credentials_if_exists
                            This can used to set things like volumes and security context.
     """
     if not namespace and not fairing.utils.is_running_in_k8s():

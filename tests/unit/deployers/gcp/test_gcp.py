@@ -1,10 +1,9 @@
-import pytest
-import fairing
-
 from kubernetes import client
+import fairing
 from fairing.deployers.gcp.gcp import GCPJob
 
 PROJECT_ID = fairing.cloud.gcp.guess_project_name()
+
 
 def create_test_pod_spec():
     return client.V1PodSpec(
@@ -14,12 +13,13 @@ def create_test_pod_spec():
         )]
     )
 
+
 def test_default_params():
     job = GCPJob()
     request = job.create_request_dict(create_test_pod_spec())
 
     desired = {
-        'jobId': job._job_name,
+        'jobId': job._job_name, #pylint:disable=protected-access
         'trainingInput': {
             'masterConfig': {
                 'imageUri': 'test-image'
@@ -30,12 +30,13 @@ def test_default_params():
 
     assert request == desired
 
+
 def test_top_level_args():
     job = GCPJob(region='us-west1', scale_tier='BASIC')
     request = job.create_request_dict(create_test_pod_spec())
 
     desired = {
-        'jobId': job._job_name,
+        'jobId': job._job_name, #pylint:disable=protected-access
         'trainingInput': {
             'masterConfig': {
                 'imageUri': 'test-image'
@@ -47,6 +48,7 @@ def test_top_level_args():
 
     assert request == desired
 
+
 def test_custom_job_config():
     job = GCPJob(job_config={
         'trainingInput': {
@@ -57,7 +59,7 @@ def test_custom_job_config():
     request = job.create_request_dict(create_test_pod_spec())
 
     desired = {
-        'jobId': job._job_name,
+        'jobId': job._job_name, #pylint:disable=protected-access
         'trainingInput': {
             'masterConfig': {
                 'imageUri': 'test-image'
@@ -69,6 +71,7 @@ def test_custom_job_config():
     }
 
     assert request == desired
+
 
 def test_top_level_params_override_job_config():
     job = GCPJob(region='us-west1', scale_tier='BASIC', job_config={
@@ -83,7 +86,7 @@ def test_top_level_params_override_job_config():
     request = job.create_request_dict(create_test_pod_spec())
 
     desired = {
-        'jobId': job._job_name,
+        'jobId': job._job_name, #pylint:disable=protected-access
         'trainingInput': {
             'masterConfig': {
                 'imageUri': 'test-image'

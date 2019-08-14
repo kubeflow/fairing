@@ -1,15 +1,11 @@
 import boto3
+import logging
+import re
 from botocore.exceptions import ClientError
 from fairing.constants import constants
 from kubernetes import client
-import logging
-
-import os
-import json
-import re
 
 logger = logging.getLogger(__name__)
-
 
 class S3Uploader(object):
     def __init__(self, region):
@@ -29,7 +25,7 @@ class S3Uploader(object):
             self.storage_client.head_bucket(Bucket=bucket_name)
         except ClientError:
             bucket = {'Bucket': bucket_name}
-            if(self.region != 'us-east-1'):
+            if self.region != 'us-east-1':
                 bucket['CreateBucketConfiguration'] = {'LocationConstraint': self.region}
             self.storage_client.create_bucket(**bucket)
 
@@ -48,15 +44,16 @@ def add_aws_credentials_if_exists(kube_manager, pod_spec, namespace):
         if kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
             add_aws_credentials(kube_manager, pod_spec, namespace)
         else:
-            logger.warning("Not able to find aws credentials secret: {}".format(constants.AWS_CREDS_SECRET_NAME))
+            logger.warning("Not able to find aws credentials secret: {}"
+                           .format(constants.AWS_CREDS_SECRET_NAME))
     except Exception as e:
-        logger.warn("could not check for secret: {}".format(e))
+        logger.warning("could not check for secret: {}".format(e))
 
 
 def add_aws_credentials(kube_manager, pod_spec, namespace):
     if not kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
-        raise ValueError('Unable to mount credentials: '
-        + 'Secret aws-secret not found in namespace {}'.format(namespace))
+        raise ValueError('Unable to mount credentials: Secret aws-secret not found in namespace {}'
+                         .format(namespace))
 
     # Set appropriate secrets env to enable kubeflow-user service
     # account.
@@ -88,24 +85,22 @@ def add_aws_credentials(kube_manager, pod_spec, namespace):
 
 def add_ecr_config(kube_manager, pod_spec, namespace):
     if not kube_manager.secret_exists('ecr-config', namespace):
-        secret = client.V1Secret(
-            metadata = client.V1ObjectMeta(name='ecr-config'),
-            string_data={
-                'config.json': '{"credsStore": "ecr-login"}'
-            })
+        secret = client.V1Secret(metadata=client.V1ObjectMeta(name='ecr-config'),
+                                 string_data={
+                                     'config.json': '{"credsStore": "ecr-login"}'
+                                 })
         kube_manager.create_secret(namespace, secret)
 
-    volume_mount=client.V1VolumeMount(
-            name='ecr-config', mount_path='/kaniko/.docker/', read_only=True)
+    volume_mount = client.V1VolumeMount(name='ecr-config',
+                                        mount_path='/kaniko/.docker/', read_only=True)
 
     if pod_spec.containers[0].volume_mounts:
         pod_spec.containers[0].volume_mounts.append(volume_mount)
     else:
         pod_spec.containers[0].volume_mounts = [volume_mount]
 
-    volume=client.V1Volume(
-            name='ecr-config',
-            secret=client.V1SecretVolumeSource(secret_name='ecr-config'))
+    volume = client.V1Volume(name='ecr-config',
+                             secret=client.V1SecretVolumeSource(secret_name='ecr-config'))
 
     if pod_spec.volumes:
         pod_spec.volumes.append(volume)
@@ -126,9 +121,7 @@ def create_ecr_registry(registry, repository):
     ecr_client = boto3.client('ecr', region_name=region)
 
     try:
-        ecr_client.describe_repositories(
-                    registryId=registry_id,
-                    repositoryNames=[repository])
+        ecr_client.describe_repositories(registryId=registry_id,
+                                         repositoryNames=[repository])
     except ClientError:
         ecr_client.create_repository(repositoryName=repository)
-

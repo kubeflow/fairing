@@ -15,9 +15,9 @@ class ObjectType(Enum):
 
 def get_execution_obj_type(obj):
     # Check if a function is provided
-    if (isinstance(obj, types.FunctionType) or
-        isinstance(obj, types.BuiltinFunctionType) or
-        isinstance(obj, types.BuiltinMethodType)):
+    if (isinstance(obj, types.FunctionType) or  #pylint:disable=consider-merging-isinstance
+            isinstance(obj, types.BuiltinFunctionType) or
+            isinstance(obj, types.BuiltinMethodType)):
         return ObjectType.FUNCTION
 
     # Reject class methods provided directly
@@ -34,8 +34,8 @@ def get_execution_obj_type(obj):
 def compare_version(local_python_version):
     remote_python_version = ".".join([str(x) for x in sys.version_info[0:3]])
     if local_python_version != remote_python_version:
-        raise RuntimeError('The Python version ' + remote_python_version + ' mismatches with Python '
-                        + local_python_version + ' in the local environment.')
+        raise RuntimeError('The Python version ' + remote_python_version + ' mismatches \
+                           with Python ' + local_python_version + ' in the local environment.')
 
 
 def call(serialized_fn_file):
@@ -47,7 +47,8 @@ def call(serialized_fn_file):
         elif obj_type == ObjectType.CLASS:
             res = obj().train()
         else:
-            raise RuntimeError("Object must of type function or a class but got {}".format(type(obj)))
+            raise RuntimeError("Object must of type function or a \
+                               class but got {}".format(type(obj)))
         if res:
             print(res)
 
