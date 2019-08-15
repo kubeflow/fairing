@@ -1,14 +1,13 @@
 import json
 import os.path
 import ipykernel
-import requests
 import re
-
 from notebook.notebookapp import list_running_servers
+import requests
 from requests.compat import urljoin
 
 
-def get_notebook_name():
+def get_notebook_name(): #pylint:disable=inconsistent-return-statements
     """
     Return the full path of the jupyter notebook.
     """

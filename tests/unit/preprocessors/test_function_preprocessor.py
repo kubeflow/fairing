@@ -1,14 +1,14 @@
 import cloudpickle
-import pytest
 import tarfile
 
 from fairing.preprocessors.function import FunctionPreProcessor
 
+
 def test_simple_function():
-    def foo():
+    def foo_test():
         return "bar"
-    foo.__module__ = '__main__'
-    fnp = FunctionPreProcessor(foo)
+    foo_test.__module__ = '__main__'
+    fnp = FunctionPreProcessor(foo_test)
     context_file, _ = fnp.context_tar_gz()
     tar = tarfile.open(context_file)
     fn_file = tar.extractfile(tar.getmember("app/pickled_fn.p"))

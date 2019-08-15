@@ -1,10 +1,6 @@
 import logging
-
-import fairing
 import json
 import numpy as np
-from fairing.deployers.job.job import Job
-from fairing.deployers.serving.serving import Serving
 from fairing.backends import KubernetesBackend
 from .utils import guess_preprocessor
 
@@ -24,7 +20,9 @@ class BaseTask:
         input_files: list of files that needs to be packaged along with the entry point.
             E.g. local python modules, trained model weigths, etc.
     """
-    def __init__(self, entry_point, base_docker_image=None, docker_registry=None, input_files=None, backend=None, pod_spec_mutators=None):
+
+    def __init__(self, entry_point, base_docker_image=None, docker_registry=None,
+                 input_files=None, backend=None, pod_spec_mutators=None):
         self._backend = backend or KubernetesBackend()
         self._pod_spec_mutators = pod_spec_mutators or []
         input_files = input_files or []
@@ -39,26 +37,28 @@ class BaseTask:
         if not self.docker_registry:
             raise RuntimeError("Not able find a default docker registry."
                                " Please provide 'docker_registry' argument explicitly."
-                               " Docker registry is used to store the output docker images that are executed in the"
-                               " remote cluster.")
+                               " Docker registry is used to store the output docker images"
+                               " that are executed in the remote cluster.")
         if not docker_registry:
-            logger.warn("Using default docker registry: {}".format(self.docker_registry))
+            logger.warning("Using default docker registry: {}".format(
+                self.docker_registry))
 
         self.base_docker_image = base_docker_image or backend.get_base_contanier()
         if not self.base_docker_image:
             raise RuntimeError("Not able find a default base docker image."
-                    " Please provide 'base_docker_image' argument explicitly."
-                    " Base docker image is used to build the output docker images that are executed in the"
-                    " remote cluster.")
+                               " Please provide 'base_docker_image' argument explicitly."
+                               " Base docker image is used to build the output docker images"
+                               " that are executed in the remote cluster.")
         if not base_docker_image:
-            logger.warn("Using default base docker image: {}".format(self.base_docker_image))
+            logger.warning("Using default base docker image: {}".format(
+                self.base_docker_image))
 
         needs_deps_installation = "requirements.txt" in input_files
         self.builder = self._backend.get_builder(preprocessor=preprocessor,
-                                           base_image=self.base_docker_image,
-                                           registry=self.docker_registry,
-                                           needs_deps_installation=needs_deps_installation)
-        logger.warn("Using builder: {}".format(type(self.builder)))
+                                                 base_image=self.base_docker_image,
+                                                 registry=self.docker_registry,
+                                                 needs_deps_installation=needs_deps_installation)
+        logger.warning("Using builder: {}".format(type(self.builder)))
 
     def _build(self):
         logging.info("Building the docker image.")
@@ -68,35 +68,41 @@ class BaseTask:
 
 class TrainJob(BaseTask):
 
-    def __init__(self, entry_point, base_docker_image=None, docker_registry=None, input_files=None, backend=None, pod_spec_mutators=None):
-        super().__init__(entry_point, base_docker_image, docker_registry, input_files, backend, pod_spec_mutators)
+    def __init__(self, entry_point, base_docker_image=None, docker_registry=None,  # pylint:disable=useless-super-delegation
+                 input_files=None, backend=None, pod_spec_mutators=None):
+        super().__init__(entry_point, base_docker_image, docker_registry,
+                         input_files, backend, pod_spec_mutators)
 
     def submit(self):
         self._build()
-        deployer = self._backend.get_training_deployer(pod_spec_mutators = self._pod_spec_mutators)
+        deployer = self._backend.get_training_deployer(
+            pod_spec_mutators=self._pod_spec_mutators)
         return deployer.deploy(self.pod_spec)
 
 
 class PredictionEndpoint(BaseTask):
 
-    def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None, backend=None,
-                 service_type='LoadBalancer', pod_spec_mutators=None):
+    def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None,
+                 backend=None, service_type='LoadBalancer', pod_spec_mutators=None):
         self.model_class = model_class
         self.service_type = service_type
-        super().__init__(model_class, base_docker_image, docker_registry, input_files, backend, pod_spec_mutators)
+        super().__init__(model_class, base_docker_image, docker_registry,
+                         input_files, backend, pod_spec_mutators)
 
     def create(self):
         self._build()
         logging.info("Deploying the endpoint.")
-        self._deployer = self._backend.get_serving_deployer(self.model_class.__name__, service_type=self.service_type,
-                                                            pod_spec_mutators=self._pod_spec_mutators)
+        self._deployer = self._backend.get_serving_deployer(
+            self.model_class.__name__,
+            service_type=self.service_type,
+            pod_spec_mutators=self._pod_spec_mutators)
         self.url = self._deployer.deploy(self.pod_spec)
         logger.warning("Prediction endpoint: {}".format(self.url))
 
     def predict_nparray(self, data, feature_names=None):
-        pdata={
+        pdata = {
             "data": {
-                "names":feature_names,
+                "names": feature_names,
                 "tensor": {
                     "shape": np.asarray(data.shape).tolist(),
                     "values": data.flatten().tolist(),
@@ -104,7 +110,7 @@ class PredictionEndpoint(BaseTask):
             }
         }
         serialized_data = json.dumps(pdata)
-        r = requests.post(self.url, data={'json':serialized_data})
+        r = requests.post(self.url, data={'json': serialized_data})
         return json.loads(r.text)
 
     def delete(self):

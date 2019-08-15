@@ -50,7 +50,7 @@ class DockerBuilder(BaseBuilder):
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_file, context_hash = self.preprocessor.context_tar_gz()
         self.image_tag = self.full_image_name(context_hash)
-        logger.warn('Building docker image {}...'.format(self.image_tag))
+        logger.warning('Building docker image {}...'.format(self.image_tag))
         with open(context_file, 'rb') as fileobj:
             bld = self.docker_client.build(
                 path='.',
@@ -63,7 +63,7 @@ class DockerBuilder(BaseBuilder):
             self._process_stream(line)
 
     def publish(self):
-        logger.warn('Publishing image {}...'.format(self.image_tag))
+        logger.warning('Publishing image {}...'.format(self.image_tag))
         for line in self.docker_client.push(self.image_tag, stream=True):
             self._process_stream(line)
 
@@ -75,7 +75,7 @@ class DockerBuilder(BaseBuilder):
                 ljson = json.loads(ln)
                 if ljson.get('error'):
                     msg = str(ljson.get('error', ljson))
-                    logger.error('Build failed: ' + msg)
+                    logger.error('Build failed: %s', msg)
                     raise Exception('Image build failed: ' + msg)
                 else:
                     if ljson.get('stream'):
