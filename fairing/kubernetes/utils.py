@@ -4,6 +4,13 @@ from fairing.constants import constants
 
 
 def get_resource_mutator(cpu=None, memory=None):
+    """The mutator for getting the resource setting for pod spec.
+
+    :param cpu: Limits and requests for CPU resources (Default value = None)
+    :param memory: Limits and requests for memory (Default value = None)
+    :returns: object: The mutator function for setting cpu and memory in pod spec.
+
+    """
     def _resource_mutator(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
         if cpu is None and memory is None:
             return
@@ -28,7 +35,13 @@ def get_resource_mutator(cpu=None, memory=None):
 
 
 def mounting_pvc(pvc_name, pvc_mount_path=constants.PVC_DEFAULT_MOUNT_PATH):
-    '''The function for pod_spec_mutators to mount persistent volume claim'''
+    """The function for pod_spec_mutators to mount persistent volume claim.
+
+    :param pvc_name: The name of persistent volume claim
+    :param pvc_mount_path: Path for the persistent volume claim mounts to.
+    :returns: object: function for mount the pvc to pods.
+
+    """
     mounting_name = str(constants.PVC_DEFAULT_VOLUME_NAME) + pvc_name
     def _mounting_pvc(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
         volume_mount = client.V1VolumeMount(

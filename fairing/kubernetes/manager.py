@@ -17,12 +17,24 @@ class KubeManager(object):
             config.load_kube_config()
 
     def create_job(self, namespace, job):
-        """Creates a V1Job in the specified namespace"""
+        """Creates a V1Job in the specified namespace.
+
+        :param namespace: The resource
+        :param job: Job defination as kubernetes
+        :returns: object: Created Job.
+
+        """
         api_instance = client.BatchV1Api()
         return api_instance.create_namespaced_job(namespace, job)
 
     def create_tf_job(self, namespace, job):
-        """Create the provided TFJob in the specified namespace"""
+        """Create the provided TFJob in the specified namespace.
+
+        :param namespace: The custom resource
+        :param job: The JSON schema of the Resource to create
+        :returns: object: Created TFJob.
+
+        """
         api_instance = client.CustomObjectsApi()
         try:
             return api_instance.create_namespaced_custom_object(
@@ -37,7 +49,13 @@ class KubeManager(object):
                                "{} in not installed?".format(constants.TF_JOB_VERSION))
 
     def delete_tf_job(self, name, namespace):
-        """Delete the provided TFJob in the specified namespace"""
+        """Delete the provided TFJob in the specified namespace.
+
+        :param name: The custom object
+        :param namespace: The custom resource
+        :returns: object: The deleted TFJob.
+
+        """
         api_instance = client.CustomObjectsApi()
         return api_instance.delete_namespaced_custom_object(
             constants.TF_JOB_GROUP,
@@ -48,12 +66,24 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def create_deployment(self, namespace, deployment):
-        """Create an V1Deployment in the specified namespace"""
+        """Create an V1Deployment in the specified namespace.
+
+        :param namespace: The custom resource
+        :param deployment: Deployment body to create
+        :returns: object: Created V1Deployments.
+
+        """
         api_instance = client.AppsV1Api()
         return api_instance.create_namespaced_deployment(namespace, deployment)
 
     def create_kfserving(self, namespace, kfservice):
-        """Create the provided KFServing in the specified namespace"""
+        """Create the provided KFServing in the specified namespace.
+
+        :param namespace: The custom resource
+        :param kfservice: The kfservice body
+        :returns: object: Created KFService.
+
+        """
         api_instance = client.CustomObjectsApi()
         try:
             return api_instance.create_namespaced_custom_object(
@@ -67,7 +97,13 @@ class KubeManager(object):
                                "{} is not installed?".format(constants.KFSERVING_VERSION))
 
     def delete_kfserving(self, name, namespace):
-        """Delete the provided KFServing in the specified namespace"""
+        """Delete the provided KFServing in the specified namespace.
+
+        :param name: The custom object
+        :param namespace: The custom resource
+        :returns: object: The deleted kfservice.
+
+        """
         api_instance = client.CustomObjectsApi()
         return api_instance.delete_namespaced_custom_object(
             constants.KFSERVING_GROUP,
@@ -78,7 +114,13 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def delete_job(self, name, namespace):
-        """Delete the specified job"""
+        """Delete the specified job.
+
+        :param name: The job name
+        :param namespace: The resource
+        :returns: object: the deleted job.
+
+        """
         api_instance = client.BatchV1Api()
         api_instance.delete_namespaced_job(
             name,
@@ -86,6 +128,13 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def delete_deployment(self, name, namespace):
+        """Delete the specified deployment.
+
+        :param name: The deployment name
+        :param namespace: The custom resource
+        :returns: obje   deployment.
+
+        """
         api_instance = client.ExtensionsV1beta1Api()
         api_instance.delete_namespaced_deployment(
             name,
@@ -93,15 +142,38 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def secret_exists(self, name, namespace):
+        """Check if the secret exists in the specified namespace.
+
+        :param name: The secret name
+        :param namespace: The custom resource.
+        :returns: bool: True if the secret exists, otherwise return False.
+
+        """
         secrets = client.CoreV1Api().list_namespaced_secret(namespace)
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
     def create_secret(self, namespace, secret):
+        """Create secret in the specified namespace.
+
+        :param namespace: The custom resource
+        :param secret: The secret body
+        :returns: object: Created secret.
+
+        """
         api_instance = client.CoreV1Api()
         return api_instance.create_namespaced_secret(namespace, secret)
 
     def get_service_external_endpoint(self, name, namespace, selectors=None): #pylint:disable=inconsistent-return-statements
+        """Get the service external endpoint.
+
+        :param name: The sevice name
+        :param namespace: The custom resource
+        :param selectors: A selector to restrict the list of returned objects by their labels.
+        :param Defaults: to everything
+        :returns: str: the service external endpoint.
+
+        """
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         w = watch.Watch()
@@ -124,6 +196,18 @@ class KubeManager(object):
             logger.error("error getting status for {} {}".format(name, str(e)))
 
     def log(self, name, namespace, selectors=None, container='', follow=True):
+        """Get log of the specified pod.
+
+        :param name: The pod name
+        :param namespace: The custom resource
+        :param selectors: A selector to restrict the list of returned objects by their labels.
+        :param Defaults: to everything
+        :param container: The container for which to stream logs.
+        :param if: there is one container in the pod
+        :param follow: True or False (Default value = True)
+        :returns: str: logs of the specified pod.
+
+        """
         tail = ''
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
