@@ -3,6 +3,12 @@ import fairing
 from fairing.constants import constants
 
 def configure_http_instance(http=None):
+    """Configure http instance to modify the request headers to append or modify user-agent.
+
+    :param http: Body of googleapiclient (Default value = None)
+    :returns: object: Configurated http contents.
+
+    """
     if not http:
         http = httplib2.Http()
 
