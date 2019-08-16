@@ -1,6 +1,6 @@
 import pytest
 from fairing.frameworks import lightgbm
-import fairing
+import fairing #pylint:disable=unused-import
 import posixpath
 from fairing.constants import constants
 from unittest.mock import patch
@@ -46,7 +46,8 @@ def test_context_files_list_dist():
         posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf.original'),
         posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf'),
         posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh'),
-        posixpath.join(constants.DEFAULT_DEST_PREFIX, 'lightgbm_dist_training_init.py'),
+        posixpath.join(constants.DEFAULT_DEST_PREFIX,
+                       'lightgbm_dist_training_init.py'),
         posixpath.join(constants.DEFAULT_DEST_PREFIX, 'utils.py')
     ]
     expected.sort()
@@ -57,7 +58,8 @@ def test_entrypoint_content():
     with patch('fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
-    entrypoint_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
+    entrypoint_file_in_docker = posixpath.join(
+        constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
     entrypoint_file = None
     for k, v in output_map.items():
         if v == entrypoint_file_in_docker:
@@ -75,11 +77,13 @@ gsutil cp -r {0}/model.txt gs://lightgbm-test/model.txt
     print(actual)
     assert expected == actual
 
+
 def test_final_config():
     with patch('fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
-    config_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'config.conf')
+    config_file_in_docker = posixpath.join(
+        constants.DEFAULT_DEST_PREFIX, 'config.conf')
     config_file_local = None
     for k, v in output_map.items():
         if v == config_file_in_docker:
@@ -98,19 +102,23 @@ model_output={0}/model.txt
     print(actual)
     assert expected == actual
 
-def test_input_file_not_found():    
+
+def test_input_file_not_found():
     with pytest.raises(RuntimeError) as excinfo:
         with patch('fairing.cloud.storage.GCSStorage.exists', new=lambda x, y: False):
             _ = lightgbm.generate_context_files(
-                    EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
+                EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
     err_msg = str(excinfo.value)
     assert "Remote file " in err_msg and "does't exist" in err_msg
 
+
 def test_entrypoint_content_no_weight_file():
-    with patch('fairing.cloud.storage.GCSStorage.exists', new=lambda bucket,path: not path.endswith(".weight")):
+    with patch('fairing.cloud.storage.GCSStorage.exists',
+               new=lambda bucket, path: not path.endswith(".weight")):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
-    entrypoint_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
+    entrypoint_file_in_docker = posixpath.join(
+        constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
     entrypoint_file = None
     for k, v in output_map.items():
         if v == entrypoint_file_in_docker:
@@ -127,15 +135,17 @@ gsutil cp -r {0}/model.txt gs://lightgbm-test/model.txt
     print(actual)
     assert expected == actual
 
+
 def test_entrypoint_content_dist_data_parallel():
     config = EXAMPLE_CONFIG.copy()
     config["tree_learner"] = "data"
     config["train_data"] = ",".join(["gs://lightgbm-test/regression.train1",
-                            "gs://lightgbm-test/regression.train2"])
+                                     "gs://lightgbm-test/regression.train2"])
     with patch('fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             config, EXMAPLE_CONFIG_FILE_NAME, 2)
-    entrypoint_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
+    entrypoint_file_in_docker = posixpath.join(
+        constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
     entrypoint_file = None
     for k, v in output_map.items():
         if v == entrypoint_file_in_docker:
@@ -162,15 +172,18 @@ gsutil cp -r {0}/model.txt gs://lightgbm-test/model.txt
     print(actual)
     assert expected == actual
 
+
 def test_entrypoint_content_dist_data_parallel_no_weight_files():
     config = EXAMPLE_CONFIG.copy()
     config["tree_learner"] = "data"
     config["train_data"] = ",".join(["gs://lightgbm-test/regression.train1",
-                            "gs://lightgbm-test/regression.train2"])
-    with patch('fairing.cloud.storage.GCSStorage.exists', new=lambda bucket,path: not path.endswith(".weight")):
+                                     "gs://lightgbm-test/regression.train2"])
+    with patch('fairing.cloud.storage.GCSStorage.exists',
+               new=lambda bucket, path: not path.endswith(".weight")):
         output_map = lightgbm.generate_context_files(
             config, EXMAPLE_CONFIG_FILE_NAME, 2)
-    entrypoint_file_in_docker = posixpath.join(constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
+    entrypoint_file_in_docker = posixpath.join(
+        constants.DEFAULT_DEST_PREFIX, 'entrypoint.sh')
     entrypoint_file = None
     for k, v in output_map.items():
         if v == entrypoint_file_in_docker:
@@ -200,16 +213,18 @@ def test_dist_training_misconfigured_input_files():
     config = EXAMPLE_CONFIG.copy()
     config["tree_learner"] = "feature"
     config["train_data"] = ",".join(["gs://lightgbm-test/regression.train1",
-                            "gs://lightgbm-test/regression.train2"])
+                                     "gs://lightgbm-test/regression.train2"])
     with pytest.raises(RuntimeError) as excinfo:
         lightgbm.generate_context_files(config, EXMAPLE_CONFIG_FILE_NAME, 2)
     assert "train_data has more than one file specified" in str(excinfo.value)
+
 
 def test_dist_training_misconfigured_num_machines():
     config = EXAMPLE_CONFIG.copy()
     config["tree_learner"] = "data"
     config["train_data"] = ",".join(["gs://lightgbm-test/regression.train1",
-                            "gs://lightgbm-test/regression.train2"])
+                                     "gs://lightgbm-test/regression.train2"])
     with pytest.raises(RuntimeError) as excinfo:
         lightgbm.generate_context_files(config, EXMAPLE_CONFIG_FILE_NAME, 3)
-    assert "field in the config should be equal to the num_machines=3 config value." in str(excinfo.value)
+    assert "field in the config should be equal to the num_machines=3 config value." in str(
+        excinfo.value)

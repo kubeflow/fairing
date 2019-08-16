@@ -29,13 +29,14 @@ LEARNING_RATE = 0.3
 HIDDEN_1 = 128
 HIDDEN_2 = 32
 
-# HACK: Ideally we would want to have a unique subpath for each instance of the job, but since we can't
-# we are instead appending HOSTNAME to the logdir
+# HACK: Ideally we would want to have a unique subpath for each instance of the job,
+#  but since we can't, we are instead appending HOSTNAME to the logdir
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 
+
 class TensorflowModel():
-    def train(self, **kwargs):
+    def train(self, **kwargs): #pylint:disable=unused-argument
         tf.logging.set_verbosity(tf.logging.ERROR)
         self.data_sets = input_data.read_data_sets(INPUT_DATA_DIR)
         self.images_placeholder = tf.placeholder(
@@ -63,7 +64,7 @@ class TensorflowModel():
             }
 
             _, loss_value = self.sess.run([self.train_op, self.loss],
-                                     feed_dict=feed_dict)
+                                          feed_dict=feed_dict)
             if step % 100 == 0:
                 print("At step {}, loss = {}".format(step, loss_value))
                 summary_str = self.sess.run(self.summary, feed_dict=feed_dict)

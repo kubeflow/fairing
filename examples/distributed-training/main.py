@@ -21,12 +21,8 @@ naming summary tags so that they are grouped meaningfully in TensorBoard.
 It demonstrates the functionality of every TensorBoard dashboard.
 """
 
-import argparse
 import os
-import sys
-import ast
 import json
-import logging
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
@@ -41,7 +37,7 @@ LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/logs')
 
 
 class TensorflowModel(object):
-    def build(self):
+    def build(self):  # pylint:disable=too-many-statements
         tf_config_json = os.environ.get("TF_CONFIG", "{}")
         tf_config = json.loads(tf_config_json)
 
@@ -63,8 +59,8 @@ class TensorflowModel(object):
 
         # Between-graph replication
         with tf.device(tf.train.replica_device_setter(
-                worker_device="/job:worker/task:%d" % task_id,
-                cluster=cluster_spec)):
+            worker_device="/job:worker/task:%d" % task_id,
+            cluster=cluster_spec)):
 
             # count the number of updates
             self.global_step = tf.get_variable(
@@ -75,8 +71,10 @@ class TensorflowModel(object):
 
             # Input placeholders
             with tf.name_scope('input'):
-                self.x = tf.placeholder(tf.float32, [None, 784], name='x-input')
-                self.y_ = tf.placeholder(tf.float32, [None, 10], name='y-input')
+                self.x = tf.placeholder(
+                    tf.float32, [None, 784], name='x-input')
+                self.y_ = tf.placeholder(
+                    tf.float32, [None, 10], name='y-input')
 
             with tf.name_scope('input_reshape'):
                 image_shaped_input = tf.reshape(self.x, [-1, 28, 28, 1])
@@ -188,9 +186,9 @@ class TensorflowModel(object):
             return {self.x: xs, self.y_: ys, self.keep_prob: k}
 
         sv = tf.train.Supervisor(is_chief=self.is_chief,
-                                  global_step=self.global_step,
-                                  init_op=self.init_op,
-                                  logdir=LOG_DIR)
+                                 global_step=self.global_step,
+                                 init_op=self.init_op,
+                                 logdir=LOG_DIR)
 
         with sv.prepare_or_wait_for_session(self.server.target) as sess:
             train_writer = tf.summary.FileWriter(
@@ -231,8 +229,10 @@ if __name__ == '__main__':
     if os.getenv('FAIRING_RUNTIME', None) is None:
         import fairing
         fairing.config.set_preprocessor('python', input_files=[__file__])
-        fairing.config.set_builder(name='docker', registry='gcr.io/mrick-gcp', base_image='tensorflow/tensorflow')
-        fairing.config.set_deployer(name='tfjob', namespace='default', worker_count=1, ps_count=1)
+        fairing.config.set_builder(
+            name='docker', registry='gcr.io/mrick-gcp', base_image='tensorflow/tensorflow')
+        fairing.config.set_deployer(
+            name='tfjob', namespace='default', worker_count=1, ps_count=1)
         fairing.config.run()
     else:
         remote_train = TensorflowModel()

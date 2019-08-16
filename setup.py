@@ -1,5 +1,4 @@
 import setuptools
-import json
 
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
@@ -10,7 +9,8 @@ setuptools.setup(
     author="Kubeflow Authors",
     description="Python SDK for building, training, and deploying ML models",
     url="https://github.com/kubeflow/fairing",
-    packages=setuptools.find_packages(include=("fairing*", "containerregistry*",)),
+    packages=setuptools.find_packages(
+        include=("fairing*", "containerregistry*",)),
     package_data={},
     include_package_data=False,
     zip_safe=False,

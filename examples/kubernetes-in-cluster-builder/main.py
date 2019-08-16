@@ -29,8 +29,8 @@ LEARNING_RATE = 0.3
 HIDDEN_1 = 128
 HIDDEN_2 = 32
 
-# HACK: Ideally we would want to have a unique subpath for each instance of the job, but since we can't
-# we are instead appending HOSTNAME to the logdir
+# HACK: Ideally we would want to have a unique subpath for each instance of the job,
+#  but since we can't, we are instead appending HOSTNAME to the logdir
 LOG_DIR = os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),
                        'tensorflow/mnist/logs/fully_connected_feed/', os.getenv('HOSTNAME', ''))
 
@@ -63,7 +63,7 @@ class MyModel(object):
             }
 
             _, loss_value = self.sess.run([self.train_op, self.loss],
-                                     feed_dict=feed_dict)
+                                          feed_dict=feed_dict)
             if step % 100 == 0:
                 print("At step {}, loss = {}".format(step, loss_value))
                 summary_str = self.sess.run(self.summary, feed_dict=feed_dict)
@@ -75,7 +75,9 @@ if __name__ == '__main__':
     if os.getenv('FAIRING_RUNTIME', None) is None:
         import fairing
         fairing.config.set_preprocessor('python', input_files=[__file__])
-        fairing.config.set_builder(name='cluster', registry='<your-registry-here>')
+        fairing.config.set_builder(
+            name='cluster', registry='<your-registry-here>')
         fairing.config.run()
     else:
-        train()
+        remote_train = MyModel()
+        remote_train.train()

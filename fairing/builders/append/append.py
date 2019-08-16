@@ -2,19 +2,14 @@ from timeit import default_timer as timer
 import httplib2
 import os
 import logging
-import io
-import tarfile
 
 from fairing.builders.base_builder import BaseBuilder
 from fairing.constants import constants
-
-from docker import APIClient
 
 from containerregistry.client import docker_creds
 from containerregistry.client import docker_name
 from containerregistry.client.v2_2 import append
 from containerregistry.client.v2_2 import docker_image as v2_2_image
-from containerregistry.client.v2_2.save_ import tarball
 from containerregistry.client.v2_2 import docker_session
 from containerregistry.transport import transport_pool
 from containerregistry.transform.v2_2 import metadata
@@ -36,6 +31,7 @@ class AppendBuilder(BaseBuilder):
                           before sending them to docker build
         push {bool} -- Whether or not to push the image to the registry
     """
+
     def __init__(self,
                  registry=None,
                  image_name=constants.DEFAULT_IMAGE_NAME,
@@ -54,11 +50,11 @@ class AppendBuilder(BaseBuilder):
         """Will be called when the build needs to start"""
         transport = transport_pool.Http(httplib2.Http)
         src = docker_name.Tag(self.base_image, strict=False)
-        logger.warn("Building image using Append builder...")
+        logger.warning("Building image using Append builder...")
         start = timer()
         new_img = self._build(transport, src)
         end = timer()
-        logger.warn("Image successfully built in {}s.".format(end-start))
+        logger.warning("Image successfully built in {}s.".format(end-start))
         dst = docker_name.Tag(
             self.full_image_name(self.context_hash), strict=False)
         if self.push:
@@ -70,31 +66,29 @@ class AppendBuilder(BaseBuilder):
             pass
 
     def _build(self, transport, src):
-        file, hash = self.preprocessor.context_tar_gz()
+        file, hash = self.preprocessor.context_tar_gz()  # pylint:disable=redefined-builtin
         self.context_file, self.context_hash = file, hash
         self.image_tag = self.full_image_name(self.context_hash)
         creds = docker_creds.DefaultKeychain.Resolve(src)
         with v2_2_image.FromRegistry(src, creds, transport) as src_image:
             with open(self.context_file, 'rb') as f:
-                new_img = append.Layer(src_image, f.read(),
-                    overrides=metadata.Overrides(cmd=self.preprocessor.get_command(),
-                                                 user='0',
-                                                 env={"FAIRING_RUNTIME": "1"}))
+                new_img = append.Layer(src_image, f.read(), overrides=metadata.Overrides(
+                    cmd=self.preprocessor.get_command(),
+                    user='0', env={"FAIRING_RUNTIME": "1"}))
         return new_img
-
 
     def _push(self, transport, src, img, dst):
         creds = docker_creds.DefaultKeychain.Resolve(dst)
-        with docker_session.Push(
-             dst, creds, transport, mount=[src.as_repository()]) as session:
-            logger.warn("Uploading {}".format(self.image_tag))
+        with docker_session.Push(dst, creds, transport,
+                                 mount=[src.as_repository()]) as session:
+            logger.warning("Uploading {}".format(self.image_tag))
             session.upload(img)
         os.remove(self.context_file)
 
     def timed_push(self, transport, src, img, dst):
-        logger.warn("Pushing image {}...".format(self.image_tag))
+        logger.warning("Pushing image {}...".format(self.image_tag))
         start = timer()
         self._push(transport, src, img, dst)
         end = timer()
-        logger.warn(
+        logger.warning(
             "Pushed image {} in {}s.".format(self.image_tag, end-start))

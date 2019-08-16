@@ -1,6 +1,5 @@
 """Tests for GCPServing Deployer."""
 
-import pytest
 import json
 import httplib2
 from unittest.mock import patch
@@ -32,7 +31,7 @@ def test_invalid_model_request(capsys):
 
     (mock_ml.return_value.projects.return_value.models.return_value
      .get.side_effect) = create_http_error(
-        error_code=400, message='invalid request')
+         error_code=400, message='invalid request')
 
     deployer.deploy(None)
 
@@ -51,7 +50,7 @@ def test_invalid_model_creation(capsys):
      .get.return_value.execute.return_value) = None
     (mock_ml.return_value.projects.return_value.models.return_value
      .create.side_effect) = create_http_error(
-        error_code=400, message='invalid request')
+         error_code=400, message='invalid request')
 
     deployer.deploy(None)
 
@@ -71,7 +70,7 @@ def test_model_creation_with_404():
          error_code=404, message='model not found')
 
     deployer.deploy(None)
-    args, kwargs = (mock_ml.return_value.projects.return_value
+    args, kwargs = (mock_ml.return_value.projects.return_value #pylint:disable=unused-variable
                     .models.return_value.create.call_args)
 
     assert kwargs['parent'] == 'projects/test_project'
@@ -88,7 +87,7 @@ def test_invalid_version_creation(capsys):
     (mock_ml.return_value.projects.return_value.models.return_value
      .versions.return_value.create.return_value
      .execute.side_effect) = create_http_error(
-        error_code=400, message='invalid request')
+         error_code=400, message='invalid request')
 
     deployer.deploy(None)
 
@@ -104,7 +103,7 @@ def test_valid_creation(capsys):
             model_name='test_model', version_name='test_version')
 
     deployer.deploy(None)
-    args, kwargs = (mock_ml.return_value.projects.return_value.models
+    args, kwargs = (mock_ml.return_value.projects.return_value.models #pylint:disable=unused-variable
                     .return_value.versions.return_value.create.call_args)
 
     assert kwargs['parent'] == 'projects/test_project/models/test_model'
