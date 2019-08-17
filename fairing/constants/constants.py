@@ -8,9 +8,10 @@ DEFAULT_CONTEXT_FILENAME = '/tmp/fairing.context.tar.gz'
 DEFAULT_GENERATED_DOCKERFILE_FILENAME = '/tmp/Dockerfile'
 
 GOOGLE_CREDS_ENV = 'GOOGLE_APPLICATION_CREDENTIALS'
-GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 
+GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 AWS_CREDS_SECRET_NAME = 'aws-secret'
+DOCKER_CREDS_SECRET_NAME = "docker-secret"
 
 DEFAULT_USER_AGENT = 'kubeflow-fairing/{VERSION}'
 

@@ -14,6 +14,7 @@ from fairing.deployers.job.job import Job
 from fairing.deployers.serving.serving import Serving
 from fairing.cloud import aws
 from fairing.cloud import gcp
+from fairing.cloud import docker
 import fairing.ml_tasks.utils as ml_tasks_utils
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager

@@ -1,0 +1,60 @@
+FUNCTION_SHIM = 'function_shim.py'
+FAIRING_INIT = 'fairing/__init__.py'
+import os
+class ContextBuilder():
+    def __init__(self):
+        self.file_list=[FUNCTION_SHIM, FAIRING_INT]
+        return
+    def get_command(self):
+        local_python_version = ".".join([str(x) for x in sys.version_info[0:3]])
+
+        self.command = ["python", os.path.join(self.path_prefix, FUNCTION_SHIM),
+                        "--serialized_fn_file", payload_file_in_context,
+                        "--python_version", local_python_version]
+
+    def get_file_list(self):
+        fairing_dir = os.path.dirname(fairing.__file__)
+        self.output_map[os.path.join(fairing_dir, "functions", FUNCTION_SHIM)] = \
+            os.path.join(path_prefix, FUNCTION_SHIM)
+
+        # Make sure fairing can use imported as a module
+        self.output_map[os.path.join(fairing_dir, '__init__.py')] = \
+            os.path.join(path_prefix, "fairing", '__init__.py')
+
+        # Make sure cloudpickle can be imported as a module
+        cloudpickle_dir = os.path.dirname(cloudpickle.__file__)
+        self.output_map[os.path.join(cloudpickle_dir, '__init__.py')] = \
+            os.path.join(path_prefix, "cloudpickle", '__init__.py')
+        self.output_map[os.path.join(cloudpickle_dir, 'cloudpickle.py')] = \
+            os.path.join(path_prefix, "cloudpickle", 'cloudpickle.py')
+
+        _, temp_payload_file = tempfile.mkstemp()
+        with open(temp_payload_file, "wb") as f:
+            cloudpickle.dump(function_obj, f)
+        # Adding the serialized file to the context
+        payload_file_in_context = os.path.join(path_prefix, SERIALIZED_FN_FILE)
+        self.output_map[temp_payload_file] = payload_file_in_context
+
+        # TODO(@karthikv2k): Ref #122 Find a better way to support deployer specific preprocessing
+        _, temp_payload_wrapper_file = tempfile.mkstemp()
+        with open(temp_payload_wrapper_file, "w") as f:
+            contents = OUTPUT_FILE.format(OBJ_NAME=function_obj.__name__, SERIALIZED_FN_FILE=SERIALIZED_FN_FILE)
+            f.write(contents)
+        # Adding the serialized file to the context
+        payload_wrapper_file_in_context = os.path.join(path_prefix, function_obj.__name__ + ".py")
+        self.output_map[temp_payload_wrapper_file] = payload_wrapper_file_in_context
+
+
+docker_command = self.preprocessor.get_command()
+logger.warning("Docker command: {}".format(docker_command))
+if not docker_command:
+    logger.warning("Not setting a command for the output docker image.")
+install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
+dockerfile_path = dockerfile.write_dockerfile(
+    docker_command=docker_command,
+    dockerfile_path=self.dockerfile_path,
+    path_prefix=self.preprocessor.path_prefix,
+    base_image=self.base_image,
+    install_reqs_before_copy=install_reqs_before_copy)
+self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
+context_file, context_hash = self.preprocessor.context_tar_gz()
