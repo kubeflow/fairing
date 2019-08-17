@@ -69,7 +69,6 @@ class ClusterBuilder(BaseBuilder):
             self.image_tag, self.push)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
-        print(pod_spec)
         build_pod = client.V1Pod(
             api_version="v1",
             kind="Pod",
