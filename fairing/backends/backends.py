@@ -218,6 +218,7 @@ class GCPManagedBackend(BackendInterface):
                     pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
+        pod_spec_mutators.append(docker.add_docker_credentials_if_exists)
         # TODO (karthikv2k): Add cloud build as the deafult
         # once https://github.com/kubeflow/fairing/issues/145 is fixed
         if not needs_deps_installation:
