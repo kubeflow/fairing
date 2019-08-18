@@ -68,7 +68,7 @@ class HousingServe(object):
         save_model(model, self.model_file)
 
 
-    def predict(self, X, feature_names):
+    def predict(self, X):
         if not self.model:
             self.model = joblib.load(self.model_file)
         prediction = self.model.predict(data=X)
@@ -85,8 +85,8 @@ if __name__ == "__main__":
     from fairing import TrainJob
     from fairing.backends import KubernetesBackend
 
-    train_job = TrainJob(HousingServe, BASE_IMAGE, input_files=['ames_dataset/train.csv', "requirements.txt"],
+    train_job = TrainJob(HousingServe, BASE_IMAGE,
+                         input_files=['ames_dataset/train.csv', "requirements.txt"],
                          docker_registry=DOCKER_REGISTRY, backend=KubernetesBackend(),
                          pod_spec_mutators=[fairing.cloud.docker.add_docker_credentials_if_exists])
     train_job.submit()
-
