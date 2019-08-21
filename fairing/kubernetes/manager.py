@@ -17,12 +17,22 @@ class KubeManager(object):
             config.load_kube_config()
 
     def create_job(self, namespace, job):
-        """Creates a V1Job in the specified namespace"""
+        """Creates a V1Job in the specified namespace
+
+        :param namespace: 
+        :param job: 
+
+        """
         api_instance = client.BatchV1Api()
         return api_instance.create_namespaced_job(namespace, job)
 
     def create_tf_job(self, namespace, job):
-        """Create the provided TFJob in the specified namespace"""
+        """Create the provided TFJob in the specified namespace
+
+        :param namespace: 
+        :param job: 
+
+        """
         api_instance = client.CustomObjectsApi()
         try:
             return api_instance.create_namespaced_custom_object(
@@ -37,7 +47,12 @@ class KubeManager(object):
                                "{} in not installed?".format(constants.TF_JOB_VERSION))
 
     def delete_tf_job(self, name, namespace):
-        """Delete the provided TFJob in the specified namespace"""
+        """Delete the provided TFJob in the specified namespace
+
+        :param name: 
+        :param namespace: 
+
+        """
         api_instance = client.CustomObjectsApi()
         return api_instance.delete_namespaced_custom_object(
             constants.TF_JOB_GROUP,
@@ -48,12 +63,22 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def create_deployment(self, namespace, deployment):
-        """Create an V1Deployment in the specified namespace"""
+        """Create an V1Deployment in the specified namespace
+
+        :param namespace: 
+        :param deployment: 
+
+        """
         api_instance = client.AppsV1Api()
         return api_instance.create_namespaced_deployment(namespace, deployment)
 
     def create_kfserving(self, namespace, kfservice):
-        """Create the provided KFServing in the specified namespace"""
+        """Create the provided KFServing in the specified namespace
+
+        :param namespace: 
+        :param kfservice: 
+
+        """
         api_instance = client.CustomObjectsApi()
         try:
             return api_instance.create_namespaced_custom_object(
@@ -67,7 +92,12 @@ class KubeManager(object):
                                "{} is not installed?".format(constants.KFSERVING_VERSION))
 
     def delete_kfserving(self, name, namespace):
-        """Delete the provided KFServing in the specified namespace"""
+        """Delete the provided KFServing in the specified namespace
+
+        :param name: 
+        :param namespace: 
+
+        """
         api_instance = client.CustomObjectsApi()
         return api_instance.delete_namespaced_custom_object(
             constants.KFSERVING_GROUP,
@@ -78,7 +108,12 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def delete_job(self, name, namespace):
-        """Delete the specified job"""
+        """Delete the specified job
+
+        :param name: 
+        :param namespace: 
+
+        """
         api_instance = client.BatchV1Api()
         api_instance.delete_namespaced_job(
             name,
@@ -86,6 +121,12 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def delete_deployment(self, name, namespace):
+        """
+
+        :param name: 
+        :param namespace: 
+
+        """
         api_instance = client.ExtensionsV1beta1Api()
         api_instance.delete_namespaced_deployment(
             name,
@@ -93,15 +134,34 @@ class KubeManager(object):
             client.V1DeleteOptions())
 
     def secret_exists(self, name, namespace):
+        """
+
+        :param name: 
+        :param namespace: 
+
+        """
         secrets = client.CoreV1Api().list_namespaced_secret(namespace)
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
     def create_secret(self, namespace, secret):
+        """
+
+        :param namespace: 
+        :param secret: 
+
+        """
         api_instance = client.CoreV1Api()
         return api_instance.create_namespaced_secret(namespace, secret)
 
     def get_service_external_endpoint(self, name, namespace, selectors=None): #pylint:disable=inconsistent-return-statements
+        """
+
+        :param name: 
+        :param namespace: 
+        :param selectors:  (Default value = None)
+
+        """
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         w = watch.Watch()
@@ -124,6 +184,15 @@ class KubeManager(object):
             logger.error("error getting status for {} {}".format(name, str(e)))
 
     def log(self, name, namespace, selectors=None, container='', follow=True):
+        """
+
+        :param name: 
+        :param namespace: 
+        :param selectors:  (Default value = None)
+        :param container:  (Default value = '')
+        :param follow:  (Default value = True)
+
+        """
         label_selector_str = ', '.join("{}={}".format(k, v) for (k, v) in selectors.items())
         v1 = client.CoreV1Api()
         # Retry to allow starting of pod

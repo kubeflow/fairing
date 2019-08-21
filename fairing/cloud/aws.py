@@ -8,6 +8,7 @@ from kubernetes import client
 logger = logging.getLogger(__name__)
 
 class S3Uploader(object):
+    """ """
     def __init__(self, region):
         self.region = region
         self.storage_client = boto3.client('s3', region_name=region)
@@ -16,11 +17,23 @@ class S3Uploader(object):
                          blob_name,
                          bucket_name,
                          file_to_upload):
+        """
+
+        :param blob_name: 
+        :param bucket_name: 
+        :param file_to_upload: 
+
+        """
         self.create_bucket_if_not_exists(bucket_name)
         self.storage_client.upload_file(file_to_upload, bucket_name, blob_name)
         return "s3://{}/{}".format(bucket_name, blob_name)
 
     def create_bucket_if_not_exists(self, bucket_name):
+        """
+
+        :param bucket_name: 
+
+        """
         try:
             self.storage_client.head_bucket(Bucket=bucket_name)
         except ClientError:
@@ -31,6 +44,7 @@ class S3Uploader(object):
 
 
 def guess_account_id():
+    """ """
     account_id = boto3.client('sts').get_caller_identity()["Account"]
 
     if account_id is None:
@@ -40,6 +54,13 @@ def guess_account_id():
 
 
 def add_aws_credentials_if_exists(kube_manager, pod_spec, namespace):
+    """
+
+    :param kube_manager: 
+    :param pod_spec: 
+    :param namespace: 
+
+    """
     try:
         if kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
             add_aws_credentials(kube_manager, pod_spec, namespace)
@@ -51,6 +72,13 @@ def add_aws_credentials_if_exists(kube_manager, pod_spec, namespace):
 
 
 def add_aws_credentials(kube_manager, pod_spec, namespace):
+    """
+
+    :param kube_manager: 
+    :param pod_spec: 
+    :param namespace: 
+
+    """
     if not kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
         raise ValueError('Unable to mount credentials: Secret aws-secret not found in namespace {}'
                          .format(namespace))
@@ -84,6 +112,13 @@ def add_aws_credentials(kube_manager, pod_spec, namespace):
 
 
 def add_ecr_config(kube_manager, pod_spec, namespace):
+    """
+
+    :param kube_manager: 
+    :param pod_spec: 
+    :param namespace: 
+
+    """
     if not kube_manager.secret_exists('ecr-config', namespace):
         secret = client.V1Secret(metadata=client.V1ObjectMeta(name='ecr-config'),
                                  string_data={
@@ -109,11 +144,22 @@ def add_ecr_config(kube_manager, pod_spec, namespace):
 
 
 def is_ecr_registry(registry):
+    """
+
+    :param registry: 
+
+    """
     pattern = r'(.+)\.dkr\.ecr\.(.+)\.amazonaws\.com'
     return bool(re.match(pattern, registry))
 
 
 def create_ecr_registry(registry, repository):
+    """
+
+    :param registry: 
+    :param repository: 
+
+    """
     registry = registry.split('.')
     registry_id = registry[0]
     region = registry[3]

@@ -4,6 +4,11 @@ from google.cloud import storage
 from urllib.parse import urlparse
 
 def lookup_storage_class(url):
+    """
+
+    :param url: 
+
+    """
     scheme = urlparse(url).scheme
     if scheme in ["gcs", "gs"]:
         return GCSStorage
@@ -11,6 +16,11 @@ def lookup_storage_class(url):
         return None
 
 def get_storage_class(url):
+    """
+
+    :param url: 
+
+    """
     res = lookup_storage_class(url)
     if res:
         return res
@@ -21,27 +31,46 @@ def get_storage_class(url):
 
 @six.add_metaclass(abc.ABCMeta)
 class Storage:
+    """ """
 
     # Using shell commands to do the file copy instead of using python libs
     # CLIs like gsutil, s3cmd are optimized and can be easily configured by
     # the user using boto.cfg in the base docker image.
     @abc.abstractmethod
     def copy_cmd(self, src_url, dst_url, recursive=True):
-        """gets a command to copy files from/to remote storage from/to local FS"""
+        """gets a command to copy files from/to remote storage from/to local FS
+
+        :param src_url: 
+        :param dst_url: 
+        :param recursive:  (Default value = True)
+
+        """
         raise NotImplementedError('Storage.copy_cmd')
 
     @abc.abstractmethod
     def exists(self, url):
-        """checks if the url exists in the given storage"""
+        """checks if the url exists in the given storage
+
+        :param url: 
+
+        """
         raise NotImplementedError('Storage.exists')
 
 
 class GCSStorage(Storage):
+    """ """
 
     def __init__(self):
         self.client = storage.Client()
 
     def copy_cmd(self, src_url, dst_url, recursive=True):
+        """
+
+        :param src_url: 
+        :param dst_url: 
+        :param recursive:  (Default value = True)
+
+        """
         if recursive:
             rcmd = "-r"
         else:
@@ -50,6 +79,12 @@ class GCSStorage(Storage):
 
     @classmethod
     def _check_prefix(cls, bucket, prefix):
+        """
+
+        :param bucket: 
+        :param prefix: 
+
+        """
         # url points to a dir like resource
         # Checking if at least one blob exists
         blobs = [x for x in bucket.list_blobs(prefix=prefix, max_results=1)]
@@ -58,6 +93,11 @@ class GCSStorage(Storage):
         return False
 
     def exists(self, url):
+        """
+
+        :param url: 
+
+        """
         url_parts = urlparse(url)
         bucket_name = url_parts.netloc
         bucket = self.client.bucket(bucket_name)

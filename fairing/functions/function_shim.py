@@ -9,11 +9,17 @@ logging.basicConfig(format='%(message)s')
 logging.getLogger().setLevel(logging.INFO)
 
 class ObjectType(Enum):
+    """ """
     FUNCTION = 1
     CLASS = 2
     NOT_SUPPORTED = 3
 
 def get_execution_obj_type(obj):
+    """
+
+    :param obj: 
+
+    """
     # Check if a function is provided
     if (isinstance(obj, types.FunctionType) or  #pylint:disable=consider-merging-isinstance
             isinstance(obj, types.BuiltinFunctionType) or
@@ -32,6 +38,11 @@ def get_execution_obj_type(obj):
 
 # compare the Python major and minor version for local and remote python
 def compare_version(local_python_version):
+    """
+
+    :param local_python_version: 
+
+    """
     remote_python_version = ".".join([str(x) for x in sys.version_info[0:3]])
     if local_python_version != remote_python_version:
         raise RuntimeError('The Python version ' + remote_python_version + ' mismatches \
@@ -39,6 +50,11 @@ def compare_version(local_python_version):
 
 
 def call(serialized_fn_file):
+    """
+
+    :param serialized_fn_file: 
+
+    """
     with open(serialized_fn_file, 'rb') as f:
         obj = cloudpickle.load(f)
         obj_type = get_execution_obj_type(obj)
@@ -50,6 +66,7 @@ def call(serialized_fn_file):
             raise RuntimeError("Object must of type function or a \
                                class but got {}".format(type(obj)))
         if res:
+                                 """ """
             print(res)
 
 if __name__ == '__main__':

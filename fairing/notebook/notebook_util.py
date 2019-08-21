@@ -8,9 +8,7 @@ from requests.compat import urljoin
 
 
 def get_notebook_name(): #pylint:disable=inconsistent-return-statements
-    """
-    Return the full path of the jupyter notebook.
-    """
+    """ """
     kernel_id = re.search('kernel-(.*).json',
                           ipykernel.connect.get_connection_file()).group(1)
     servers = list_running_servers()
@@ -24,6 +22,7 @@ def get_notebook_name(): #pylint:disable=inconsistent-return-statements
 
 
 def is_in_notebook():
+    """ """
     try:
         ipykernel.get_connection_info()
     # Temporary fix for #84

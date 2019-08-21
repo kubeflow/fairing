@@ -7,7 +7,11 @@ class DeployerInterface(object):
     """Deploys a training job to the cluster"""
 
     def deploy(self, pod_template_spec):
-        """Deploys the training job"""
+        """Deploys the training job
+
+        :param pod_template_spec: 
+
+        """
         raise NotImplementedError('TrainingInterface.deploy')
 
     @abc.abstractmethod

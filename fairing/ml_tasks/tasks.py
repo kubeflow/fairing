@@ -10,15 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class BaseTask:
-    """
-    Base class for handling high level ML tasks.
-    args:
-        entry_point: An object or reference to the source code that has to be deployed.
-        base_docker_image: Name of the base docker image that should be used as a base image
+    """Base class for handling high level ML tasks.
+
+    :param entry_point: An object or reference to the source code that has to be deployed.
+    :param base_docker_image: Name of the base docker image that should be used as a base image
             when building a new docker image as part of an ML task deployment.
-        docker_registry: Docker registry to store output docker images.
-        input_files: list of files that needs to be packaged along with the entry point.
+    :param docker_registry: Docker registry to store output docker images.
+    :param input_files: list of files that needs to be packaged along with the entry point.
             E.g. local python modules, trained model weigths, etc.
+
     """
 
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None,
@@ -61,12 +61,14 @@ class BaseTask:
         logger.warning("Using builder: {}".format(type(self.builder)))
 
     def _build(self):
+        """ """
         logging.info("Building the docker image.")
         self.builder.build()
         self.pod_spec = self.builder.generate_pod_spec()
 
 
 class TrainJob(BaseTask):
+    """ """
 
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None,  # pylint:disable=useless-super-delegation
                  input_files=None, backend=None, pod_spec_mutators=None):
@@ -74,6 +76,7 @@ class TrainJob(BaseTask):
                          input_files, backend, pod_spec_mutators)
 
     def submit(self):
+        """ """
         self._build()
         deployer = self._backend.get_training_deployer(
             pod_spec_mutators=self._pod_spec_mutators)
@@ -81,6 +84,7 @@ class TrainJob(BaseTask):
 
 
 class PredictionEndpoint(BaseTask):
+    """ """
 
     def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None,
                  backend=None, service_type='LoadBalancer', pod_spec_mutators=None):
@@ -90,6 +94,7 @@ class PredictionEndpoint(BaseTask):
                          input_files, backend, pod_spec_mutators)
 
     def create(self):
+        """ """
         self._build()
         logging.info("Deploying the endpoint.")
         self._deployer = self._backend.get_serving_deployer(
@@ -100,6 +105,12 @@ class PredictionEndpoint(BaseTask):
         logger.warning("Prediction endpoint: {}".format(self.url))
 
     def predict_nparray(self, data, feature_names=None):
+        """
+
+        :param data: 
+        :param feature_names:  (Default value = None)
+
+        """
         pdata = {
             "data": {
                 "names": feature_names,
@@ -114,4 +125,5 @@ class PredictionEndpoint(BaseTask):
         return json.loads(r.text)
 
     def delete(self):
+        """ """
         self._deployer.delete()

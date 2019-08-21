@@ -6,6 +6,7 @@ from fairing.notebook import notebook_util
 
 
 class FullNotebookPreProcessor(BasePreProcessor):
+    """ """
     # TODO: Allow configuration of errors / timeout options
     def __init__(self,
                  notebook_file=None,
@@ -43,4 +44,5 @@ class FullNotebookPreProcessor(BasePreProcessor):
 
     # We don't want to set a default executable for the full_notebook preprocessor.
     def set_default_executable(self):
+        """ """
         pass

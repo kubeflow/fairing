@@ -9,6 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def parse_cluster_spec_env():
+    """ """
     env_config = os.environ.get('CLUSTER_SPEC') or os.environ.get('TF_CONFIG')
     cluster = None
     if env_config:
@@ -44,12 +45,11 @@ def parse_cluster_spec_env():
 
 
 def nslookup(hostname, retries=600):
-    """
-    Does nslookup for the hostname and returns the IPs for it.
-    Attributes:
-        hostname: hostname to be looked up
-        retries: #retries before failing. In autoscaled cluster, it might take upto 10mins
-                to create a new node so the default value is set high.
+    """Does nslookup for the hostname and returns the IPs for it.
+
+    :param hostname: 
+    :param retries:  (Default value = 600)
+
     """
     last_exception = None
     for _ in range(retries):
@@ -65,6 +65,13 @@ def nslookup(hostname, retries=600):
 
 
 def write_ip_list_file(file_name, ips, port=None):
+    """
+
+    :param file_name: 
+    :param ips: 
+    :param port:  (Default value = None)
+
+    """
     with open(file_name, 'w') as f:
         if port:
             content = ["{} {}".format(ip, port) for ip in ips]
@@ -77,6 +84,11 @@ def write_ip_list_file(file_name, ips, port=None):
 
 
 def load_properties_config_file(config_file):
+    """
+
+    :param config_file: 
+
+    """
     config_parser = configparser.ConfigParser(allow_no_value=True)
     with open(config_file, 'r') as f:
         # Hack to get config parser work with properties files
@@ -87,6 +99,12 @@ def load_properties_config_file(config_file):
 
 
 def save_properties_config_file(config, file_name=None):
+    """
+
+    :param config: 
+    :param file_name:  (Default value = None)
+
+    """
     if not file_name:
         _, file_name = tempfile.mkstemp()
 
@@ -102,12 +120,25 @@ def save_properties_config_file(config, file_name=None):
 
 
 def update_config_file(file_name, field_name, new_value):
+    """
+
+    :param file_name: 
+    :param field_name: 
+    :param new_value: 
+
+    """
     config = load_properties_config_file(file_name)
     config[field_name] = new_value
     save_properties_config_file(config, file_name)
 
 
 def scrub_fields(config, filed_names):
+    """
+
+    :param config: 
+    :param filed_names: 
+
+    """
     for field in filed_names:
         if field in config:
             config.pop(field)
@@ -115,6 +146,12 @@ def scrub_fields(config, filed_names):
 
 
 def get_config_value(config, field_names):
+    """
+
+    :param config: 
+    :param field_names: 
+
+    """
     buf = {}
     for field in field_names:
         if field in config:
@@ -129,6 +166,12 @@ def get_config_value(config, field_names):
 
 
 def init_lightgbm_env(config_file, mlist_file):
+    """
+
+    :param config_file: 
+    :param mlist_file: 
+
+    """
     hosts, ips, ports, rank = parse_cluster_spec_env()
     #print("Rank: {}".format(rank))
     if len(set(ports)) > 1:

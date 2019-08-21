@@ -10,9 +10,15 @@ from fairing.notebook import notebook_util
 
 
 class FilterMagicCommands(NbPreProcessor):
+    """ """
     _magic_pattern = re.compile('^!|^%')
 
     def filter_magic_commands(self, src):
+        """
+
+        :param src: 
+
+        """
         filtered = []
         for line in src.splitlines():
             match = self._magic_pattern.match(line)
@@ -21,6 +27,13 @@ class FilterMagicCommands(NbPreProcessor):
         return '\n'.join(filtered)
 
     def preprocess_cell(self, cell, resources, index): #pylint:disable=unused-argument
+        """
+
+        :param cell: 
+        :param resources: 
+        :param index: 
+
+        """
         if cell['cell_type'] == 'code':
             cell['source'] = self.filter_magic_commands(cell['source'])
         return cell, resources
@@ -31,6 +44,11 @@ class FilterIncludeCell(NbPreProcessor):
     _pattern = re.compile('.*fairing:include-cell.*')
 
     def filter_include_cell(self, src):
+        """
+
+        :param src: 
+
+        """
         for line in src.splitlines():
             match = self._pattern.match(line)
             if match:
@@ -38,6 +56,13 @@ class FilterIncludeCell(NbPreProcessor):
         return ''
 
     def preprocess_cell(self, cell, resources, index): #pylint:disable=unused-argument
+        """
+
+        :param cell: 
+        :param resources: 
+        :param index: 
+
+        """
         if cell['cell_type'] == 'code':
             cell['source'] = self.filter_include_cell(cell['source'])
 
@@ -45,6 +70,7 @@ class FilterIncludeCell(NbPreProcessor):
 
 
 class ConvertNotebookPreprocessor(BasePreProcessor):
+    """ """
     def __init__(self, #pylint:disable=dangerous-default-value
                  notebook_file=None,
                  notebook_preprocessor=FilterMagicCommands,
@@ -68,6 +94,7 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
         self.overwrite = overwrite
 
     def preprocess(self):
+        """ """
         exporter = nbconvert.PythonExporter()
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         contents, _ = exporter.from_filename(self.notebook_file)
@@ -106,6 +133,7 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
         self.overwrite = overwrite
 
     def preprocess(self):
+        """ """
         exporter = nbconvert.PythonExporter()
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         processed, _ = exporter.from_filename(self.notebook_file)

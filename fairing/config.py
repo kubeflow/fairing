@@ -45,10 +45,12 @@ deployer_map = {
 
 
 class Config(object):
+    """ """
     def __init__(self):
         self.reset()
 
     def reset(self):
+        """ """
         if notebook_util.is_in_notebook():
             self._preprocessor_name = 'notebook'
         else:
@@ -62,10 +64,17 @@ class Config(object):
         self._deployer_kwargs = {}
 
     def set_preprocessor(self, name=None, **kwargs):
+        """
+
+        :param name:  (Default value = None)
+        :param **kwargs: 
+
+        """
         self._preprocessor_name = name
         self._preprocessor_kwargs = kwargs
 
     def get_preprocessor(self):
+        """ """
         fn = preprocessor_map.get(self._preprocessor_name)
         if fn is None:
             raise Exception('Preprocessor name not found: {}\nAvailable preprocessor: {}'.format(
@@ -73,10 +82,21 @@ class Config(object):
         return fn(**self._preprocessor_kwargs)
 
     def set_builder(self, name=DEFAULT_BUILDER, **kwargs):
+        """
+
+        :param name:  (Default value = DEFAULT_BUILDER)
+        :param **kwargs: 
+
+        """
         self._builder_name = name
         self._builder_kwargs = kwargs
 
     def get_builder(self, preprocessor):
+        """
+
+        :param preprocessor: 
+
+        """
         fn = builder_map.get(self._builder_name)
         if fn is None:
             raise Exception('Builder name not found: {}\nAvailable builder: {}'.format(
@@ -84,10 +104,17 @@ class Config(object):
         return fn(preprocessor=preprocessor, **self._builder_kwargs)
 
     def set_deployer(self, name=DEFAULT_DEPLOYER, **kwargs):
+        """
+
+        :param name:  (Default value = DEFAULT_DEPLOYER)
+        :param **kwargs: 
+
+        """
         self._deployer_name = name
         self._deployer_kwargs = kwargs
 
     def get_deployer(self):
+        """ """
         fn = deployer_map.get(self._deployer_name)
         if fn is None:
             raise Exception('Deployer name not found: {}\nAvailable deployer: {}'.format(
@@ -95,6 +122,7 @@ class Config(object):
         return fn(**self._deployer_kwargs)
 
     def run(self):
+        """ """
         preprocessor = self.get_preprocessor()
         logging.info("Using preprocessor: %s", preprocessor)
         builder = self.get_builder(preprocessor)
@@ -109,10 +137,21 @@ class Config(object):
         return preprocessor, builder, deployer
 
     def deploy(self, pod_spec):
+        """
+
+        :param pod_spec: 
+
+        """
         return self.get_deployer().deploy(pod_spec)
 
     def fn(self, fn):
+        """
+
+        :param fn: 
+
+        """
         def ret_fn():
+            """ """
             self.set_preprocessor('function', function_obj=fn)
             self.run()
         return ret_fn

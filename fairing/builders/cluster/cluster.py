@@ -15,16 +15,22 @@ logger = logging.getLogger(__name__)
 class ClusterBuilder(BaseBuilder):
     """Builds a docker image in a Kubernetes cluster.
 
+    :param registry: Required. Registry to push image to
+                       Example: gcr.io/kubeflow-images
+    :type registry: str
+    :param base_image: Base image to use for the image build
+    :type base_image: str
+    :param preprocessor: Preprocessor to use to modify inputs
+                                        before sending them to docker build
+    :type preprocessor: BasePreProcessor
+    :param context_source: context available to the
+                                                cluster build
+    :type context_source: ContextSourceInterface
+    :param context_source: context available to the
+                                                cluster build
+       push {bool} -- Whether or not to push the image to the registry
+    :type context_source: ContextSourceInterface
 
-     Args:
-        registry (str): Required. Registry to push image to
-                        Example: gcr.io/kubeflow-images
-        base_image (str): Base image to use for the image build
-        preprocessor (BasePreProcessor): Preprocessor to use to modify inputs
-                                         before sending them to docker build
-        context_source (ContextSourceInterface): context available to the
-                                                 cluster build
-        push {bool} -- Whether or not to push the image to the registry
     """
 
     def __init__(self,
@@ -51,6 +57,7 @@ class ClusterBuilder(BaseBuilder):
         self.namespace = namespace or fairing.utils.get_default_target_namespace()
 
     def build(self):
+        """ """
         logging.info("Building image using cluster builder.")
         install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
         dockerfile_path = dockerfile.write_dockerfile(

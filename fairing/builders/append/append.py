@@ -21,15 +21,15 @@ class AppendBuilder(BaseBuilder):
     """Builds a docker image by appending a new layer tarball to an existing
     base image. Does not require docker and runs in userspace.
 
+    :param base_image {str} -- Base image to use for the image build (default: {constants.DEFAULT_BASE_IMAGE})
+    :param base_image {str} -- Base image to use for the image build (default: {constants.DEFAULT_BASE_IMAGE})
+       preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs
+                         before sending them to docker build
+    :param base_image {str} -- Base image to use for the image build (default: {constants.DEFAULT_BASE_IMAGE})
+       preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs
+                         before sending them to docker build
+       push {bool} -- Whether or not to push the image to the registry
 
-     Args:
-        registry {str} -- Registry to push image to. Required.
-                          Example: gcr.io/kubeflow-images (default: {None})
-        base_image {str} -- Base image to use for the image build (default:
-                          {constants.DEFAULT_BASE_IMAGE})
-        preprocessor {BasePreProcessor} -- Preprocessor to use to modify inputs
-                          before sending them to docker build
-        push {bool} -- Whether or not to push the image to the registry
     """
 
     def __init__(self,
@@ -66,6 +66,12 @@ class AppendBuilder(BaseBuilder):
             pass
 
     def _build(self, transport, src):
+        """
+
+        :param transport: 
+        :param src: 
+
+        """
         file, hash = self.preprocessor.context_tar_gz()  # pylint:disable=redefined-builtin
         self.context_file, self.context_hash = file, hash
         self.image_tag = self.full_image_name(self.context_hash)
@@ -78,6 +84,14 @@ class AppendBuilder(BaseBuilder):
         return new_img
 
     def _push(self, transport, src, img, dst):
+        """
+
+        :param transport: 
+        :param src: 
+        :param img: 
+        :param dst: 
+
+        """
         creds = docker_creds.DefaultKeychain.Resolve(dst)
         with docker_session.Push(dst, creds, transport,
                                  mount=[src.as_repository()]) as session:
@@ -86,6 +100,14 @@ class AppendBuilder(BaseBuilder):
         os.remove(self.context_file)
 
     def timed_push(self, transport, src, img, dst):
+        """
+
+        :param transport: 
+        :param src: 
+        :param img: 
+        :param dst: 
+
+        """
         logger.warning("Pushing image {}...".format(self.image_tag))
         start = timer()
         self._push(transport, src, img, dst)

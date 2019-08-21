@@ -3,6 +3,11 @@ import fairing
 from fairing.constants import constants
 
 def configure_http_instance(http=None):
+    """
+
+    :param http:  (Default value = None)
+
+    """
     if not http:
         http = httplib2.Http()
 
@@ -12,6 +17,11 @@ def configure_http_instance(http=None):
     # https://github.com/googleapis/google-api-python-client/blob/master/googleapiclient/http.py
     # The closure that will replace 'httplib2.Http.request'.
     def append_ua(headers):
+        """
+
+        :param headers: 
+
+        """
         headers = headers or {}
         if 'user-agent' in headers:
             headers['user-agent'] = user_agent + " " + headers['user-agent']
@@ -19,7 +29,12 @@ def configure_http_instance(http=None):
             headers['user-agent'] = user_agent
         return headers
     def new_request(*args, **kwargs):
-        """Modify the request headers to add the user-agent."""
+        """Modify the request headers to add the user-agent.
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
         if args and len(args) >= 4:
             args = list(args)
             # args is a tuple so assignment is not possible

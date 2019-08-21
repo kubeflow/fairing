@@ -10,14 +10,14 @@ import posixpath
 import tempfile
 
 class BasePreProcessor(object):
-    """
-    Prepares a context that gets sent to the builder for the docker build and sets the entrypoint
-
+    """Prepares a context that gets sent to the builder for the docker build and sets the entrypoint
+    
     input_files -  the source files to be processed
     executable - the file to execute using command (e.g. main.py)
     output_map - a dict of files to be added without preprocessing
     path_prefix - the prefix of the path where the files will be added in the container
     command - the command to pass to the builder
+
 
     """
     def __init__(self,
@@ -44,6 +44,7 @@ class BasePreProcessor(object):
     # TODO: Add workaround for users who do not want to set an executable for
     # their command.
     def set_default_executable(self): #pylint:disable=inconsistent-return-statements
+        """ """
         if self.executable is not None:
             return self.executable
         if len(self.input_files) == 1:
@@ -56,9 +57,11 @@ class BasePreProcessor(object):
             return
 
     def preprocess(self):
+        """ """
         return self.input_files
 
     def context_map(self):
+        """ """
         # Create context mapping from destination --> source to avoid duplicates
         # in context archive.
         c_map = {}
@@ -84,6 +87,11 @@ class BasePreProcessor(object):
         return c_map
 
     def context_tar_gz(self, output_file=None):
+        """
+
+        :param output_file:  (Default value = None)
+
+        """
         if not output_file:
             _, output_file = tempfile.mkstemp(prefix="/tmp/fairing_context_")
         logging.info("Creating docker context: %s", output_file)
@@ -97,6 +105,7 @@ class BasePreProcessor(object):
         return output_file, utils.crc(self._context_tar_path)
 
     def get_command(self):
+        """ """
         if self.command is None:
             return []
         cmd = self.command.copy()
@@ -105,6 +114,7 @@ class BasePreProcessor(object):
         return cmd
 
     def fairing_runtime_files(self):
+        """ """
         fairing_dir = os.path.dirname(fairing.__file__)
         ret = {}
         for f in ["__init__.py", "runtime_config.py"]:
@@ -114,6 +124,7 @@ class BasePreProcessor(object):
         return ret
 
     def is_requirements_txt_file_present(self):
+        """ """
         dst_files = self.context_map().keys()
         reqs_file = posixpath.join(self.path_prefix, "requirements.txt")
         res = reqs_file in dst_files
@@ -121,5 +132,10 @@ class BasePreProcessor(object):
 
 # Reset the mtime on the the tarball for reproducibility
 def reset_tar_mtime(tarinfo):
+    """
+
+    :param tarinfo: 
+
+    """
     tarinfo.mtime = 0
     return tarinfo

@@ -11,6 +11,16 @@ def write_dockerfile(
         dockerfile_path=None, #pylint:disable=unused-argument
         base_image=None,
         install_reqs_before_copy=False):
+    """
+
+    :param docker_command:  (Default value = None)
+    :param destination:  (Default value = None)
+    :param path_prefix:  (Default value = constants.DEFAULT_DEST_PREFIX)
+    :param dockerfile_path:  (Default value = None)
+    :param #pylint:disable:  (Default value = unused-argumentbase_image=None)
+    :param install_reqs_before_copy:  (Default value = False)
+
+    """
     if not destination:
         _, destination = tempfile.mkstemp(prefix="/tmp/fairing_dockerfile_")
     content_lines = ["FROM {}".format(base_image),

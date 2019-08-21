@@ -6,6 +6,13 @@ from fairing.preprocessors.base import BasePreProcessor
 from fairing.preprocessors.full_notebook import FullNotebookPreProcessor
 
 def guess_preprocessor(entry_point, input_files, output_map):
+    """
+
+    :param entry_point: 
+    :param input_files: 
+    :param output_map: 
+
+    """
     if get_execution_obj_type(entry_point) != ObjectType.NOT_SUPPORTED:
         return FunctionPreProcessor(function_obj=entry_point,
                                     input_files=input_files,
@@ -25,6 +32,7 @@ def guess_preprocessor(entry_point, input_files, output_map):
 
 
 def is_docker_daemon_exists():
+    """ """
     try:
         docker.APIClient(version='auto')
         return True

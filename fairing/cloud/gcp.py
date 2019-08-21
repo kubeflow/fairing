@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class GCSUploader(object):
+    """ """
     def __init__(
             self,
             credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV)): #pylint:disable=unused-argument
@@ -21,12 +22,24 @@ class GCSUploader(object):
                          blob_name,
                          bucket_name,
                          file_to_upload):
+        """
+
+        :param blob_name: 
+        :param bucket_name: 
+        :param file_to_upload: 
+
+        """
         bucket = self.get_or_create_bucket(bucket_name)
         blob = bucket.blob(blob_name)
         blob.upload_from_filename(file_to_upload)
         return "gs://{}/{}".format(bucket_name, blob_name)
 
     def get_or_create_bucket(self, bucket_name):
+        """
+
+        :param bucket_name: 
+
+        """
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
             return bucket
@@ -36,6 +49,11 @@ class GCSUploader(object):
 
 
 def guess_project_name(credentials_file=None):
+    """
+
+    :param credentials_file:  (Default value = None)
+
+    """
     # Check credentials file if provided
     if credentials_file is not None:
         with open(credentials_file, 'r') as f:
@@ -58,6 +76,13 @@ def guess_project_name(credentials_file=None):
 
 
 def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
+    """
+
+    :param kube_manager: 
+    :param pod_spec: 
+    :param namespace: 
+
+    """
     try:
         if kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
             add_gcp_credentials(kube_manager, pod_spec, namespace)
@@ -69,6 +94,13 @@ def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
 
 
 def add_gcp_credentials(kube_manager, pod_spec, namespace):
+    """
+
+    :param kube_manager: 
+    :param pod_spec: 
+    :param namespace: 
+
+    """
     if not kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
         raise ValueError('Unable to mount credentials: '
                          + 'Secret user-gcp-sa not found in namespace {}'.format(namespace))
@@ -99,6 +131,7 @@ def add_gcp_credentials(kube_manager, pod_spec, namespace):
         pod_spec.volumes = [volume]
 
 def get_default_docker_registry():
+    """ """
     try:
         return 'gcr.io/{}/fairing-job'.format(guess_project_name())
     except Exception:

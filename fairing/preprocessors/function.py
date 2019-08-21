@@ -22,11 +22,12 @@ OUTPUT_FILE = """import cloudpickle
 
 
 class FunctionPreProcessor(BasePreProcessor):
-    """
-    FunctionPreProcessor preprocesses a single function.
+    """FunctionPreProcessor preprocesses a single function.
     It sets as the command a function_shim that calls the function directly.
-
+    
     args: function_name - the name of the function to be called
+
+
     """
 
     def __init__(self,
@@ -89,4 +90,5 @@ class FunctionPreProcessor(BasePreProcessor):
                         "--python_version", local_python_version]
 
     def get_command(self):
+        """ """
         return self.command

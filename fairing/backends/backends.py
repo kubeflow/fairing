@@ -23,23 +23,39 @@ logger = logging.getLogger(__name__)
 
 @six.add_metaclass(abc.ABCMeta)
 class BackendInterface(object):
+    """ """
 
     @abc.abstractmethod
     def get_builder(self, preprocessor, base_image, registry):
-        """Creates a builder instance with right config for the given backend"""
+        """Creates a builder instance with right config for the given backend
+
+        :param preprocessor: 
+        :param base_image: 
+        :param registry: 
+
+        """
         raise NotImplementedError('BackendInterface.get_builder')
 
     @abc.abstractmethod
     def get_training_deployer(self, pod_spec_mutators=None):
-        """Creates a deployer to be used with a training job"""
+        """Creates a deployer to be used with a training job
+
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         raise NotImplementedError('BackendInterface.get_training_deployer')
 
     @abc.abstractmethod
     def get_serving_deployer(self, model_class):
-        """Creates a deployer to be used with a serving job"""
+        """Creates a deployer to be used with a serving job
+
+        :param model_class: 
+
+        """
         raise NotImplementedError('BackendInterface.get_serving_deployer')
 
     def get_base_contanier(self):
+        """ """
         "Returns the approriate base container for the current environment"
         py_version = ".".join([str(x) for x in sys.version_info[0:3]])
         base_image = 'registry.hub.docker.com/library/python:{}'.format(
@@ -47,11 +63,13 @@ class BackendInterface(object):
         return base_image
 
     def get_docker_registry(self):
+        """ """
         "Returns the approriate docker registry for the current environment"
         return None
 
 
 class KubernetesBackend(BackendInterface):
+    """ """
 
     def __init__(self, namespace=None, build_context_source=None):
         if not namespace and not fairing.utils.is_running_in_k8s():
@@ -64,6 +82,15 @@ class KubernetesBackend(BackendInterface):
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,  # pylint:disable=arguments-differ
                     pod_spec_mutators=None):
+        """
+
+        :param preprocessor: 
+        :param base_image: 
+        :param registry: 
+        :param needs_deps_installation:  (Default value = True)
+        :param # pylint:disable:  (Default value = arguments-differpod_spec_mutators=None)
+
+        """
         if not needs_deps_installation:
             return AppendBuilder(preprocessor=preprocessor,
                                  base_image=base_image,
@@ -85,15 +112,28 @@ class KubernetesBackend(BackendInterface):
                 "Not able to guess the right builder for this job!")
 
     def get_training_deployer(self, pod_spec_mutators=None):
+        """
+
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         return Job(self._namespace, pod_spec_mutators=pod_spec_mutators)
 
     def get_serving_deployer(self, model_class, service_type='LoadBalancer', # pylint:disable=arguments-differ
                              pod_spec_mutators=None):
+        """
+
+        :param model_class: 
+        :param service_type:  (Default value = 'LoadBalancer')
+        :param # pylint:disable:  (Default value = arguments-differpod_spec_mutators=None)
+
+        """
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
 
 
 class GKEBackend(KubernetesBackend):
+    """ """
 
     def __init__(self, namespace=None, build_context_source=None):
         super(GKEBackend, self).__init__(namespace, build_context_source)
@@ -102,6 +142,15 @@ class GKEBackend(KubernetesBackend):
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,
                     pod_spec_mutators=None):
+        """
+
+        :param preprocessor: 
+        :param base_image: 
+        :param registry: 
+        :param needs_deps_installation:  (Default value = True)
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
 
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
@@ -140,20 +189,34 @@ class GKEBackend(KubernetesBackend):
             raise RuntimeError(message)
 
     def get_training_deployer(self, pod_spec_mutators=None):
+        """
+
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
     def get_serving_deployer(self, model_class, service_type='LoadBalancer',
                              pod_spec_mutators=None):
+        """
+
+        :param model_class: 
+        :param service_type:  (Default value = 'LoadBalancer')
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
 
     def get_docker_registry(self):
+        """ """
         return fairing.cloud.gcp.get_default_docker_registry()
 
 
 class AWSBackend(KubernetesBackend):
+    """ """
 
     def __init__(self, namespace=None, build_context_source=None):
         build_context_source = build_context_source or s3_context.S3ContextSource()
@@ -161,6 +224,15 @@ class AWSBackend(KubernetesBackend):
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,
                     pod_spec_mutators=None):
+        """
+
+        :param preprocessor: 
+        :param base_image: 
+        :param registry: 
+        :param needs_deps_installation:  (Default value = True)
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
         if aws.is_ecr_registry(registry):
@@ -173,15 +245,27 @@ class AWSBackend(KubernetesBackend):
                                                    pod_spec_mutators)
 
     def get_training_deployer(self, pod_spec_mutators=None):
+        """
+
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(aws.add_aws_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
     def get_serving_deployer(self, model_class, pod_spec_mutators=None): # pylint:disable=arguments-differ
+        """
+
+        :param model_class: 
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         return Serving(model_class, namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
 
 class KubeflowBackend(KubernetesBackend):
+    """ """
 
     def __init__(self, namespace=None, build_context_source=None):
         if not namespace and not fairing.utils.is_running_in_k8s():
@@ -190,6 +274,7 @@ class KubeflowBackend(KubernetesBackend):
 
 
 class KubeflowGKEBackend(GKEBackend):
+    """ """
 
     def __init__(self, namespace=None, build_context_source=None):
         if not namespace and not fairing.utils.is_running_in_k8s():
@@ -199,6 +284,7 @@ class KubeflowGKEBackend(GKEBackend):
 
 
 class KubeflowAWSBackend(AWSBackend):
+    """ """
 
     def __init__(self, namespace=None, build_context_source=None): # pylint:disable=useless-super-delegation
         super(KubeflowAWSBackend, self).__init__(
@@ -206,6 +292,7 @@ class KubeflowAWSBackend(AWSBackend):
 
 
 class GCPManagedBackend(BackendInterface):
+    """ """
 
     def __init__(self, project_id=None, region=None, training_scale_tier=None):
         super(GCPManagedBackend, self).__init__()
@@ -215,6 +302,15 @@ class GCPManagedBackend(BackendInterface):
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,  # pylint:disable=arguments-differ
                     pod_spec_mutators=None):
+        """
+
+        :param preprocessor: 
+        :param base_image: 
+        :param registry: 
+        :param needs_deps_installation:  (Default value = True)
+        :param # pylint:disable:  (Default value = arguments-differpod_spec_mutators=None)
+
+        """
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         # TODO (karthikv2k): Add cloud build as the deafult
@@ -240,12 +336,24 @@ class GCPManagedBackend(BackendInterface):
                 "Not able to guess the right builder for this job!")
 
     def get_training_deployer(self, pod_spec_mutators=None):
+        """
+
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         return GCPJob(self._project_id, self._region, self._training_scale_tier)
 
     def get_serving_deployer(self, model_class, pod_spec_mutators=None): # pylint:disable=arguments-differ
+        """
+
+        :param model_class: 
+        :param pod_spec_mutators:  (Default value = None)
+
+        """
         # currently GCP serving deployer doesn't implement deployer interface
         raise NotImplementedError(
             "GCP managed serving is not integrated into high level API yet.")
 
     def get_docker_registry(self):
+        """ """
         return fairing.cloud.gcp.get_default_docker_registry()
