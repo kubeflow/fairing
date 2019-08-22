@@ -10,11 +10,12 @@ from fairing.deployers.job.job import Job
 
 logger = logging.getLogger(__name__)
 
-class Serving(Job):
-    """
-    Serves a prediction endpoint using Kubernetes deployments and services
 
+class Serving(Job):
+    """Serves a prediction endpoint using Kubernetes deployments and services
+    
     serving_class: the name of the class that holds the predict function.
+
 
     """
 
@@ -32,6 +33,11 @@ class Serving(Job):
         self.pod_spec_mutators = pod_spec_mutators or []
 
     def deploy(self, pod_spec):
+        """deploy a seldon-core REST service
+
+        :param pod_spec: pod spec for the service
+
+        """
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
         for fn in self.pod_spec_mutators:
@@ -69,6 +75,11 @@ class Serving(Job):
         return url
 
     def generate_deployment_spec(self, pod_template_spec):
+        """generate deployment spec(V1Deployment)
+
+        :param pod_template_spec: pod spec template
+
+        """
         return k8s_client.V1Deployment(
             api_version="apps/v1",
             kind="Deployment",
@@ -85,6 +96,7 @@ class Serving(Job):
         )
 
     def generate_service_spec(self):
+        """ generate service spec(V1ServiceSpec)"""
         return k8s_client.V1Service(
             api_version="v1",
             kind="Service",
@@ -103,6 +115,7 @@ class Serving(Job):
         )
 
     def delete(self):
+        """ delete the deployed service"""
         v1_api = k8s_client.CoreV1Api()
         try:
             v1_api.delete_namespaced_service(self.service.metadata.name, #pylint:disable=no-value-for-parameter

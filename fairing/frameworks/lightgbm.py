@@ -42,6 +42,13 @@ DATA_PARALLEL_MODES = ["data", "voting"]
 
 
 def _modify_paths_in_config(config, field_names, dst_base_dir):
+    """modify lightgbm config fields
+
+    :param config: config entries
+    :param field_names: list of fields
+    :param dst_base_dir: path to destination directory
+
+    """
     field_name, field_value = utils.get_config_value(config, field_names)
     if field_value is None:
         return [], []
@@ -55,6 +62,14 @@ def _modify_paths_in_config(config, field_names, dst_base_dir):
 
 
 def _update_maps(output_map, copy_files, src_paths, dst_paths):
+    """update maps
+
+    :param output_map: output map entries
+    :param copy_files: files to be copied
+    :param src_paths: source paths
+    :param dst_paths: destination paths
+
+    """
     for src_path, dst_path in zip(src_paths, dst_paths):
         if os.path.exists(src_path):
             output_map[src_path] = dst_path
@@ -62,7 +77,12 @@ def _update_maps(output_map, copy_files, src_paths, dst_paths):
             copy_files[src_path] = dst_path
 
 
-def _get_commands_for_file_ransfer(files_map):
+def _get_commands_for_file_transfer(files_map):
+    """get commands for file transfer
+
+    :param files_map: files to be mapped
+
+    """
     cmds = []
     for k, v in files_map.items():
         storage_obj = storage.get_storage_class(k)()
@@ -75,6 +95,15 @@ def _get_commands_for_file_ransfer(files_map):
 
 def _generate_entrypoint(copy_files_before, copy_files_after, config_file,
                          init_cmds=None, copy_patitioned_files=None):
+    """ generate entry point
+
+    :param copy_files_before: previous copied files
+    :param copy_files_after: files to be copied
+    :param config_file: path to config file
+    :param init_cmds:  commands(Default value = None)
+    :param copy_patitioned_files:  (Default value = None)
+
+    """
     buf = ["#!/bin/sh",
            "set -e"]
     if init_cmds:
@@ -86,12 +115,12 @@ def _generate_entrypoint(copy_files_before, copy_files_after, config_file,
         for rank, files in copy_patitioned_files.items():
             buf.append("\t{})".format(rank))
             buf.extend(
-                ["\t\t"+cmd for cmd in _get_commands_for_file_ransfer(files)])
+                ["\t\t" + cmd for cmd in _get_commands_for_file_transfer(files)])
             buf.append("\t\t;;")
         buf.append("esac")
 
     # copying files that are common to all workers
-    buf.extend(_get_commands_for_file_ransfer(copy_files_before))
+    buf.extend(_get_commands_for_file_transfer(copy_files_before))
 
     buf.append("echo 'All files are copied!'")
     buf.append("{} config={}".format(LIGHTGBM_EXECUTABLE, config_file))
@@ -109,6 +138,12 @@ def _generate_entrypoint(copy_files_before, copy_files_after, config_file,
 
 
 def _add_train_weight_file(config, dst_base_dir):
+    """add train weight file
+
+    :param config: config entries
+    :param dst_base_dir: destination directory
+
+    """
     _, field_value = utils.get_config_value(config, TRAIN_DATA_FIELDS)
     if field_value is None:
         return [], []
@@ -133,6 +168,13 @@ def _add_train_weight_file(config, dst_base_dir):
 
 
 def generate_context_files(config, config_file_name, num_machines):
+    """generate context files
+
+    :param config: config entries
+    :param config_file_name: config file name
+    :param num_machines: number of machines
+
+    """
     # Using ordered dict to have consistent behaviour around order in which
     # files are copied in the worker nodes.
     output_map = collections.OrderedDict()
@@ -224,27 +266,21 @@ def execute(config,
             cores_per_worker=None,
             memory_per_worker=None,
             pod_spec_mutators=None):
-    """
-    Runs the LightGBM CLI in a single pod in user's Kubeflow cluster.
+    """Runs the LightGBM CLI in a single pod in user's Kubeflow cluster.
     Users can configure it to be a train, predict, and other supported tasks
     by using the right config.
     Please refere https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
     for more information on config options.
-    Attributes:
-        config: LightGBM config - Ref
-               https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
-        docker_registry: registry to push the built docker image
-        base_image: base image to use for this job.
-                    It should have lightgbm installed and should be in PATH variable.
-        namespace: Kubernetes namespace to use
-        stream_log: True - streams logs from the first worker in the training job
-                           after job launch till the training is finished.
-                    Flase - no logs are streamed after the job launch. An async job launch use case.
-        cores_per_worker: #cpu cores allocated per worker
-        memory_per_worker: memory allocated per worker in GB, it can be fractional.
-        pod_spec_mutators: list of functions that is used to mutate the podsspec.
-                           e.g. fairing.cloud.gcp.add_gcp_credentials_if_exists
-                           This can used to set things like volumes and security context.
+
+    :param config: config entries
+    :param docker_registry: docker registry name
+    :param base_image: base image (Default value = "gcr.io/kubeflow-fairing/lightgbm:latest")
+    :param namespace: k8s namespace (Default value = None)
+    :param stream_log: should that stream log? (Default value = True)
+    :param cores_per_worker: number of cores per worker (Default value = None)
+    :param memory_per_worker: memory value per worker (Default value = None)
+    :param pod_spec_mutators: pod spec mutators (Default value = None)
+
     """
     if not namespace and not fairing.utils.is_running_in_k8s():
         namespace = "kubeflow"

@@ -5,6 +5,7 @@ from fairing import http_utils
 from googleapiclient import discovery
 from googleapiclient import errors
 
+
 # TODO: Implement predict and delete methods.
 class GCPServingDeployer(DeployerInterface):
     """Handle deploying a trained model to GCP."""
@@ -26,7 +27,11 @@ class GCPServingDeployer(DeployerInterface):
             self._deploy_kwargs['python_version'] = '3.5'
 
     def deploy(self, pod_template_spec):
-        """Deploys the model to Cloud ML Engine."""
+        """Deploys the model to Cloud ML Engine.
+
+        :param pod_template_spec: pod spec template of training job
+
+        """
         # Check if the model exists
         try:
             res = self._ml.projects().models().get(
@@ -73,4 +78,5 @@ class GCPServingDeployer(DeployerInterface):
             self._model_name, self._version_name, self._project_id))
 
     def get_logs(self):
+        """ abstract get log"""
         raise NotImplementedError('Retrieving logs is not supported for the GCP Serving deployer.')

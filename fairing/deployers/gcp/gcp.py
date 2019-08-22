@@ -6,10 +6,10 @@ from fairing import http_utils
 from googleapiclient import discovery
 from googleapiclient import errors
 
+
 class GCPJob(DeployerInterface):
     """Handle submitting training job to GCP.
-    Attributes:
-        project_id: Google Cloud project ID to use.
+     project_id: Google Cloud project ID to use.
         region: region in which the job has to be deployed.
             Ref: https://cloud.google.com/compute/docs/regions-zones/
         scale_tier: machine type to use for the job.
@@ -29,7 +29,11 @@ class GCPJob(DeployerInterface):
         self._ml._http = http_utils.configure_http_instance(self._ml._http) #pylint:disable=protected-access
 
     def create_request_dict(self, pod_template_spec):
-        """Return the request to be sent to the ML Engine API."""
+        """Return the request to be sent to the ML Engine API.
+
+        :param pod_template_spec: pod spec template of the training job
+
+        """
         # TODO: Update deploy interface to pass image directly instad of
         # PodTemplateSpec.
         # Retrieve image uri from pod template spec.
@@ -55,7 +59,11 @@ class GCPJob(DeployerInterface):
         return request_dict
 
     def deploy(self, pod_template_spec):
-        """Deploys the training job"""
+        """Deploys the training job
+
+        :param pod_template_spec: pod spec template of the training job
+
+        """
         request_dict = self.create_request_dict(pod_template_spec)
 
         try:

@@ -12,13 +12,19 @@ from fairing.deployers.deployer import DeployerInterface
 
 logger = logging.getLogger(__name__)
 
+
 class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
     """Handle all the k8s' template building for a training
-    Attributes:
-        namespace: k8s namespace where the training's components
-            will be deployed.
-        runs: Number of training(s) to be deployed. Hyperparameter search
-            will generate multiple jobs.
+        Attributes:
+            namespace: k8s namespace where the training's components
+                will be deployed.
+            runs: Number of training(s) to be deployed. Hyperparameter search
+                will generate multiple jobs.
+            cleanup: clean up deletes components after job finished
+            labels: labels to be assigned to the training job
+            job_name: name of the job
+            deployer_type: type of deployer
+
     """
 
     def __init__(self, namespace=None, runs=1, output=None,
@@ -43,11 +49,22 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
         self.pod_spec_mutators = pod_spec_mutators or []
 
     def set_labels(self, labels, deployer_type):
+        """set labels for the pods of a deployed job
+
+        :param labels: dictionary of labels {label_name:label_value}
+        :param deployer_type: deployer type name
+
+        """
         self.labels = {'fairing-deployer': deployer_type}
         if labels:
             self.labels.update(labels)
 
     def deploy(self, pod_spec): #pylint:disable=arguments-differ
+        """deploy the training job using k8s client lib
+
+        :param pod_spec: pod spec of deployed training job
+
+        """
         self.job_id = str(uuid.uuid1())
         self.labels['fairing-id'] = self.job_id
         for fn in self.pod_spec_mutators:
@@ -70,12 +87,17 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
         return name
 
     def create_resource(self):
+        """ create job"""
         self._created_job = self.backend.create_job(self.namespace, self.deployment_spec)
         return self._created_job.metadata.name
 
     def generate_pod_template_spec(self, pod_spec):
         """Generate a V1PodTemplateSpec initiazlied with correct metadata
-            and with the provided pod_spec"""
+            and with the provided pod_spec
+
+        :param pod_spec: pod spec
+
+        """
         if not isinstance(pod_spec, k8s_client.V1PodSpec):
             raise TypeError('pod_spec must be a V1PodSpec, but got %s'
                             % type(pod_spec))
@@ -85,7 +107,11 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
 
     def generate_deployment_spec(self, pod_template_spec):
         """Generate a V1Job initialized with correct completion and
-         parallelism (for HP search) and with the provided V1PodTemplateSpec"""
+         parallelism (for HP search) and with the provided V1PodTemplateSpec
+
+        :param pod_template_spec: V1PodTemplateSpec
+
+        """
         if not isinstance(pod_template_spec, k8s_client.V1PodTemplateSpec):
             raise TypeError("""pod_template_spec must be a V1PodTemplateSpec,
                 but got %s""" % type(pod_template_spec))
@@ -108,6 +134,7 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
         )
 
     def get_logs(self):
+        """ get logs from the deployed job"""
         self.backend.log(self._created_job.metadata.name,
                          self._created_job.metadata.namespace,
                          self.labels,
@@ -117,6 +144,7 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
             self.do_cleanup()
 
     def do_cleanup(self):
+        """ clean up the pods after job finished"""
         logger.warning("Cleaning up job {}...".format(self._created_job.metadata.name))
         k8s_client.BatchV1Api().delete_namespaced_job(
             self._created_job.metadata.name,

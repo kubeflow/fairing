@@ -12,22 +12,21 @@ logger = logging.getLogger(__name__)
 
 
 class KFServing(DeployerInterface):
-    """
-    Serves a prediction endpoint using Kubeflow KFServing.
-    Attributes:
-        framework: The framework for the kfservice, such as Tensorflow, XGBoost and ScikitLearn etc.
-        default_model_uri: URI pointing to Saved Model assets for default service.
-        canary_model_uri: URI pointing to Saved Model assets for canary service.
-        canary_traffic_percent: The amount of traffic to sent to the canary, defaults to 0.
-        namespace: The k8s namespace where the kfservice will be deployed.
-        labels: Labels for the kfservice, separate with commas if have more than one.
-        annotations: Annotations for the kfservice, separate with commas if have more than one.
-        custom_default_spec: A flexible custom default specification for arbitrary customer
-                            provided containers.
-        custom_canary_spec: A flexible custom canary specification for arbitrary customer
-                            provided containers.
-        stream_log: Show log or not when kfservice started, defaults to True.
-        cleanup: Delete the kfserving or not, defaults to False.
+    """Serves a prediction endpoint using Kubeflow KFServing.
+            Attributes:
+             framework: The framework for the kfservice, such as Tensorflow, XGBoost and ScikitLearn etc.
+             default_model_uri: URI pointing to Saved Model assets for default service.
+             canary_model_uri: URI pointing to Saved Model assets for canary service.
+             canary_traffic_percent: The amount of traffic to sent to the canary, defaults to 0.
+             namespace: The k8s namespace where the kfservice will be deployed.
+             labels: Labels for the kfservice, separate with commas if have more than one.
+             annotations: Annotations for the kfservice, separate with commas if have more than one.
+             custom_default_spec: A flexible custom default specification for arbitrary customer
+                                 provided containers.
+             custom_canary_spec: A flexible custom canary specification for arbitrary customer
+                                 provided containers.
+             stream_log: Show log or not when kfservice started, defaults to True.
+             cleanup: Delete the kfserving or not, defaults to False.
     """
 
     def __init__(self, framework, default_model_uri=None, canary_model_uri=None,
@@ -52,12 +51,22 @@ class KFServing(DeployerInterface):
             self.namespace = namespace
 
     def set_labels(self, labels):
+        """set label for deployed prediction
+
+        :param labels: dictionary of labels {label_name:label_value}
+
+        """
         self.fairing_id = str(uuid.uuid1())
         self.labels = {'fairing-id': self.fairing_id}
         if labels:
             self.labels.update(labels)
 
     def deploy(self, template_spec): # pylint:disable=arguments-differ,unused-argument
+        """deploy kfserving endpoint
+
+        :param template_spec: template spec
+
+        """
         self.kfservice = self.generate_kfservice()
         self.created_kfserving = self.backend.create_kfserving(
             self.namespace, self.kfservice)
@@ -75,6 +84,7 @@ class KFServing(DeployerInterface):
         return kfservice_name
 
     def generate_kfservice(self):
+        """ generate kfserving template"""
 
         spec = {}
         spec['default'] = {}
@@ -122,6 +132,7 @@ class KFServing(DeployerInterface):
         return kfservice
 
     def get_logs(self):
+        """ get log from prediction pod"""
         name = self.created_kfserving['metadata']['name']
         namespace = self.created_kfserving['metadata']['namespace']
 
