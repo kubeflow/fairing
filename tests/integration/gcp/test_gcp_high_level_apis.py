@@ -2,6 +2,7 @@ import sys
 import random
 import time
 import uuid
+import pytest
 
 from google.cloud import storage
 import fairing
