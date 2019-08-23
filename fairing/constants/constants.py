@@ -12,6 +12,14 @@ GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 
 AWS_CREDS_SECRET_NAME = 'aws-secret'
 
+# See https://github.com/kubeflow/website/issues/1033 for documentation about these secrets.
+AZURE_CREDS_SECRET_NAME = 'azcreds'
+AZURE_ACR_CREDS_SECRET_NAME = 'acrcreds'
+# The secret containing credentials to access a specific storage account is dynamically generated
+# by using Azure credentials to get those storage credentials.
+AZURE_STORAGE_CREDS_SECRET_NAME_PREFIX = 'storage-credentials-'
+AZURE_FILES_SHARED_FOLDER = 'fairing-builds'
+
 DEFAULT_USER_AGENT = 'kubeflow-fairing/{VERSION}'
 
 # Job Constants

@@ -104,7 +104,6 @@ def test_job_submission_gkebackend_gcs_access_with_kubeflow_namespace(capsys, te
                                        lambda: train_fn_with_gcs_access(temp_gcs_prefix),
                                        capsys, GCS_SUCCESS_MSG)
 
-
 def test_job_submission_gcpmanaged(capsys, temp_gcs_prefix):
     # TODO (karthikv2k): test the job output, blocked by #146
     run_submission_with_high_level_api(GCPManagedBackend(), lambda: train_fn_with_gcs_access(
