@@ -12,12 +12,14 @@ class StorageContextSource(ContextSourceInterface):
         self.namespace = None
         self.region = region or "NorthEurope"
         self.resource_group_name = resource_group_name or "fairing"
-        self.storage_account_name = storage_account_name or f"fairing{uuid.uuid4().hex[:17]}"
+        self.storage_account_name = storage_account_name or "fairing{}".format(
+            uuid.uuid4().hex[:17]
+        )
         self.share_name = constants.AZURE_FILES_SHARED_FOLDER
         self.context_hash = None
         self.context_path = None
 
-    def prepare(self, context_filename):
+    def prepare(self, context_filename):  # pylint:disable=arguments-differ
         self.context_hash = utils.crc(context_filename)
         self.context_path = self.upload_context(context_filename)
 
@@ -28,7 +30,7 @@ class StorageContextSource(ContextSourceInterface):
         # mounting the shared folder into the Kaniko pod,
         # and providing Kaniko with a local path to the files.
         azure_uploader = azure.AzureFileUploader(self.namespace)
-        dir_name = f'build_{self.context_hash}'
+        dir_name = "build_{}".format(self.context_hash)
         storage_account_name, storage_key = azure_uploader.upload_to_share(
             self.region,
             self.resource_group_name,
@@ -43,16 +45,16 @@ class StorageContextSource(ContextSourceInterface):
         )
 
         # Local path to the files
-        return f'/mnt/azure/{dir_name}/'
+        return "/mnt/azure/{}/".format(dir_name)
 
 
     def cleanup(self):
         azure.delete_storage_creds_secret(self.namespace, self.context_hash)
 
-    def generate_pod_spec(self, image_name, push):
-        args = [f"--dockerfile=Dockerfile",
-                f"--destination={image_name}",
-                f"--context={self.context_path}"]
+    def generate_pod_spec(self, image_name, push):  # pylint:disable=arguments-differ
+        args = ["--dockerfile=Dockerfile",
+                "--destination={}".format(image_name),
+                "--context={}".format(self.context_path)]
         if not push:
             args.append("--no-push")
         return client.V1PodSpec(

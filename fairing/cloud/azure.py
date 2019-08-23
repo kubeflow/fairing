@@ -1,4 +1,3 @@
-import json
 import logging
 import base64
 import tarfile
@@ -36,8 +35,8 @@ class AzureFileUploader(object):
                         tar_gz_file_to_upload):
 
         logging.info(
-            f"Uploading contents of '{tar_gz_file_to_upload}' to"
-            f"'https://{storage_account_name}.file.core.windows.net/{share_name}/{dir_name}'"
+            "Uploading contents of '{}' to 'https://{}.file.core.windows.net/{}/{}'"
+            .format(tar_gz_file_to_upload, storage_account_name, share_name, dir_name)
         )
 
         self.create_storage_account_if_not_exists(region, resource_group_name, storage_account_name)
@@ -69,8 +68,8 @@ class AzureFileUploader(object):
         if storage_account:
             return storage_account
         logging.info(
-            f"Creating Azure Storage account '{storage_account_name}'"
-            f"in Resource Group '{resource_group_name}'"
+            "Creating Azure Storage account '{}' in Resource Group '{}'"
+            .format(storage_account_name, resource_group_name)
         )
         storage_async_operation = self.storage_client.storage_accounts.create(
             resource_group_name,
@@ -93,12 +92,12 @@ class AzureFileUploader(object):
 
     def create_share_if_not_exists(self, share_service, share_name):
         shares = share_service.list_shares()
-        share = next(filter(lambda share: share.name == share_name, shares), None)      
-        if (share is None):
+        share = next(filter(lambda share: share.name == share_name, shares), None)
+        if share is None:
             share_service.create_share(share_name)
 
     def upload_tar_gz_contents(self, share_service, share_name, dir_name, tar_gz_file):
-        local_dir = Path(f'{tar_gz_file}_contents')
+        local_dir = Path('{}_contents'.format(tar_gz_file))
         cloud_dir = Path(dir_name)
         self.uncompress_tar_gz_file(tar_gz_file, local_dir)
 
@@ -109,7 +108,10 @@ class AzureFileUploader(object):
             if local_path.is_dir():
                 share_service.create_directory(share_name, cloud_relative_path)
             else:
-                share_service.create_file_from_path(share_name, cloud_relative_path.parents[0], cloud_relative_path.name, local_path)
+                share_service.create_file_from_path(
+                    share_name, cloud_relative_path.parents[0],
+                    cloud_relative_path.name, local_path
+                )
 
         self.delete_uncompressed_files(local_dir)
 
@@ -121,11 +123,12 @@ class AzureFileUploader(object):
     def delete_uncompressed_files(self, target_dir):
         rmtree(target_dir)
 
-# Get credentials for a service principal which has permissions to create or access the storage account for Azure Files
+# Get credentials for a service principal which has permissions to
+# create or access the storage account for Azure Files
 def get_azure_credentials(namespace):
     secret_name = constants.AZURE_CREDS_SECRET_NAME
     if not KubeManager().secret_exists(secret_name, namespace):
-        raise Exception(f"Secret '{secret_name}' not found in namespace '{namespace}'")
+        raise Exception("Secret '{}' not found in namespace '{}'".format(secret_name, namespace))
 
     v1 = client.CoreV1Api()
     secret = v1.read_namespaced_secret(secret_name, namespace)
@@ -140,16 +143,19 @@ def get_azure_credentials(namespace):
 # Decode plain text value of a secret of given key and raise an exception if the key is not found
 def get_plain_secret_value(secret_data, key):
     if not key in secret_data:
-        raise Exception(f"Secret with key '{key}'' not found")
+        raise Exception("Secret with key '{}'' not found".format(key))
     secret_base64 = secret_data[key]
     return base64.b64decode(secret_base64).decode('utf-8')
 
 # Create a secret with the credentials to access the storage account for Azure Files
 def create_storage_creds_secret(namespace, context_hash, storage_account_name, storage_key):
     secret_name = constants.AZURE_STORAGE_CREDS_SECRET_NAME_PREFIX + context_hash.lower()
-    logging.info(f"Creating secret '{secret_name}' in namespace '{namespace}'")
+    logging.info(
+        "Creating secret '{}' in namespace '{}'"
+        .format(secret_name, namespace)
+    )
     secret = client.V1Secret(
-        metadata = client.V1ObjectMeta(name=secret_name),
+        metadata=client.V1ObjectMeta(name=secret_name),
         string_data={
             'azurestorageaccountname': storage_account_name,
             'azurestorageaccountkey': storage_key
@@ -160,9 +166,12 @@ def create_storage_creds_secret(namespace, context_hash, storage_account_name, s
 # Delete the secret with the credentials to access the storage account for Azure Files
 def delete_storage_creds_secret(namespace, context_hash):
     secret_name = constants.AZURE_STORAGE_CREDS_SECRET_NAME_PREFIX + context_hash.lower()
-    logging.info(f"Deleting secret '{secret_name}' from namespace '{namespace}'")
+    logging.info(
+        "Deleting secret '{}' from namespace '{}'"
+        .format(secret_name, namespace)
+    )
     v1 = client.CoreV1Api()
-    v1.delete_namespaced_secret(secret_name, namespace)
+    v1.delete_namespaced_secret(secret_name, namespace, body=None)
 
 # Verify that we are working with an Azure Container Registry
 def is_acr_registry(registry):
@@ -172,7 +181,7 @@ def is_acr_registry(registry):
 def add_acr_config(kube_manager, pod_spec, namespace):
     secret_name = constants.AZURE_ACR_CREDS_SECRET_NAME
     if not kube_manager.secret_exists(secret_name, namespace):
-        raise Exception(f"Secret '{secret_name}' not found in namespace '{namespace}'")
+        raise Exception("Secret '{}' not found in namespace '{}'".format(secret_name, namespace))
 
     volume_mount = client.V1VolumeMount(
         name='acr-config', mount_path='/kaniko/.docker/', read_only=True
@@ -198,7 +207,7 @@ def add_azure_files(kube_manager, pod_spec, namespace):
     context_hash = pod_spec.containers[0].args[1].split(':')[-1]
     secret_name = constants.AZURE_STORAGE_CREDS_SECRET_NAME_PREFIX + context_hash.lower()
     if not kube_manager.secret_exists(secret_name, namespace):
-        raise Exception(f"Secret '{secret_name}' not found in namespace '{namespace}'")
+        raise Exception("Secret '{}' not found in namespace '{}'".format(secret_name, namespace))
 
     volume_mount = client.V1VolumeMount(
         name='azure-files', mount_path='/mnt/azure/', read_only=True

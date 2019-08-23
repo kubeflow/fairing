@@ -193,7 +193,7 @@ class AzureBackend(KubernetesBackend):
                     needs_deps_installation=True, pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         if not azure.is_acr_registry(registry):
-            raise Exception(f"'{registry}' is not an Azure Container Registry")
+            raise Exception("'{}' is not an Azure Container Registry".format(registry))
         pod_spec_mutators.append(azure.add_acr_config)
         pod_spec_mutators.append(azure.add_azure_files)
         return super(AzureBackend, self).get_builder(preprocessor,

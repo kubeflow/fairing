@@ -1,13 +1,11 @@
-import pytest
-import json
 import base64
 import uuid
 
 from unittest.mock import patch
-from fairing.kubernetes.manager import KubeManager
 from kubernetes import client
 from azure.common.credentials import ServicePrincipalCredentials
 
+from fairing.kubernetes.manager import KubeManager
 from fairing.cloud.azure import get_azure_credentials
 
 TEST_CLIENT_ID = str(uuid.uuid4())
