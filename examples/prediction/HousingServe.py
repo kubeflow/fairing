@@ -30,13 +30,13 @@ class HousingServe(object):
         """Load the housing model using joblib."""
         self.model = joblib.load(model_file)
 
-    def predict(self, X, feature_names): #pylint:disable=unused-argument
+    def predict(self, X):
         """Predict using the model for given ndarray."""
         prediction = self.model.predict(data=X)
-        return [[prediction.item(0), prediction.item(0)]]
+        return [prediction]
 
 
 if __name__ == '__main__':
     fairing.config.run()
     serve = HousingServe()
-    print(serve.predict(np.ndarray([1, 37]), None))
+    print(serve.predict(np.ndarray([1, 37])))
