@@ -4,8 +4,8 @@ build:
   artifacts:
   - image: gcr.io/mrick-gcp/fairing-notebook
     sync:
-      "fairing/**": "/home/jovyan/work/fairing/fairing"
-      "examples/**": "/home/jovyan/work/fairing/examples"
+      "kubeflow/fairing/**": "/home/jovyan/work/fairing/fairing"
+      "examples/fairing/**": "/home/jovyan/work/fairing/examples"
 deploy:
   kubectl:
     manifests:

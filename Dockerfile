@@ -40,8 +40,8 @@ RUN pip install --user -r requirements.txt
 COPY --chown=jovyan:users integration/ipython_kernel_config.py /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
 COPY --chown=jovyan:users containerregistry /home/jovyan/work/fairing/containerregistry
 
-COPY --chown=jovyan:users examples/notebook /home/jovyan/work/fairing/
-COPY --chown=jovyan:users fairing /home/jovyan/work/fairing/fairing
+COPY --chown=jovyan:users examples/fairing/notebook /home/jovyan/work/fairing/
+COPY --chown=jovyan:users kubeflow/fairing /home/jovyan/work/fairing/fairing
 
 
 

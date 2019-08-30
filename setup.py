@@ -1,16 +1,19 @@
 import setuptools
 
 with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+    REQUIRES = f.read().splitlines()
 
 setuptools.setup(
-    name='fairing',
-    version='0.5.3',
+    name='kubeflow',
+    version='0.0.3',
     author="Kubeflow Authors",
-    description="Python SDK for building, training, and deploying ML models",
+    author_email='hejinchi@cn.ibm.com',
+    license="Apache License Version 2.0",
+    description="Kubeflow Python SDK.",
+    long_description="Python SDK for Kubeflow components.",
     url="https://github.com/kubeflow/fairing",
     packages=setuptools.find_packages(
-        include=("fairing*", "containerregistry*",)),
+        include=("kubeflow*", "containerregistry*",)),
     package_data={},
     include_package_data=False,
     zip_safe=False,
@@ -20,8 +23,13 @@ setuptools.setup(
         'Programming Language :: Python :: 3.7',
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ),
-    install_requires=requirements,
+    install_requires=REQUIRES,
     extras_require={
         'dev': [
             'pytest',

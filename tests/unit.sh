@@ -5,6 +5,6 @@
 python setup.py install
 pip install --upgrade pytest
 
-pushd tests/unit >/dev/null
+pushd tests/fairing/unit >/dev/null
   pytest
 popd
