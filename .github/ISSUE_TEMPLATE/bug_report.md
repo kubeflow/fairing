@@ -19,7 +19,7 @@ about: Tell us about a problem you are experiencing
 
 **Environment:**
 
-- Fairing version: (use `python -c "import fairing; print(fairing.__version__)"`):
+- Fairing version: (use `python -c "import kubeflow.fairing; print(kubeflow.fairing.__version__)"`):
 - Kubeflow version: (version number can be found at the bottom left corner of the Kubeflow dashboard):
 - Minikube version:
 - Kubernetes version: (use `kubectl version`):

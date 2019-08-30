@@ -1,4 +1,4 @@
-import fairing
+from kubeflow import fairing
 import os
 import sys
 

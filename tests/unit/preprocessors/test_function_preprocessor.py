@@ -1,7 +1,7 @@
 import cloudpickle
 import tarfile
 
-from fairing.preprocessors.function import FunctionPreProcessor
+from kubeflow.fairing.preprocessors.function import FunctionPreProcessor
 
 
 def test_simple_function():

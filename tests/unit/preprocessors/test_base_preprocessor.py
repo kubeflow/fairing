@@ -1,4 +1,4 @@
-from fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
 
 
 def test_checking_reqs_file_found_use_case_with_input_files():

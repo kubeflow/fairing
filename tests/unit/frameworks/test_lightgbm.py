@@ -1,8 +1,8 @@
 import pytest
-from fairing.frameworks import lightgbm
-import fairing #pylint:disable=unused-import
+from kubeflow.fairing.frameworks import lightgbm
+from kubeflow import fairing #pylint:disable=unused-import
 import posixpath
-from fairing.constants import constants
+from kubeflow.fairing.constants import constants
 from unittest.mock import patch
 
 EXAMPLE_CONFIG = {
@@ -21,7 +21,7 @@ EXMAPLE_CONFIG_FILE_NAME = "/config-file.conf"
 
 
 def test_context_files_list():
-    with patch('fairing.cloud.storage.GCSStorage.exists'):
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
     actual = list(output_map.values())
@@ -37,7 +37,7 @@ def test_context_files_list():
 
 
 def test_context_files_list_dist():
-    with patch('fairing.cloud.storage.GCSStorage.exists'):
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 2)
     actual = list(output_map.values())
@@ -55,7 +55,7 @@ def test_context_files_list_dist():
 
 
 def test_entrypoint_content():
-    with patch('fairing.cloud.storage.GCSStorage.exists'):
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
     entrypoint_file_in_docker = posixpath.join(
@@ -79,7 +79,7 @@ gsutil cp -r {0}/model.txt gs://lightgbm-test/model.txt
 
 
 def test_final_config():
-    with patch('fairing.cloud.storage.GCSStorage.exists'):
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
     config_file_in_docker = posixpath.join(
@@ -105,7 +105,7 @@ model_output={0}/model.txt
 
 def test_input_file_not_found():
     with pytest.raises(RuntimeError) as excinfo:
-        with patch('fairing.cloud.storage.GCSStorage.exists', new=lambda x, y: False):
+        with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists', new=lambda x, y: False):
             _ = lightgbm.generate_context_files(
                 EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
     err_msg = str(excinfo.value)
@@ -113,7 +113,7 @@ def test_input_file_not_found():
 
 
 def test_entrypoint_content_no_weight_file():
-    with patch('fairing.cloud.storage.GCSStorage.exists',
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists',
                new=lambda bucket, path: not path.endswith(".weight")):
         output_map = lightgbm.generate_context_files(
             EXAMPLE_CONFIG, EXMAPLE_CONFIG_FILE_NAME, 1)
@@ -141,7 +141,7 @@ def test_entrypoint_content_dist_data_parallel():
     config["tree_learner"] = "data"
     config["train_data"] = ",".join(["gs://lightgbm-test/regression.train1",
                                      "gs://lightgbm-test/regression.train2"])
-    with patch('fairing.cloud.storage.GCSStorage.exists'):
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists'):
         output_map = lightgbm.generate_context_files(
             config, EXMAPLE_CONFIG_FILE_NAME, 2)
     entrypoint_file_in_docker = posixpath.join(
@@ -178,7 +178,7 @@ def test_entrypoint_content_dist_data_parallel_no_weight_files():
     config["tree_learner"] = "data"
     config["train_data"] = ",".join(["gs://lightgbm-test/regression.train1",
                                      "gs://lightgbm-test/regression.train2"])
-    with patch('fairing.cloud.storage.GCSStorage.exists',
+    with patch('kubeflow.fairing.cloud.storage.GCSStorage.exists',
                new=lambda bucket, path: not path.endswith(".weight")):
         output_map = lightgbm.generate_context_files(
             config, EXMAPLE_CONFIG_FILE_NAME, 2)

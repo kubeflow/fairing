@@ -17,7 +17,7 @@ if __name__ == '__main__':
     if os.getenv('FAIRING_RUNTIME', None) is not None:
         train()
     else:
-        import fairing
+        from kubeflow import fairing
         # Setting up google container repositories (GCR) for storing output containers
         # You can use any docker container registry istead of GCR
         GCP_PROJECT = fairing.cloud.gcp.guess_project_name()

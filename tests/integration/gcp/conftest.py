@@ -1,6 +1,6 @@
 import pytest
 import random
-import fairing
+from kubeflow import fairing
 import httplib2
 from google.cloud import storage
 

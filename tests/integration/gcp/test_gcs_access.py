@@ -2,7 +2,7 @@ import pytest
 import sys
 import random
 import os
-import fairing
+from kubeflow import fairing
 from google.cloud import storage
 
 

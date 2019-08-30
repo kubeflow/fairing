@@ -2,9 +2,9 @@ import re
 from unittest.mock import patch
 from kubernetes import client
 
-import fairing
-from fairing.deployers.gcp.gcpserving import GCPServingDeployer
-from fairing.deployers.gcp.gcp import GCPJob
+from kubeflow import fairing
+from kubeflow.fairing.deployers.gcp.gcpserving import GCPServingDeployer
+from kubeflow.fairing.deployers.gcp.gcp import GCPJob
 
 
 def create_test_pod_spec():

@@ -1,7 +1,7 @@
 import tarfile
 import os
 
-from fairing.preprocessors.full_notebook import FullNotebookPreProcessor
+from kubeflow.fairing.preprocessors.full_notebook import FullNotebookPreProcessor
 
 NOTEBOOK_PATH = os.path.relpath(
     os.path.join(os.path.dirname(__file__), 'test_notebook.ipynb'))

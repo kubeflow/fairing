@@ -3,10 +3,10 @@ import os
 import posixpath
 from pathlib import Path
 
-from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
-from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessorWithFire
-from fairing.preprocessors.converted_notebook import FilterIncludeCell
-from fairing.constants.constants import DEFAULT_DEST_PREFIX
+from kubeflow.fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
+from kubeflow.fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessorWithFire
+from kubeflow.fairing.preprocessors.converted_notebook import FilterIncludeCell
+from kubeflow.fairing.constants.constants import DEFAULT_DEST_PREFIX
 
 NOTEBOOK_PATH = os.path.relpath(
     os.path.join(os.path.dirname(__file__), 'test_notebook.ipynb'))

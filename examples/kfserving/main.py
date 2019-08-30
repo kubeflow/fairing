@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import fairing
+from kubeflow import fairing
 
 if __name__ == '__main__':
     fairing.config.set_deployer(

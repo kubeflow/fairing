@@ -73,7 +73,7 @@ class MyModel(object):
 
 if __name__ == '__main__':
     if os.getenv('FAIRING_RUNTIME', None) is None:
-        import fairing
+        from kubeflow import fairing
         fairing.config.set_preprocessor('python', input_files=[__file__])
         fairing.config.set_builder(
             name='cluster', registry='<your-registry-here>')
