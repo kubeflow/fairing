@@ -24,8 +24,10 @@ RUN pip install -r examples/prediction/requirements.txt
 COPY setup.py requirements.txt /opt/fairing/
 RUN pip install -e .
 
+RUN pip install -U tornado
+
 # Install Fairing
 COPY . /opt/fairing
 RUN python setup.py install
 
-ENTRYPOINT pytest
+ENTRYPOINT ["pytest"]

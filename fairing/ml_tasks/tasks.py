@@ -114,4 +114,5 @@ class PredictionEndpoint(BaseTask):
         return json.loads(r.text)
 
     def delete(self):
+        logging.info("Deleting the endpoint.")
         self._deployer.delete()

@@ -76,6 +76,7 @@ class ClusterBuilder(BaseBuilder):
                 generate_name="fairing-builder-",
                 labels=labels,
                 namespace=self.namespace,
+                annotations={"sidecar.istio.io/inject": "false"},
             ),
             spec=pod_spec
         )
