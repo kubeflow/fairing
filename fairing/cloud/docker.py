@@ -20,7 +20,7 @@ def create_docker_secret(kube_manager, namespace):
             kind="Secret",
             type="kubernetes.io/dockerconfigjson"
             )
-        kube_manager.create_docker_secret(namespace, docker_secret)
+        kube_manager.create_secret(namespace, docker_secret)
     except Exception as e:
         logger.warning("could not create docker secret: {}".format(e))
 
