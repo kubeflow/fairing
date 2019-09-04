@@ -13,3 +13,5 @@ def test_docker_secret_spec():
         json.dump({'config': "config"}, f)
     docker_secret = get_docker_secret()
     assert docker_secret.metadata.name == constants.DOCKER_CREDS_SECRET_NAME
+    os.remove(config_file)
+
