@@ -1,7 +1,5 @@
 from fairing.cloud.docker import get_docker_secret
 from fairing.constants import constants
-from fairing.kubernetes.manager import KubeManager
-from kubernetes import client
 import json
 import os
 
