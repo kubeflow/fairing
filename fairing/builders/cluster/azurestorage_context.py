@@ -8,8 +8,9 @@ from fairing.cloud import azure
 from fairing.constants import constants
 
 class StorageContextSource(ContextSourceInterface):
-    def __init__(self, region=None, resource_group_name=None, storage_account_name=None):
-        self.namespace = None
+    def __init__(self, namespace=None, region=None,
+                 resource_group_name=None, storage_account_name=None):
+        self.namespace = namespace or utils.get_default_target_namespace()
         self.region = region or "NorthEurope"
         self.resource_group_name = resource_group_name or "fairing"
         self.storage_account_name = storage_account_name or "fairing{}".format(
