@@ -17,6 +17,5 @@ def test_docker_secret_spec():
        containers=[client.V1Container(name="test")]
     )
     add_docker_credentials_if_exists(KubeManager(), pod_spec, "default")
-    docker_secret=get_docker_secret_spec()
     assert pod_spec.image_pull_secrets[0].name == \
            constants.DOCKER_CREDS_SECRET_NAME
