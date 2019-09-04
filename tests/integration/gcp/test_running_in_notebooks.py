@@ -48,18 +48,3 @@ def test_lightgbm():
         ", count: 500"
     ]
     run_notebook_test(notebook_abs_path, expected_messages)
-
-def test_xgboost_highlevel_apis_kubernetes():
-    file_dir = os.path.dirname(__file__)
-    notebook_rel_path = "../../../examples/prediction/xgboost-high-level-apis.ipynb"
-    notebook_abs_path = os.path.normpath(
-        os.path.join(file_dir, notebook_rel_path))
-    expected_messages = [
-        "Model export success: trained_ames_model.dat",  # KF training
-        "Access job logs at the following URL:",  # GCP managed submission success
-        "Prediction endpoint: http",  # create endpoint success
-    ]
-    parameters = {
-        "FAIRING_BACKEND": "KubernetesBackend"
-    }
-    run_notebook_test(notebook_abs_path, expected_messages, parameters=parameters)
