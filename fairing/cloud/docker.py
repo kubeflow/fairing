@@ -6,25 +6,20 @@ from base64 import b64encode
 logger = logging.getLogger(__name__)
 
 
-def get_docker_secret_spec():
-    docker_config_file = find_config_file(config_path=None)
-    if docker_config_file:
+def create_docker_secret(kube_manager, namespace):
+    try:
+        docker_config_file = find_config_file(config_path=None)
         with open(docker_config_file, 'r') as f:
             data = f.read()
             data = {".dockerconfigjson": b64encode(
                 data.encode('utf-8')).decode("utf-8")}
         docker_secret = client.V1Secret(
-            metadata=client.V1ObjectMeta(name=constants.DOCKER_CREDS_SECRET_NAME),
+            metadata=client.V1ObjectMeta(
+                name=constants.DOCKER_CREDS_SECRET_NAME),
             data=data,
             kind="Secret",
             type="kubernetes.io/dockerconfigjson"
         )
-        return docker_secret
-
-
-def create_docker_secret(kube_manager, namespace):
-    try:
-        docker_secret = get_docker_secret_spec()
         kube_manager.create_secret(namespace, docker_secret)
     except Exception as e:
         logger.warning("could not create docker secret: {}".format(e))
