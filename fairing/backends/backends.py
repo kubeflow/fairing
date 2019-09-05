@@ -185,8 +185,9 @@ class AWSBackend(KubernetesBackend):
 class AzureBackend(KubernetesBackend):
 
     def __init__(self, namespace=None, build_context_source=None):
-        build_context_source = build_context_source or azurestorage_context.StorageContextSource()
-        build_context_source.namespace = namespace
+        build_context_source = (
+            build_context_source or azurestorage_context.StorageContextSource(namespace=namespace)
+        )
         super(AzureBackend, self).__init__(namespace, build_context_source)
 
     def get_builder(self, preprocessor, base_image, registry,
@@ -228,7 +229,7 @@ class KubeflowAWSBackend(AWSBackend):
 
 class KubeflowAzureBackend(AzureBackend):
 
-    def __init__(self, namespace="kubeflow", build_context_source=None):
+    def __init__(self, namespace=None, build_context_source=None): # pylint:disable=useless-super-delegation
         super(KubeflowAzureBackend, self).__init__(namespace, build_context_source)
 
 
