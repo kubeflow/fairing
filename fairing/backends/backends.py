@@ -16,6 +16,7 @@ from fairing.deployers.serving.serving import Serving
 from fairing.cloud import aws
 from fairing.cloud import azure
 from fairing.cloud import gcp
+from fairing.cloud import docker
 import fairing.ml_tasks.utils as ml_tasks_utils
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
@@ -245,6 +246,7 @@ class GCPManagedBackend(BackendInterface):
                     pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
+        pod_spec_mutators.append(docker.add_docker_credentials_if_exists)
         # TODO (karthikv2k): Add cloud build as the deafult
         # once https://github.com/kubeflow/fairing/issues/145 is fixed
         if not needs_deps_installation:
