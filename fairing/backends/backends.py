@@ -16,6 +16,7 @@ from fairing.deployers.serving.serving import Serving
 from fairing.cloud import aws
 from fairing.cloud import azure
 from fairing.cloud import gcp
+from fairing.cloud import docker
 import fairing.ml_tasks.utils as ml_tasks_utils
 from fairing.constants import constants
 from fairing.kubernetes.manager import KubeManager
@@ -185,9 +186,8 @@ class AWSBackend(KubernetesBackend):
 class AzureBackend(KubernetesBackend):
 
     def __init__(self, namespace=None, build_context_source=None):
-        build_context_source = (
-            build_context_source or azurestorage_context.StorageContextSource(namespace=namespace)
-        )
+        build_context_source = build_context_source or azurestorage_context.StorageContextSource()
+        build_context_source.namespace = namespace
         super(AzureBackend, self).__init__(namespace, build_context_source)
 
     def get_builder(self, preprocessor, base_image, registry,
@@ -229,7 +229,7 @@ class KubeflowAWSBackend(AWSBackend):
 
 class KubeflowAzureBackend(AzureBackend):
 
-    def __init__(self, namespace=None, build_context_source=None): # pylint:disable=useless-super-delegation
+    def __init__(self, namespace="kubeflow", build_context_source=None):
         super(KubeflowAzureBackend, self).__init__(namespace, build_context_source)
 
 
@@ -245,6 +245,7 @@ class GCPManagedBackend(BackendInterface):
                     pod_spec_mutators=None):
         pod_spec_mutators = pod_spec_mutators or []
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
+        pod_spec_mutators.append(docker.add_docker_credentials_if_exists)
         # TODO (karthikv2k): Add cloud build as the deafult
         # once https://github.com/kubeflow/fairing/issues/145 is fixed
         if not needs_deps_installation:
