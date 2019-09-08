@@ -13,6 +13,10 @@ RUN mkdir -p /builder && \
 
 ENV PATH=/builder/google-cloud-sdk/bin/:$PATH
 
+RUN  curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.0/bin/linux/amd64/kubectl && \
+    mv kubectl /usr/local/bin && \
+    chmod a+x /usr/local/bin/kubectl
+
 # Install test dependencies
 RUN pip install pytest pytest-cov pytest-xdist papermill
 # TODO: Find a better to run e2e tests without

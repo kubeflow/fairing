@@ -11,7 +11,8 @@ def execute_notebook(notebook_path, parameters=None):
 
     papermill.execute_notebook(notebook_path, notebook_output_path,
                                cwd=os.path.dirname(notebook_path),
-                               parameters=parameters)
+                               parameters=parameters,
+                               log_output=True)
     return notebook_output_path
 
 def run_notebook_test(notebook_path, expected_messages, parameters=None):

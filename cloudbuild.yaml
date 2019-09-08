@@ -19,7 +19,9 @@ steps:
   entrypoint: 'bash'
   args: 
       - '-c'
-      - 'gcloud container clusters get-credentials kubeflow-ci-fairing --zone us-central1-a && pytest -n 8 -v --durations=10 --cov=fairing --ignore=tests/integration/azure/ tests/'
+      - 'gcloud container clusters get-credentials kubeflow-ci-fairing --zone us-central1-a && pytest -n 8 -v --durations=10 --cov=fairing --ignore=tests/integration/azure/ tests/integration/gcp/mytest.py'
+#  env:
+#  - 'GOOGLE_APPLICATION_CREDENTIALS="/secret/gcp-credentials/key.json"'
 
 images: ['gcr.io/$PROJECT_ID/fairing-test:latest']
 timeout: 3600s
