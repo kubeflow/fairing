@@ -94,12 +94,12 @@
         // Build an Argo template to execute a particular command.
         // step_name: Name for the template
         // command: List to pass as the container command.
-        buildTemplate(step_name, image, command):: {
+        buildTemplate(step_name, image, working_dir, command):: {
           name: step_name,
           container: {
             command: command,
             image: image,
-            workingDir: srcDir,
+            workingDir: working_dir,
             env: [
               {
                 // Add the source directories to the python path.
@@ -250,13 +250,13 @@
                 ],
               },
             },  // checkout
-            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("unit", pythonImage, [
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("unit", pythonImage, srcDir,[
               "tests/unit.sh",
             ]),  // run python tests
-            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("integration", testWorkerImage, [
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("integration", testWorkerImage, srcDir,[
               "tests/e2e.sh",
             ]),  // run tests
-            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("create-pr-symlink", testWorkerImage, [
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("create-pr-symlink", testWorkerImage, kubeflowPy,[
               "python",
               "-m",
               "kubeflow.testing.prow_artifacts",
@@ -264,14 +264,14 @@
               "create_pr_symlink",
               "--bucket=" + bucket,
             ]),  // create-pr-symlink
-            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("pylint-checking", testWorkerImage, [
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("pylint-checking", testWorkerImage, kubeflowPy,[
               "python",
               "-m",
               "kubeflow.testing.test_py_lint",
               "--artifacts_dir=" + artifactsDir,
               "--src_dir=" + srcDir,
             ]),  // pylint-checking
-            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("copy-artifacts", testWorkerImage, [
+            $.parts(namespace, name, overrides).e2e(prow_env, bucket).buildTemplate("copy-artifacts", testWorkerImage, kubeflowPy,[
               "python",
               "-m",
               "kubeflow.testing.prow_artifacts",

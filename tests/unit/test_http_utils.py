@@ -1,6 +1,6 @@
-import fairing
-from fairing import http_utils
-from fairing.constants import constants
+from kubeflow import fairing
+from kubeflow.fairing import http_utils
+from kubeflow.fairing.constants import constants
 
 EXPECTED_UA = constants.DEFAULT_USER_AGENT.format(VERSION=fairing.__version__)
 

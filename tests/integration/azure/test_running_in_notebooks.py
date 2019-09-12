@@ -1,7 +1,7 @@
 import os
 import logging
 
-from tests.integration.helpers import run_notebook_test
+from ..helpers import run_notebook_test
 
 logger = logging.getLogger(__name__)
 

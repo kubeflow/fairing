@@ -4,9 +4,9 @@ import time
 import uuid
 
 from google.cloud import storage
-import fairing
-from fairing import TrainJob
-from fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
+from kubeflow import fairing
+from kubeflow.fairing import TrainJob
+from kubeflow.fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)

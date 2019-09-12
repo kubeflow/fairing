@@ -1,5 +1,5 @@
-from fairing.cloud.docker import get_docker_secret
-from fairing.constants import constants
+from kubeflow.fairing.cloud.docker import get_docker_secret
+from kubeflow.fairing.constants import constants
 import json
 import os
 

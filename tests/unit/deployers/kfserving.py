@@ -1,6 +1,6 @@
 from unittest.mock import patch
-from fairing.deployers.kfserving.kfserving import KFServing
-from fairing.constants import constants
+from kubeflow.fairing.deployers.kfserving.kfserving import KFServing
+from kubeflow.fairing.constants import constants
 
 DEFAULT_URI = 'gs://kfserving-samples/models/tensorflow/flowers'
 CANARY_URI = 'gs://kfserving-samples/models/tensorflow/flowers'
@@ -9,7 +9,8 @@ CANARY_URI = 'gs://kfserving-samples/models/tensorflow/flowers'
 def run_unit_test_kfserving(framework, default_model_uri, **kwargs):
     kfsvc_name = 'test_kfservice'
 
-    with patch('fairing.deployers.kfserving.kfserving.KFServing.deploy', return_value=kfsvc_name):
+    with patch('kubeflow.fairing.deployers.kfserving.kfserving.KFServing.deploy',
+               return_value=kfsvc_name):
         kfsvc = KFServing(framework=framework,
                           default_model_uri=default_model_uri, **kwargs)
         generated_kfsvc = str(kfsvc.generate_kfservice())

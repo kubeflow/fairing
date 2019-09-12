@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from tests.integration.helpers import run_notebook_test
+from ..helpers import run_notebook_test
 
 @pytest.mark.skip(reason="GCPManaged backend needs to take build context as input")
 def test_xgboost_highlevel_apis_gcp_managed():

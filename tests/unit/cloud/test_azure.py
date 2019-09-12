@@ -5,8 +5,8 @@ from unittest.mock import patch
 from kubernetes import client
 from azure.common.credentials import ServicePrincipalCredentials
 
-from fairing.kubernetes.manager import KubeManager
-from fairing.cloud.azure import get_azure_credentials
+from kubeflow.fairing.kubernetes.manager import KubeManager
+from kubeflow.fairing.cloud.azure import get_azure_credentials
 
 TEST_CLIENT_ID = str(uuid.uuid4())
 TEST_CLIENT_SECRET = str(uuid.uuid4())

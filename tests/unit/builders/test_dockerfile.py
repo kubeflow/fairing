@@ -1,6 +1,6 @@
 import tempfile
 
-from fairing.builders import dockerfile
+from kubeflow.fairing.builders import dockerfile
 
 
 def test_writedockerfile_with_docker_cmd():

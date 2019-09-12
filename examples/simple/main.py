@@ -1,7 +1,7 @@
 import os
-import fairing
 import tensorflow as tf
 
+from kubeflow import fairing
 # Setting up google container repositories (GCR) for storing output containers
 # You can use any docker container registry istead of GCR
 GCP_PROJECT = fairing.cloud.gcp.guess_project_name()

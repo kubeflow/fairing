@@ -1,12 +1,12 @@
 """Tests for Fairing configuration options."""
 
-import fairing.config as config
+from kubeflow.fairing import config as config
 
-from fairing.preprocessors.base import BasePreProcessor
-from fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
 
-from fairing.builders.append.append import AppendBuilder
-from fairing.builders.docker.docker import DockerBuilder
+from kubeflow.fairing.builders.append.append import AppendBuilder
+from kubeflow.fairing.builders.docker.docker import DockerBuilder
 
 
 def test_set_preprocessor():

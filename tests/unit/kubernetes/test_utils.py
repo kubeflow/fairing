@@ -1,4 +1,4 @@
-from fairing.kubernetes import utils as k8s_utils
+from kubeflow.fairing.kubernetes import utils as k8s_utils
 from kubernetes.client.models.v1_pod_spec import V1PodSpec
 from kubernetes.client.models.v1_container import V1Container
 

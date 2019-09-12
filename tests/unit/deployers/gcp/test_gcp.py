@@ -1,6 +1,6 @@
 from kubernetes import client
-import fairing
-from fairing.deployers.gcp.gcp import GCPJob
+from kubeflow import fairing
+from kubeflow.fairing.deployers.gcp.gcp import GCPJob
 
 PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 

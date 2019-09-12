@@ -1,7 +1,7 @@
 import sys
 import time
 import uuid
-import fairing
+from kubeflow import fairing
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)

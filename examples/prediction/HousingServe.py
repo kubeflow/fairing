@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import joblib
-import fairing
 import numpy as np
+from kubeflow import fairing
 
 MODEL_FILE = 'trained_ames_model.dat'
 

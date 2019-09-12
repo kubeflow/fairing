@@ -5,9 +5,9 @@ import joblib
 
 from kubernetes import client
 
-import fairing
-from fairing.constants import constants
-from fairing.kubernetes.utils import mounting_pvc
+from kubeflow import fairing
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.utils import mounting_pvc
 
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()

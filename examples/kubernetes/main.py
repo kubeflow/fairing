@@ -72,7 +72,7 @@ def train():
 
 if __name__ == '__main__':
     if os.getenv('FAIRING_RUNTIME', None) is None:
-        import fairing
+        from kubeflow import fairing
         fairing.config.set_preprocessor('python', input_files=[__file__])
         fairing.config.set_builder('docker', registry='<your-registry-name>',
                                    base_image='tensorflow/tensorflow:1.13.1-py3')

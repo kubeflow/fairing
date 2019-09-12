@@ -3,7 +3,7 @@ import os
 from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.storage.models import StorageAccount
 
-from fairing.cloud.azure import AzureFileUploader
+from kubeflow.fairing.cloud.azure import AzureFileUploader
 
 STORAGE_ACCOUNT_NAME = os.environ.get('AZURE_STORAGE_ACCOUNT')
 RESOURCE_GROUP = os.environ.get('AZURE_RESOURCE_GROUP')

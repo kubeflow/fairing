@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from fairing.cloud.gcp import guess_project_name
+from kubeflow.fairing.cloud.gcp import guess_project_name
 
 # Test guess_project_name with application default credentials.
 

@@ -4,7 +4,7 @@ import json
 import httplib2
 from unittest.mock import patch
 
-from fairing.deployers.gcp.gcpserving import GCPServingDeployer
+from kubeflow.fairing.deployers.gcp.gcpserving import GCPServingDeployer
 from googleapiclient.errors import HttpError
 
 
@@ -24,7 +24,7 @@ def create_http_error(error_code, message):
 
 # Test that deployment fails if an invalid model request is provided.
 def test_invalid_model_request(capsys):
-    with patch('fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
+    with patch('kubeflow.fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
         deployer = GCPServingDeployer(
             project_id='test_project', model_dir='test_model_dir',
             model_name='test_model', version_name='test_version')
@@ -41,7 +41,7 @@ def test_invalid_model_request(capsys):
 
 # Test that deployment fails if an invalid model creation request is provided.
 def test_invalid_model_creation(capsys):
-    with patch('fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
+    with patch('kubeflow.fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
         deployer = GCPServingDeployer(
             project_id='test_project', model_dir='test_model_dir',
             model_name='test_model', version_name='test_version')
@@ -60,7 +60,7 @@ def test_invalid_model_creation(capsys):
 
 # Test that a new model is created if not found.
 def test_model_creation_with_404():
-    with patch('fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
+    with patch('kubeflow.fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
         deployer = GCPServingDeployer(
             project_id='test_project', model_dir='test_model_dir',
             model_name='test_model', version_name='test_version')
@@ -79,7 +79,7 @@ def test_model_creation_with_404():
 
 # Test that deployment fails if an invalid version creation request is provided.
 def test_invalid_version_creation(capsys):
-    with patch('fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
+    with patch('kubeflow.fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
         deployer = GCPServingDeployer(
             project_id='test_project', model_dir='test_model_dir',
             model_name='test_model', version_name='test_version')
@@ -97,7 +97,7 @@ def test_invalid_version_creation(capsys):
 
 # Test that a new version is created with the correct arguments.
 def test_valid_creation(capsys):
-    with patch('fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
+    with patch('kubeflow.fairing.deployers.gcp.gcpserving.discovery.build') as mock_ml:
         deployer = GCPServingDeployer(
             project_id='test_project', model_dir='test_model_dir',
             model_name='test_model', version_name='test_version')

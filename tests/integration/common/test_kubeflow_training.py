@@ -4,9 +4,9 @@ import uuid
 
 from kubernetes import client
 
-import fairing
-from fairing.builders.cluster import gcs_context
-from fairing.constants import constants
+from kubeflow import fairing
+from kubeflow.fairing.builders.cluster import gcs_context
+from kubeflow.fairing.constants import constants
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)
