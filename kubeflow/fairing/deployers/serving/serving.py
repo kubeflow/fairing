@@ -18,12 +18,8 @@ class Serving(Job):
 
     """
 
-    # TODO(https://github.com/kubeflow/fairing/issues/206): The default
-    # should be ClusterIP not LoadBalancer because LoadBalancer opens up
-    # a port. But this breaks the post submit test
-    # https://github.com/kubeflow/fairing/blob/master/examples/prediction/xgboost-high-level-apis.ipynb
     def __init__(self, serving_class, namespace=None, runs=1, labels=None,
-                 service_type="LoadBalancer", pod_spec_mutators=None):
+                 service_type="ClusterIP", pod_spec_mutators=None):
         super(Serving, self).__init__(namespace, runs,
                                       deployer_type=constants.SERVING_DEPLOPYER_TYPE,
                                       labels=labels)
@@ -62,7 +58,7 @@ class Serving(Job):
         else:
             # TODO(jlewi): The suffix won't always be cluster.local since
             # its configurable. Is there a way to get it programmatically?
-            url = "http://{0}.{1}.svc.cluster.local".format(
+            url = "http://{0}.{1}.svc.cluster.local:5000/predict".format(
                 self.service.metadata.name, self.service.metadata.namespace)
 
         logging.info("Cluster endpoint: %s", url)
