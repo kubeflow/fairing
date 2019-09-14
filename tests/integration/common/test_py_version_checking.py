@@ -34,7 +34,7 @@ def run_submission_with_function_preprocessor(capsys, base_image, is_match, name
         assert "mismatches" in captured.out
 
 
-def test_py_version_mismatch(capsys):
+def test_py_minor_version_mismatch(capsys):
     current_py_version = ".".join([str(x) for x in sys.version_info[0:2]])
     if current_py_version == "3.6.5":
         py_version = '3.5.2'
@@ -43,6 +43,14 @@ def test_py_version_mismatch(capsys):
     base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
     run_submission_with_function_preprocessor(capsys, base_image, False)
 
+def test_py_patch_version_match(capsys):
+    current_py_version = ".".join([str(x) for x in sys.version_info[0:2]])
+    if current_py_version == "3.6.5":
+        py_version = '3.6.8'
+    else:
+        py_version = '3.6.5'
+    base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
+    run_submission_with_function_preprocessor(capsys, base_image, True)
 
 def test_py_version_match(capsys):
     py_version = ".".join([str(x) for x in sys.version_info[0:3]])
