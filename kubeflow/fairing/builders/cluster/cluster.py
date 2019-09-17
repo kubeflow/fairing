@@ -69,30 +69,41 @@ class ClusterBuilder(BaseBuilder):
             self.image_tag, self.push)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
-        #TODO: Change Pod to Job
-        build_pod = client.V1Pod(
-            api_version="v1",
-            kind="Pod",
+       
+        pod_spec_template = client.V1PodTemplateSpec(
             metadata=client.V1ObjectMeta(
                 generate_name="fairing-builder-",
                 labels=labels,
                 namespace=self.namespace,
                 annotations={"sidecar.istio.io/inject": "false"},
-            ),
+            )
             spec=pod_spec
         )
-        created_pod = client. \
-            CoreV1Api(). \
-            create_namespaced_pod(self.namespace, build_pod)
+        job_spec = client.V1JobSpec(
+            template=pod_spec_template,
+            parallelism=1,
+            completions=1,
+            backoff_limit=0,
+        )
+        build_job = client.V1Job(
+            api_version="batch/v1",
+            kind="Job",
+            metadata=client.V1ObjectMeta(
+                generate_name="fairing-builder-",
+                labels=labels,
+            ),
+            spec=job_spec
+        )
+        created_job = client. \
+            BatchV1Api(). \
+            create_namespaced_job(self.namespace, build_job)
+
         self.manager.log(
-            name=created_pod.metadata.name,
-            namespace=created_pod.metadata.namespace,
+            name=created_job.metadata.name,
+            namespace=created_job.metadata.namespace,
             selectors=labels,
             container="kaniko")
 
-        # clean up created pod and secret
+        # Invoke upstream clean ups
         self.context_source.cleanup()
-        client.CoreV1Api().delete_namespaced_pod(
-            created_pod.metadata.name,
-            created_pod.metadata.namespace,
-            body=client.V1DeleteOptions())
+        # build_job will be cleaned up by Kubernetes GC
