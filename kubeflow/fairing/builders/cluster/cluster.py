@@ -76,7 +76,7 @@ class ClusterBuilder(BaseBuilder):
                 labels=labels,
                 namespace=self.namespace,
                 annotations={"sidecar.istio.io/inject": "false"},
-            )
+            ),
             spec=pod_spec
         )
         job_spec = client.V1JobSpec(
