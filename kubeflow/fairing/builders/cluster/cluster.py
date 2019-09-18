@@ -69,7 +69,7 @@ class ClusterBuilder(BaseBuilder):
             self.image_tag, self.push)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
-       
+
         pod_spec_template = client.V1PodTemplateSpec(
             metadata=client.V1ObjectMeta(
                 generate_name="fairing-builder-",
