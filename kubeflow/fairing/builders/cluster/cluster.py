@@ -109,14 +109,14 @@ class ClusterBuilder(BaseBuilder):
 
         # Invoke upstream clean ups
         self.context_source.cleanup()
-        # Cleanup build_job if requested by user 
+        # Cleanup build_job if requested by user
         # Otherwise build_job will be cleaned up by Kubernetes GC
         if self.cleanup:
-           logging.warning("Cleaning up job {}...".format(created_job.metadata.name))
-           client. \
-               BatchV1Api(). \
-               delete_namespaced_job(
-                   created_job.metadata.name,
-                   created_job.metadata.namespace,
-                   body=client.V1DeleteOptions(propagation_policy='Foreground')
-               )
+            logging.warning("Cleaning up job {}...".format(created_job.metadata.name))
+            client. \
+                BatchV1Api(). \
+                delete_namespaced_job(
+                    created_job.metadata.name,
+                    created_job.metadata.namespace,
+                    body=client.V1DeleteOptions(propagation_policy='Foreground')
+                )
