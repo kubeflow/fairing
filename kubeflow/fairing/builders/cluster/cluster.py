@@ -25,6 +25,7 @@ class ClusterBuilder(BaseBuilder):
         context_source (ContextSourceInterface): context available to the
                                                  cluster build
         push {bool} -- Whether or not to push the image to the registry
+        cleanup {bool} -- Whether or not to clean up the Kaniko build job
     """
 
     def __init__(self,
@@ -36,7 +37,8 @@ class ClusterBuilder(BaseBuilder):
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  pod_spec_mutators=None,
                  namespace=None,
-                 dockerfile_path=None):
+                 dockerfile_path=None,
+                 cleanup=False):
         super().__init__(
             registry=registry,
             image_name=image_name,
@@ -106,4 +108,14 @@ class ClusterBuilder(BaseBuilder):
 
         # Invoke upstream clean ups
         self.context_source.cleanup()
-        # build_job will be cleaned up by Kubernetes GC
+        # Cleanup build_job if requested by user 
+        # Otherwise build_job will be cleaned up by Kubernetes GC
+        if self.cleanup:
+           logging.warning("Cleaning up job {}...".format(created_job.metadata.name))
+           client. \
+               BatchV1Api(). \
+               delete_namespaced_job(
+                   created_job.metadata.name,
+                   created_job.metadata.namespace,
+                   body=client.V1DeleteOptions(propagation_policy='Foreground')
+               )
