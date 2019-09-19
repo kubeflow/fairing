@@ -51,6 +51,7 @@ class ClusterBuilder(BaseBuilder):
         self.context_source = context_source
         self.pod_spec_mutators = pod_spec_mutators or []
         self.namespace = namespace or utils.get_default_target_namespace()
+        self.cleanup = cleanup
 
     def build(self):
         logging.info("Building image using cluster builder.")
