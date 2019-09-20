@@ -25,6 +25,7 @@ class ClusterBuilder(BaseBuilder):
         context_source (ContextSourceInterface): context available to the
                                                  cluster build
         push {bool} -- Whether or not to push the image to the registry
+        cleanup {bool} -- Whether or not to clean up the Kaniko build job
     """
 
     def __init__(self,
@@ -36,7 +37,8 @@ class ClusterBuilder(BaseBuilder):
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  pod_spec_mutators=None,
                  namespace=None,
-                 dockerfile_path=None):
+                 dockerfile_path=None,
+                 cleanup=False):
         super().__init__(
             registry=registry,
             image_name=image_name,
@@ -49,6 +51,7 @@ class ClusterBuilder(BaseBuilder):
         self.context_source = context_source
         self.pod_spec_mutators = pod_spec_mutators or []
         self.namespace = namespace or utils.get_default_target_namespace()
+        self.cleanup = cleanup
 
     def build(self):
         logging.info("Building image using cluster builder.")
@@ -69,9 +72,8 @@ class ClusterBuilder(BaseBuilder):
             self.image_tag, self.push)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
-        build_pod = client.V1Pod(
-            api_version="v1",
-            kind="Pod",
+
+        pod_spec_template = client.V1PodTemplateSpec(
             metadata=client.V1ObjectMeta(
                 generate_name="fairing-builder-",
                 labels=labels,
@@ -80,18 +82,41 @@ class ClusterBuilder(BaseBuilder):
             ),
             spec=pod_spec
         )
-        created_pod = client. \
-            CoreV1Api(). \
-            create_namespaced_pod(self.namespace, build_pod)
+        job_spec = client.V1JobSpec(
+            template=pod_spec_template,
+            parallelism=1,
+            completions=1,
+            backoff_limit=0,
+        )
+        build_job = client.V1Job(
+            api_version="batch/v1",
+            kind="Job",
+            metadata=client.V1ObjectMeta(
+                generate_name="fairing-builder-",
+                labels=labels,
+            ),
+            spec=job_spec
+        )
+        created_job = client. \
+            BatchV1Api(). \
+            create_namespaced_job(self.namespace, build_job)
+
         self.manager.log(
-            name=created_pod.metadata.name,
-            namespace=created_pod.metadata.namespace,
+            name=created_job.metadata.name,
+            namespace=created_job.metadata.namespace,
             selectors=labels,
             container="kaniko")
 
-        # clean up created pod and secret
+        # Invoke upstream clean ups
         self.context_source.cleanup()
-        client.CoreV1Api().delete_namespaced_pod(
-            created_pod.metadata.name,
-            created_pod.metadata.namespace,
-            body=client.V1DeleteOptions())
+        # Cleanup build_job if requested by user
+        # Otherwise build_job will be cleaned up by Kubernetes GC
+        if self.cleanup:
+            logging.warning("Cleaning up job {}...".format(created_job.metadata.name))
+            client. \
+                BatchV1Api(). \
+                delete_namespaced_job(
+                    created_job.metadata.name,
+                    created_job.metadata.namespace,
+                    body=client.V1DeleteOptions(propagation_policy='Foreground')
+                )
