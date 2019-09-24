@@ -44,7 +44,7 @@ def compare_version(local_python_version):
     :returns: None.
 
     """
-    remote_python_version = ".".join([str(x) for x in sys.version_info[0:3]])
+    remote_python_version = ".".join([str(x) for x in sys.version_info[0:2]])
     if local_python_version != remote_python_version:
         raise RuntimeError('The Python version ' + remote_python_version + ' mismatches \
                            with Python ' + local_python_version + ' in the local environment.')

@@ -82,7 +82,7 @@ class FunctionPreProcessor(BasePreProcessor):
         self.output_map[temp_payload_wrapper_file] = payload_wrapper_file_in_context
 
         local_python_version = ".".join(
-            [str(x) for x in sys.version_info[0:3]])
+            [str(x) for x in sys.version_info[0:2]])
 
         self.command = ["python", os.path.join(self.path_prefix, FUNCTION_SHIM),
                         "--serialized_fn_file", payload_file_in_context,
