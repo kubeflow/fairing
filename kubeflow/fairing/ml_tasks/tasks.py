@@ -83,7 +83,7 @@ class TrainJob(BaseTask):
 class PredictionEndpoint(BaseTask):
 
     def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None,
-                 backend=None, service_type='LoadBalancer', pod_spec_mutators=None):
+                 backend=None, service_type='ClusterIP', pod_spec_mutators=None):
         self.model_class = model_class
         self.service_type = service_type
         super().__init__(model_class, base_docker_image, docker_registry,

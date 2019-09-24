@@ -90,7 +90,7 @@ class KubernetesBackend(BackendInterface):
     def get_training_deployer(self, pod_spec_mutators=None):
         return Job(self._namespace, pod_spec_mutators=pod_spec_mutators)
 
-    def get_serving_deployer(self, model_class, service_type='LoadBalancer', # pylint:disable=arguments-differ
+    def get_serving_deployer(self, model_class, service_type='ClusterIP', # pylint:disable=arguments-differ
                              pod_spec_mutators=None):
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
@@ -147,7 +147,7 @@ class GKEBackend(KubernetesBackend):
         pod_spec_mutators.append(gcp.add_gcp_credentials_if_exists)
         return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
 
-    def get_serving_deployer(self, model_class, service_type='LoadBalancer',
+    def get_serving_deployer(self, model_class, service_type='ClusterIP',
                              pod_spec_mutators=None):
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
