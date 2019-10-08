@@ -5,17 +5,17 @@ import stat
 import logging
 import collections
 
-from .. import utils as fairing_utils
-from ..preprocessors.base import BasePreProcessor
-from ..builders.append.append import AppendBuilder
-from ..deployers.job.job import Job
-from ..deployers.tfjob.tfjob import TfJob
-from ..constants import constants
-from ..kubernetes import utils as k8s_utils
-from ..cloud import storage
-from ..cloud import gcp
-from . import lightgbm_dist_training_init
-from . import utils
+from kubeflow.fairing import utils as fairing_utils
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.builders.append.append import AppendBuilder
+from kubeflow.fairing.deployers.job.job import Job
+from kubeflow.fairing.deployers.tfjob.tfjob import TfJob
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes import utils as k8s_utils
+from kubeflow.fairing.cloud import storage
+from kubeflow.fairing.cloud import gcp
+from kubeflow.fairing.frameworks import lightgbm_dist_training_init
+from kubeflow.fairing.frameworks import utils
 
 logger = logging.getLogger(__name__)
 

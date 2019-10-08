@@ -3,9 +3,9 @@ import logging
 
 from docker import APIClient
 
-from ..base_builder import BaseBuilder
-from .. import dockerfile
-from ...constants import constants
+from kubeflow.fairing.builders.base_builder import BaseBuilder
+from kubeflow.fairing.builders import dockerfile
+from kubeflow.fairing.constants import constants
 
 logger = logging.getLogger(__name__)
 

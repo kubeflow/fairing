@@ -3,10 +3,10 @@ import logging
 
 from kubernetes import client as k8s_client
 
-from ...constants import constants
-from ..deployer import DeployerInterface
-from ...kubernetes.manager import KubeManager
-from ... import utils
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.deployers.deployer import DeployerInterface
+from kubeflow.fairing.kubernetes.manager import KubeManager
+from kubeflow.fairing import utils
 
 logger = logging.getLogger(__name__)
 

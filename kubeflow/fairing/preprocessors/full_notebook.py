@@ -1,8 +1,8 @@
 import os
 
-from .base import BasePreProcessor
-from ..constants import constants
-from ..notebook import notebook_util
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.notebook import notebook_util
 
 
 class FullNotebookPreProcessor(BasePreProcessor):

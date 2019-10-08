@@ -1,19 +1,19 @@
-from .preprocessors.base import BasePreProcessor
-from .preprocessors.converted_notebook import ConvertNotebookPreprocessor
-from .preprocessors.full_notebook import FullNotebookPreProcessor
-from .preprocessors.function import FunctionPreProcessor
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.preprocessors.converted_notebook import ConvertNotebookPreprocessor
+from kubeflow.fairing.preprocessors.full_notebook import FullNotebookPreProcessor
+from kubeflow.fairing.preprocessors.function import FunctionPreProcessor
 
-from .builders.append.append import AppendBuilder
-from .builders.docker.docker import DockerBuilder
-from .builders.cluster.cluster import ClusterBuilder
+from kubeflow.fairing.builders.append.append import AppendBuilder
+from kubeflow.fairing.builders.docker.docker import DockerBuilder
+from kubeflow.fairing.builders.cluster.cluster import ClusterBuilder
 
-from .deployers.job.job import Job
-from .deployers.serving.serving import Serving
-from .deployers.tfjob.tfjob import TfJob
-from .deployers.gcp.gcp import GCPJob
-from .deployers.kfserving.kfserving import KFServing
+from kubeflow.fairing.deployers.job.job import Job
+from kubeflow.fairing.deployers.serving.serving import Serving
+from kubeflow.fairing.deployers.tfjob.tfjob import TfJob
+from kubeflow.fairing.deployers.gcp.gcp import GCPJob
+from kubeflow.fairing.deployers.kfserving.kfserving import KFServing
 
-from .notebook import notebook_util
+from kubeflow.fairing.notebook import notebook_util
 
 import logging
 logging.basicConfig(format='%(message)s')

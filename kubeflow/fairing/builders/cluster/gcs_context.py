@@ -1,10 +1,10 @@
 import os
 
-from ...cloud import gcp
-from ... import utils
-from ...constants import constants
-from ...kubernetes.manager import client, KubeManager
-from .context_source import ContextSourceInterface
+from kubeflow.fairing.cloud import gcp
+from kubeflow.fairing import utils
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.manager import client, KubeManager
+from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
 
 
 class GCSContextSource(ContextSourceInterface):

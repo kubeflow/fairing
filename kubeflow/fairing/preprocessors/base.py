@@ -5,8 +5,8 @@ import posixpath
 import tempfile
 
 from kubeflow import fairing
-from ..constants import constants
-from .. import utils
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing import utils
 
 class BasePreProcessor(object):
     """

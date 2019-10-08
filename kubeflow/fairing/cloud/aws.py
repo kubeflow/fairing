@@ -4,7 +4,7 @@ import re
 from botocore.exceptions import ClientError
 from kubernetes import client
 
-from ..constants import constants
+from kubeflow.fairing.constants import constants
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 import docker
 from docker.errors import DockerException
-from ..functions.function_shim import get_execution_obj_type, ObjectType
-from ..preprocessors.function import FunctionPreProcessor
-from ..preprocessors.base import BasePreProcessor
-from ..preprocessors.full_notebook import FullNotebookPreProcessor
+from kubeflow.fairing.functions.function_shim import get_execution_obj_type, ObjectType
+from kubeflow.fairing.preprocessors.function import FunctionPreProcessor
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.preprocessors.full_notebook import FullNotebookPreProcessor
 
 def guess_preprocessor(entry_point, input_files, output_map):
     if get_execution_obj_type(entry_point) != ObjectType.NOT_SUPPORTED:

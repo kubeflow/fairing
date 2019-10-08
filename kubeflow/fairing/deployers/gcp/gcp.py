@@ -1,10 +1,10 @@
 from googleapiclient import discovery
 from googleapiclient import errors
 
-from ... import utils
-from ... import http_utils
-from ..deployer import DeployerInterface
-from ...cloud.gcp import guess_project_name
+from kubeflow.fairing import utils
+from kubeflow.fairing import http_utils
+from kubeflow.fairing.deployer import DeployerInterface
+from kubeflow.fairing.cloud.gcp import guess_project_name
 
 class GCPJob(DeployerInterface):
     """Handle submitting training job to GCP."""

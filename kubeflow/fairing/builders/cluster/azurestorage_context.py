@@ -2,10 +2,10 @@ import uuid
 
 from kubernetes import client
 
-from ... import utils
-from .context_source import ContextSourceInterface
-from ...cloud import azure
-from ...constants import constants
+from kubeflow.fairing import utils
+from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
+from kubeflow.fairing.cloud import azure
+from kubeflow.fairing.constants import constants
 
 class StorageContextSource(ContextSourceInterface):
     def __init__(self, namespace=None, region=None,

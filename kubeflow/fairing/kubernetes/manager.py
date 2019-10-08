@@ -1,6 +1,6 @@
 from kubernetes import client, config, watch
-from ..utils import is_running_in_k8s
-from ..constants import constants
+from kubeflow.fairing.utils import is_running_in_k8s
+from kubeflow.fairing.constants import constants
 
 import logging
 logger = logging.getLogger(__name__)

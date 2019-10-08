@@ -1,7 +1,7 @@
-from ...cloud import aws
-from ... import utils
-from ...kubernetes.manager import client, KubeManager
-from .context_source import ContextSourceInterface
+from kubeflow.fairing.cloud import aws
+from kubeflow.fairing import utils
+from kubeflow.fairing.kubernetes.manager import client, KubeManager
+from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
 
 
 class S3ContextSource(ContextSourceInterface):

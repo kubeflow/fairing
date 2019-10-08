@@ -1,6 +1,6 @@
 from kubernetes import client
 from kubernetes.client.models.v1_resource_requirements import V1ResourceRequirements
-from ..constants import constants
+from kubeflow.fairing.constants import constants
 
 
 def get_resource_mutator(cpu=None, memory=None):

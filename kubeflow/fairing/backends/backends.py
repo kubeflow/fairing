@@ -3,23 +3,23 @@ import six
 import sys
 import logging
 
-from .. import utils
-from ..builders.docker.docker import DockerBuilder
-from ..builders.cluster import gcs_context
-from ..builders.cluster.cluster import ClusterBuilder
-from ..builders.cluster import s3_context
-from ..builders.cluster import azurestorage_context
-from ..builders.append.append import AppendBuilder
-from ..deployers.gcp.gcp import GCPJob
-from ..deployers.job.job import Job
-from ..deployers.serving.serving import Serving
-from ..cloud import aws
-from ..cloud import azure
-from ..cloud import gcp
-from ..cloud import docker
-from ..ml_tasks import utils as ml_tasks_utils
-from ..constants import constants
-from ..kubernetes.manager import KubeManager
+from kubeflow.fairing import utils
+from kubeflow.fairing.builders.docker.docker import DockerBuilder
+from kubeflow.fairing.builders.cluster import gcs_context
+from kubeflow.fairing.builders.cluster.cluster import ClusterBuilder
+from kubeflow.fairing.builders.cluster import s3_context
+from kubeflow.fairing.builders.cluster import azurestorage_context
+from kubeflow.fairing.builders.append.append import AppendBuilder
+from kubeflow.fairing.deployers.gcp.gcp import GCPJob
+from kubeflow.fairing.deployers.job.job import Job
+from kubeflow.fairing.deployers.serving.serving import Serving
+from kubeflow.fairing.cloud import aws
+from kubeflow.fairing.cloud import azure
+from kubeflow.fairing.cloud import gcp
+from kubeflow.fairing.cloud import docker
+from kubeflow.fairing.ml_tasks import utils as ml_tasks_utils
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.manager import KubeManager
 
 logger = logging.getLogger(__name__)
 

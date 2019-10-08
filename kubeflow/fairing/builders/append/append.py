@@ -11,8 +11,8 @@ from containerregistry.client.v2_2 import docker_session
 from containerregistry.transport import transport_pool
 from containerregistry.transform.v2_2 import metadata
 
-from ..base_builder import BaseBuilder
-from ...constants import constants
+from kubeflow.fairing.builders.base_builder import BaseBuilder
+from kubeflow.fairing.constants import constants
 
 logger = logging.getLogger(__name__)
 

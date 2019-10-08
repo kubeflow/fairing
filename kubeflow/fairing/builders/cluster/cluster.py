@@ -3,11 +3,11 @@ import uuid
 
 from kubernetes import client
 
-from ... import utils
-from ..base_builder import BaseBuilder
-from .. import dockerfile
-from ...constants import constants
-from ...kubernetes.manager import KubeManager
+from kubeflow.fairing import utils
+from kubeflow.fairing.builders.base_builder import BaseBuilder
+from kubeflow.fairing.builders import dockerfile
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.manager import KubeManager
 
 logger = logging.getLogger(__name__)
 

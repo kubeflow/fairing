@@ -3,7 +3,7 @@ from kubernetes import client
 from docker.utils.config import find_config_file
 from base64 import b64encode
 
-from ..constants import constants
+from kubeflow.fairing.constants import constants
 
 logger = logging.getLogger(__name__)
 
