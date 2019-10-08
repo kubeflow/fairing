@@ -1,7 +1,7 @@
 import logging
 import tempfile
 
-from kubeflow.fairing import constants
+from kubeflow.fairing.constants import constants
 
 logger = logging.getLogger('fairing')
 

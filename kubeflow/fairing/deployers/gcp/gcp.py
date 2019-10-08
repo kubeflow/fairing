@@ -3,7 +3,7 @@ from googleapiclient import errors
 
 from kubeflow.fairing import utils
 from kubeflow.fairing import http_utils
-from kubeflow.fairing.deployer import DeployerInterface
+from kubeflow.fairing.deployers.deployer import DeployerInterface
 from kubeflow.fairing.cloud.gcp import guess_project_name
 
 class GCPJob(DeployerInterface):

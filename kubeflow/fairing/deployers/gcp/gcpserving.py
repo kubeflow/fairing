@@ -1,7 +1,7 @@
 from googleapiclient import discovery
 from googleapiclient import errors
 
-from kubeflow.fairing.deployer import DeployerInterface
+from kubeflow.fairing.deployers.deployer import DeployerInterface
 from kubeflow.fairing.cloud.gcp import guess_project_name
 from kubeflow.fairing import http_utils
 
