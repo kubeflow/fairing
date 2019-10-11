@@ -1,7 +1,7 @@
 import logging
 import json
 import numpy as np
-from kubeflow.fairing.backends.backends import KubernetesBackend
+from kubeflow.fairing.backends import KubernetesBackend
 from kubeflow.fairing.ml_tasks.utils import guess_preprocessor
 
 import requests
