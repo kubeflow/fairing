@@ -4,9 +4,9 @@ import re
 from nbconvert.preprocessors import Preprocessor as NbPreProcessor
 from pathlib import Path
 
-from .base import BasePreProcessor
-from ..notebook import notebook_util
-from ..constants import constants
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.notebook import notebook_util
+from kubeflow.fairing.constants import constants
 
 
 class FilterMagicCommands(NbPreProcessor):

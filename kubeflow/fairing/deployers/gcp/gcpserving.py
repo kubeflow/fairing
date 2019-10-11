@@ -1,9 +1,9 @@
 from googleapiclient import discovery
 from googleapiclient import errors
 
-from ..deployer import DeployerInterface
-from ...cloud.gcp import guess_project_name
-from ... import http_utils
+from kubeflow.fairing.deployers.deployer import DeployerInterface
+from kubeflow.fairing.cloud.gcp import guess_project_name
+from kubeflow.fairing import http_utils
 
 
 # TODO: Implement predict and delete methods.

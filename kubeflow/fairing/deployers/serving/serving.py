@@ -5,8 +5,8 @@ import logging
 from kubernetes import client as k8s_client
 from kubernetes.client.rest import ApiException
 
-from ...constants import constants
-from ..job.job import Job
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.deployers.job.job import Job
 
 logger = logging.getLogger(__name__)
 

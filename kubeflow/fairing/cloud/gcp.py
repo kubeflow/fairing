@@ -1,7 +1,7 @@
 import google.auth
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
-from ..constants import constants
+from kubeflow.fairing.constants import constants
 from kubernetes import client
 import logging
 

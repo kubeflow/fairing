@@ -2,9 +2,9 @@ import logging
 
 from kubernetes import client
 
-from .builder import BuilderInterface
-from ..constants import constants
-from ..cloud import gcp
+from kubeflow.fairing.builders.builder import BuilderInterface
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.cloud import gcp
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ import uuid
 from kubeflow import fairing
 
 from kubeflow.fairing import TrainJob
-from kubeflow.fairing.backends import KubernetesBackend, KubeflowBackend
+from kubeflow.fairing.backends.backends import KubernetesBackend, KubeflowBackend
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)

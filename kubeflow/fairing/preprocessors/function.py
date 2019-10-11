@@ -5,10 +5,10 @@ import sys
 import tempfile
 
 from kubeflow import fairing
-from ..constants import constants
-from .base import BasePreProcessor
-from ..functions.function_shim import get_execution_obj_type, ObjectType
-from ..notebook import notebook_util
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.functions.function_shim import get_execution_obj_type, ObjectType
+from kubeflow.fairing.notebook import notebook_util
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 import httplib2
 from kubeflow import fairing
-from .constants import constants
+from kubeflow.fairing.constants import constants
 
 def configure_http_instance(http=None):
     """Configure http instance to modify the request headers to append or modify user-agent.
