@@ -40,17 +40,6 @@ class GCSContextSource(ContextSourceInterface):
         if not push:
             args.append("--no-push")
 
-        if self.credentials_file is None:
-          return client.V1PodSpec(
-              containers=[client.V1Container(
-                  name='kaniko',
-                  image='gcr.io/kaniko-project/executor:v0.7.0',
-                  args=args,
-              )],
-              restart_policy='Never',
-              service_account_name=constants.GCP_SERVICE_ACCOUNT_NAME
-          )
-        else:
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='kaniko',

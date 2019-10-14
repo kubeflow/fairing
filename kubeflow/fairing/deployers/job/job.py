@@ -110,7 +110,8 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
             raise TypeError('pod_spec must be a V1PodSpec, but got %s'
                             % type(pod_spec))
         return k8s_client.V1PodTemplateSpec(
-            metadata=k8s_client.V1ObjectMeta(name="fairing-deployer", annotations=self.annotations,
+            metadata=k8s_client.V1ObjectMeta(name="fairing-deployer",
+                                             annotations=self.annotations,
                                              labels=self.labels),
             spec=pod_spec)
 

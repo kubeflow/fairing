@@ -56,18 +56,6 @@ def guess_project_name(credentials_file=None):
 
     return project_id
 
-def ensure_gcp_credentials(kube_manager, pod_spec, namespace): 
-  """ v0.7.0 onwards Kubeflow on GKE will inject credentials via
-      WorkloadIdentity.  In previous versions, it will stilly rely on user-gcp-sa
-      secrets being mounted in the namespace.
-
-      return: True if succeeds
-  """
-  credentials, project_id = google.auth.default()
-  if credentials is None:
-    add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace)
-  return True
-
 
 def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
     try:
@@ -76,6 +64,9 @@ def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
         else:
             logger.warning("Not able to find gcp credentials secret: {}"\
                            .format(constants.GCP_CREDS_SECRET_NAME))
+            logger.warning("Trying workload identity service account: {}"\
+                           .format(constants.GCP_SERVICE_ACCOUNT_NAME))
+            pod_spec.service_account_name = constants.GCP_SERVICE_ACCOUNT_NAME
     except Exception as e:
         logger.warning("could not check for secret: {}".format(e))
 
