@@ -6,6 +6,16 @@ from kubeflow.fairing.constants import constants
 logger = logging.getLogger('fairing')
 
 # TODO(@karthikv2k): Need to be refractored into a better template
+"""Generate dockerfile accoding to the parameters
+Args:
+ docker_command {str} -- CMD of the dockerfile
+ destination {str} -- destination folder for this dockerfile
+ path_prefix {str} -- WORKDIR
+ dockerfile_path {str} -- unused
+ base_image {str} -- base image
+                     Example: gcr.io/kubeflow-image
+ install_reqs_before_copy {boolean} -- True or False
+"""
 def write_dockerfile(
         docker_command=None,
         destination=None,

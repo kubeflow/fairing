@@ -57,8 +57,9 @@ class BaseBuilder(BuilderInterface): #pylint:disable=too-many-instance-attribute
                 working_dir=self.preprocessor.path_prefix,
             )],
         )
-
+    
     def full_image_name(self, tag):
+        """Retrun the full image name"""
         return '{}/{}:{}'.format(self.registry, self.image_name, tag)
 
     def build(self):
