@@ -4,7 +4,7 @@ from kubeflow.fairing.kubernetes.manager import client, KubeManager
 from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
 from kubeflow.fairing.constants import constants
 
-
+""" aws S3 context for docker builder"""
 class S3ContextSource(ContextSourceInterface):
     def __init__(self,
                  aws_account=None,
