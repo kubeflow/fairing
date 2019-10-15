@@ -39,6 +39,7 @@ class GCSContextSource(ContextSourceInterface):
                 "--cache=true"]
         if not push:
             args.append("--no-push")
+
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='kaniko',

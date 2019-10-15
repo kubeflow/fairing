@@ -64,11 +64,17 @@ def add_gcp_credentials_if_exists(kube_manager, pod_spec, namespace):
         else:
             logger.warning("Not able to find gcp credentials secret: {}"\
                            .format(constants.GCP_CREDS_SECRET_NAME))
+            logger.warning("Trying workload identity service account: {}"\
+                           .format(constants.GCP_SERVICE_ACCOUNT_NAME))
+            pod_spec.service_account_name = constants.GCP_SERVICE_ACCOUNT_NAME
     except Exception as e:
         logger.warning("could not check for secret: {}".format(e))
 
 
 def add_gcp_credentials(kube_manager, pod_spec, namespace):
+    """Note: This method will be deprecated soon and will become unavailable by 1.0.
+             All future access will use Workload Identity.
+    """
     if not kube_manager.secret_exists(constants.GCP_CREDS_SECRET_NAME, namespace):
         raise ValueError('Unable to mount credentials: '
                          + 'Secret user-gcp-sa not found in namespace {}'.format(namespace))
