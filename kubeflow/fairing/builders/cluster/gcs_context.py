@@ -42,7 +42,7 @@ class GCSContextSource(ContextSourceInterface):
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='kaniko',
-                image='gcr.io/kaniko-project/executor:v0.7.0',
+                image=constants.KANIKO_IMAGE,
                 args=args,
             )],
             restart_policy='Never'

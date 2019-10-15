@@ -2,6 +2,7 @@ from kubeflow.fairing.cloud import aws
 from kubeflow.fairing import utils
 from kubeflow.fairing.kubernetes.manager import client, KubeManager
 from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
+from kubeflow.fairing.constants import constants
 
 
 class S3ContextSource(ContextSourceInterface):
@@ -40,7 +41,7 @@ class S3ContextSource(ContextSourceInterface):
 
         return client.V1PodSpec(
             containers=[client.V1Container(name='kaniko',
-                                           image='gcr.io/kaniko-project/executor:v0.7.0',
+                                           image=constants.KANIKO_IMAGE,
                                            args=["--dockerfile=Dockerfile",
                                                  "--destination=" + image_name,
                                                  "--context=" + self.uploaded_context_url],
