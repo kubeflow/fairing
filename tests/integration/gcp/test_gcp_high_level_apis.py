@@ -88,16 +88,18 @@ def test_job_submission_kubeflowgkebackend_gcs_access(capsys, temp_gcs_prefix):
     ), lambda: train_fn_with_gcs_access(temp_gcs_prefix), capsys, GCS_SUCCESS_MSG)
 
 
-def test_job_submission_gkebackend_with_default_namespace(capsys):
-    expected_result = str(uuid.uuid4())
-    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn(
-        expected_result), capsys, expected_result)
-
-
-def test_job_submission_gkebackend_gcs_access_with_default_namespace(capsys, temp_gcs_prefix):
-    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn_with_gcs_access(
-        temp_gcs_prefix), capsys, GCS_FAILED_MSG)
-
+# Disabling the following tests that launch jobs in 'default' namespace.
+# 'default' namespace is no longer available to fairing
+#def test_job_submission_gkebackend_with_default_namespace(capsys):
+#    expected_result = str(uuid.uuid4())
+#    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn(
+#        expected_result), capsys, expected_result)
+#
+#
+#def test_job_submission_gkebackend_gcs_access_with_default_namespace(capsys, temp_gcs_prefix):
+#    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn_with_gcs_access(
+#        temp_gcs_prefix), capsys, GCS_FAILED_MSG)
+#
 
 def test_job_submission_gkebackend_gcs_access_with_kubeflow_namespace(capsys, temp_gcs_prefix):
     run_submission_with_high_level_api(GKEBackend(namespace="kubeflow"),
