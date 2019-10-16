@@ -36,7 +36,7 @@ def get_tfjobs_with_labels(labels):
 
 
 def run_submission_with_function_preprocessor(capsys, deployer="job", builder="append",
-                                              namespace="default", cleanup=False):
+                                              namespace="deployer", cleanup=False):
     py_version = ".".join([str(x) for x in sys.version_info[0:3]])
     base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
     if builder == 'cluster':
@@ -74,12 +74,12 @@ def test_job_deployer(capsys):
 
 def test_tfjob_deployer(capsys):
     run_submission_with_function_preprocessor(
-        capsys, deployer="tfjob", namespace="kubeflow")
+        capsys, deployer="tfjob", namespace="kubeflow-fairing")
 
 
 def test_tfjob_deployer_cleanup(capsys):
     run_submission_with_function_preprocessor(capsys, deployer="tfjob",
-                                              namespace="kubeflow", cleanup=True)
+                                              namespace="kubeflow-fairing", cleanup=True)
 
 
 def test_docker_builder(capsys):
