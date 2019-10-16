@@ -6,6 +6,9 @@ from kubeflow.fairing.preprocessors.base import BasePreProcessor
 from kubeflow.fairing.preprocessors.full_notebook import FullNotebookPreProcessor
 
 def guess_preprocessor(entry_point, input_files, output_map):
+    """
+    Preprocessor to use to modify inputs before sending them to docker build
+    """
     if get_execution_obj_type(entry_point) != ObjectType.NOT_SUPPORTED:
         return FunctionPreProcessor(function_obj=entry_point,
                                     input_files=input_files,
@@ -25,6 +28,9 @@ def guess_preprocessor(entry_point, input_files, output_map):
 
 
 def is_docker_daemon_exists():
+    """
+    To check if docker daemon exists or not.
+    """
     try:
         docker.APIClient(version='auto')
         return True

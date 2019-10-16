@@ -67,13 +67,26 @@ class BaseTask:
 
 
 class TrainJob(BaseTask):
-
+    """
+    Create a train job.
+    """
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None,  # pylint:disable=useless-super-delegation
                  input_files=None, backend=None, pod_spec_mutators=None):
+        """
+        Init the Train Job class.
+        args:
+            entry_point: An object or reference to the source code that has to be deployed.
+            base_docker_image: Name of the base docker image that should be used as a base image
+                when building a new docker image as part of an ML task deployment.
+            docker_registry: Docker registry to store output docker images.
+            input_files: list of files that needs to be packaged along with the entry point.
+        """
         super().__init__(entry_point, base_docker_image, docker_registry,
                          input_files, backend, pod_spec_mutators)
-
     def submit(self):
+        """
+        Submit a train job.
+        """
         self._build()
         deployer = self._backend.get_training_deployer(
             pod_spec_mutators=self._pod_spec_mutators)
@@ -81,15 +94,29 @@ class TrainJob(BaseTask):
 
 
 class PredictionEndpoint(BaseTask):
-
+    """
+    Create a prediction endpoint.
+    """
     def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None,
                  backend=None, service_type='ClusterIP', pod_spec_mutators=None):
+        """
+        Init the prediction endpoint class.
+            :param model_class: The model class to be deployed .
+            :param base_docker_image: Name of the base docker image that should be
+                used as a base image when building a new docker image as
+                part of an ML task deployment.
+            :param docker_registry: Docker registry to store output docker images.
+            :param input_files: list of files that needs to be packaged along with the entry point.
+        """
         self.model_class = model_class
         self.service_type = service_type
         super().__init__(model_class, base_docker_image, docker_registry,
                          input_files, backend, pod_spec_mutators)
 
     def create(self):
+        """
+        Create prediction endpoint.
+        """
         self._build()
         logging.info("Deploying the endpoint.")
         self._deployer = self._backend.get_serving_deployer(
@@ -100,6 +127,9 @@ class PredictionEndpoint(BaseTask):
         logger.warning("Prediction endpoint: {}".format(self.url))
 
     def predict_nparray(self, data, feature_names=None):
+        """
+        Return the prediction result.
+        """
         pdata = {
             "data": {
                 "names": feature_names,
@@ -114,5 +144,8 @@ class PredictionEndpoint(BaseTask):
         return json.loads(r.text)
 
     def delete(self):
+        """
+        Delete prediction endpoint.
+        """
         logging.info("Deleting the endpoint.")
         self._deployer.delete()
