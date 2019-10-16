@@ -88,4 +88,4 @@ def test_docker_builder(capsys):
 
 def test_cluster_builder(capsys):
     run_submission_with_function_preprocessor(
-        capsys, builder="cluster", namespace="kubeflow")
+        capsys, builder="cluster", namespace="kubeflow-fairing")
