@@ -197,8 +197,7 @@ class GKEBackend(KubernetesBackend):
                                  base_image=base_image,
                                  registry=registry)
         elif (utils.is_running_in_k8s() or
-              not ml_tasks_utils.is_docker_daemon_exists()) and \
-                KubeManager().secret_exists(constants.GCP_CREDS_SECRET_NAME, self._namespace):
+              not ml_tasks_utils.is_docker_daemon_exists()):
             return ClusterBuilder(preprocessor=preprocessor,
                                   base_image=base_image,
                                   registry=registry,
