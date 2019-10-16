@@ -36,7 +36,7 @@ def get_tfjobs_with_labels(labels):
 
 
 def run_submission_with_function_preprocessor(capsys, deployer="job", builder="append",
-                                              namespace="deployer", cleanup=False):
+                                              namespace="default", cleanup=False):
     py_version = ".".join([str(x) for x in sys.version_info[0:3]])
     base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
     if builder == 'cluster':
