@@ -10,7 +10,7 @@ GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)
 GCS_SUCCESS_MSG = "gcs access is successful"
-GCS_FAILED_MSG = 'google.api_core.exceptions.Forbidden: 403'
+GCS_FAILED_MSG = 'Invalid Credentials'
 
 
 # Training function that accesses GCS
@@ -66,8 +66,8 @@ def run_submission_with_gcs_access(deployer, pod_spec_mutators, namespace,
 def test_job_submission_with_gcs_access(capsys, temp_gcs_prefix):
     run_submission_with_gcs_access(
         'job',
-        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
-        namespace='kubeflow',
+        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials_if_exists],
+        namespace='kubeflow-fairing',
         gcs_prefix=temp_gcs_prefix,
         capsys=capsys,
         expected_result=GCS_SUCCESS_MSG)
@@ -76,8 +76,8 @@ def test_job_submission_with_gcs_access(capsys, temp_gcs_prefix):
 def test_tfjob_submission_with_gcs_access(capsys, temp_gcs_prefix):
     run_submission_with_gcs_access(
         'tfjob',
-        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials],
-        namespace='kubeflow',
+        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials_if_exists],
+        namespace='kubeflow-fairing',
         gcs_prefix=temp_gcs_prefix,
         capsys=capsys,
         expected_result=GCS_SUCCESS_MSG)
@@ -87,19 +87,19 @@ def test_job_submission_without_gcs_access(capsys, temp_gcs_prefix):
     run_submission_with_gcs_access(
         'job',
         pod_spec_mutators=[],
-        namespace='kubeflow',
+        namespace='kubeflow-fairing',
         gcs_prefix=temp_gcs_prefix,
         capsys=capsys,
         expected_result=GCS_FAILED_MSG)
 
-#def test_tfjob_submission_without_gcs_access(capsys, temp_gcs_prefix):
-#    run_submission_with_gcs_access(
-#        'tfjob',
-#        pod_spec_mutators=[],
-#        namespace='kubeflow',
-#        gcs_prefix=temp_gcs_prefix,
-#        capsys=capsys,
-#        expected_result=GCS_FAILED_MSG)
+def test_tfjob_submission_without_gcs_access(capsys, temp_gcs_prefix):
+    run_submission_with_gcs_access(
+        'tfjob',
+        pod_spec_mutators=[],
+        namespace='kubeflow-fairing',
+        gcs_prefix=temp_gcs_prefix,
+        capsys=capsys,
+        expected_result=GCS_FAILED_MSG)
 
 
 def test_job_submission_invalid_namespace(capsys, temp_gcs_prefix):
