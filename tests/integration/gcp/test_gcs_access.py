@@ -10,7 +10,7 @@ GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)
 DOCKER_REGISTRY = 'gcr.io/{}'.format(GCS_PROJECT_ID)
 GCS_SUCCESS_MSG = "gcs access is successful"
-GCS_FAILED_MSG = 'Invalid Credentials'
+GCS_FAILED_MSG = 'does not have storage.buckets.get access'
 
 
 # Training function that accesses GCS
