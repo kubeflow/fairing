@@ -34,7 +34,7 @@ JOB_DEPLOPYER_TYPE = 'job'
 SERVING_DEPLOPYER_TYPE = 'serving'
 
 #TFJob Constants
-TF_JOB_VERSION = os.environ.get('TF_JOB_VERSION', 'v1beta2')
+TF_JOB_VERSION = os.environ.get('TF_JOB_VERSION', 'v1')
 TF_JOB_GROUP = "kubeflow.org"
 TF_JOB_KIND = "TFJob"
 TF_JOB_PLURAL = "tfjobs"

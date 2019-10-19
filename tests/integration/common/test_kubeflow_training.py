@@ -42,7 +42,7 @@ def run_submission_with_function_preprocessor(capsys, deployer="job", builder="a
     if builder == 'cluster':
         fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY,
                                    pod_spec_mutators=[
-                                       fairing.cloud.gcp.add_gcp_credentials],
+                                       fairing.cloud.gcp.add_gcp_credentials_if_exists],
                                    context_source=gcs_context.GCSContextSource(
                                        namespace=namespace),
                                    namespace=namespace)
@@ -74,12 +74,12 @@ def test_job_deployer(capsys):
 
 def test_tfjob_deployer(capsys):
     run_submission_with_function_preprocessor(
-        capsys, deployer="tfjob", namespace="kubeflow")
+        capsys, deployer="tfjob", namespace="kubeflow-fairing")
 
 
 def test_tfjob_deployer_cleanup(capsys):
     run_submission_with_function_preprocessor(capsys, deployer="tfjob",
-                                              namespace="kubeflow", cleanup=True)
+                                              namespace="kubeflow-fairing", cleanup=True)
 
 
 def test_docker_builder(capsys):
@@ -88,4 +88,4 @@ def test_docker_builder(capsys):
 
 def test_cluster_builder(capsys):
     run_submission_with_function_preprocessor(
-        capsys, builder="cluster", namespace="kubeflow")
+        capsys, builder="cluster", namespace="kubeflow-fairing")
