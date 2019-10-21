@@ -24,6 +24,9 @@ def get_notebook_name(): #pylint:disable=inconsistent-return-statements
 
 
 def is_in_notebook():
+    """
+    To check is in notenook or not
+    """
     try:
         ipykernel.get_connection_info()
     # Temporary fix for #84
