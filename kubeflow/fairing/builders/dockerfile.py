@@ -15,13 +15,13 @@ def write_dockerfile(
         install_reqs_before_copy=False):
     """Generate dockerfile accoding to the parameters
 
-    :param docker_command: string, CMD of the dockerfile
-    :param destination: string, destination folder for this dockerfile
-    :param path_prefix: string, WORKDIR
-    :param dockerfile_path: unused
+    :param docker_command: string, CMD of the dockerfile (Default value = None)
+    :param destination: string, destination folder for this dockerfile (Default value = None)
+    :param path_prefix: string, WORKDIR (Default value = constants.DEFAULT_DEST_PREFIX)
+    :param dockerfile_path: unused (Default value = None)
     :param base_image: string, base image, example: gcr.io/kubeflow-image
-    :param install_reqs_before_copy: boolean, whether to install the prerequisites
-    
+    :param install_reqs_before_copy: boolean, whether to install the prerequisites (Default value = False)
+
     """
     if not destination:
         _, destination = tempfile.mkstemp(prefix="/tmp/fairing_dockerfile_")

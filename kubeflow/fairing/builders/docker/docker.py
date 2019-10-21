@@ -37,7 +37,7 @@ class DockerBuilder(BaseBuilder):
 
     
     def _build(self):
-        """ build the docker image """
+        """build the docker image"""
         docker_command = self.preprocessor.get_command()
         logger.warning("Docker command: {}".format(docker_command))
         if not docker_command:
@@ -65,12 +65,18 @@ class DockerBuilder(BaseBuilder):
             self._process_stream(line)
     
     def publish(self):
-        """ push the docker image to the docker registry"""
+        """push the docker image to the docker registry"""
         logger.warning('Publishing image {}...'.format(self.image_tag))
         for line in self.docker_client.push(self.image_tag, stream=True):
             self._process_stream(line)
 
     def _process_stream(self, line):
+        """
+        Parse the docker command output by line
+
+        :param line:  a line of the command output message
+
+        """
         raw = line.decode('utf-8').strip()
         lns = raw.split('\n')
         for ln in lns:

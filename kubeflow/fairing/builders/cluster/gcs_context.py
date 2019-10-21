@@ -7,7 +7,7 @@ from kubeflow.fairing.kubernetes.manager import client, KubeManager
 from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
 
 class GCSContextSource(ContextSourceInterface):
-    """ Google cloud storage context for docker builder"""
+    """Google cloud storage context for docker builder"""
     def __init__(self,
                  gcp_project=None,
                  credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV),
