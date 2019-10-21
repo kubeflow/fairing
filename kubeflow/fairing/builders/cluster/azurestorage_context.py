@@ -7,8 +7,9 @@ from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterf
 from kubeflow.fairing.cloud import azure
 from kubeflow.fairing.constants import constants
 
-"""Azure storage context source"""
+
 class StorageContextSource(ContextSourceInterface):
+    """Azure storage context source"""
     def __init__(self, namespace=None, region=None,
                  resource_group_name=None, storage_account_name=None):
         self.namespace = namespace or utils.get_default_target_namespace()

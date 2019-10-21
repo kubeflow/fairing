@@ -6,16 +6,6 @@ from kubeflow.fairing.constants import constants
 logger = logging.getLogger('fairing')
 
 # TODO(@karthikv2k): Need to be refractored into a better template
-"""Generate dockerfile accoding to the parameters
-Args:
- docker_command {str} -- CMD of the dockerfile
- destination {str} -- destination folder for this dockerfile
- path_prefix {str} -- WORKDIR
- dockerfile_path {str} -- unused
- base_image {str} -- base image
-                     Example: gcr.io/kubeflow-image
- install_reqs_before_copy {boolean} -- True or False
-"""
 def write_dockerfile(
         docker_command=None,
         destination=None,
@@ -23,6 +13,16 @@ def write_dockerfile(
         dockerfile_path=None, #pylint:disable=unused-argument
         base_image=None,
         install_reqs_before_copy=False):
+    """Generate dockerfile accoding to the parameters
+
+    :param docker_command: string, CMD of the dockerfile
+    :param destination: string, destination folder for this dockerfile
+    :param path_prefix: string, WORKDIR
+    :param dockerfile_path: unused
+    :param base_image: string, base image, example: gcr.io/kubeflow-image
+    :param install_reqs_before_copy: boolean, whether to install the prerequisites
+    
+    """
     if not destination:
         _, destination = tempfile.mkstemp(prefix="/tmp/fairing_dockerfile_")
     content_lines = ["FROM {}".format(base_image),
