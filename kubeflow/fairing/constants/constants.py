@@ -10,6 +10,7 @@ DEFAULT_CONTEXT_FILENAME = '/tmp/fairing.context.tar.gz'
 DEFAULT_GENERATED_DOCKERFILE_FILENAME = '/tmp/Dockerfile'
 
 GOOGLE_CREDS_ENV = 'GOOGLE_APPLICATION_CREDENTIALS'
+GCP_SERVICE_ACCOUNT_NAME = 'default-editor'
 
 GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 AWS_CREDS_SECRET_NAME = 'aws-secret'
@@ -33,7 +34,7 @@ JOB_DEPLOPYER_TYPE = 'job'
 SERVING_DEPLOPYER_TYPE = 'serving'
 
 #TFJob Constants
-TF_JOB_VERSION = os.environ.get('TF_JOB_VERSION', 'v1beta2')
+TF_JOB_VERSION = os.environ.get('TF_JOB_VERSION', 'v1')
 TF_JOB_GROUP = "kubeflow.org"
 TF_JOB_KIND = "TFJob"
 TF_JOB_PLURAL = "tfjobs"
@@ -52,3 +53,6 @@ KFSERVING_CONTAINER_NAME = 'user-container'
 # persistent volume claim constants
 PVC_DEFAULT_MOUNT_PATH = '/mnt'
 PVC_DEFAULT_VOLUME_NAME = 'fairing-volume-'
+
+# Kaniko Constants
+KANIKO_IMAGE = 'gcr.io/kaniko-project/executor:v0.7.0'

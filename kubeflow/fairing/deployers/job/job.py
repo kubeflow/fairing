@@ -109,8 +109,13 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
         if not isinstance(pod_spec, k8s_client.V1PodSpec):
             raise TypeError('pod_spec must be a V1PodSpec, but got %s'
                             % type(pod_spec))
+        if not self.annotations:
+            self.annotations = {'sidecar.istio.io/inject': 'false'}
+        else:
+            self.annotations['sidecar.istio.io/inject'] = 'false'
         return k8s_client.V1PodTemplateSpec(
-            metadata=k8s_client.V1ObjectMeta(name="fairing-deployer", annotations=self.annotations,
+            metadata=k8s_client.V1ObjectMeta(name="fairing-deployer",
+                                             annotations=self.annotations,
                                              labels=self.labels),
             spec=pod_spec)
 
