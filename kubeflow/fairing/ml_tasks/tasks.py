@@ -57,6 +57,7 @@ class BaseTask:
         self.builder = self._backend.get_builder(preprocessor=preprocessor,
                                                  base_image=self.base_docker_image,
                                                  registry=self.docker_registry,
+                                                 pod_spec_mutators=self._pod_spec_mutators,
                                                  needs_deps_installation=needs_deps_installation)
         logger.warning("Using builder: {}".format(type(self.builder)))
 
