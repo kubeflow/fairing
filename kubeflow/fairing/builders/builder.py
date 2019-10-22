@@ -1,10 +1,8 @@
 import abc
 import six
 
-
 @six.add_metaclass(abc.ABCMeta)
 class BuilderInterface(object):
-    """ """
 
     @abc.abstractmethod
     def build(self):

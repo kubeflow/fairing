@@ -20,7 +20,7 @@ def write_dockerfile(
     :param path_prefix: string, WORKDIR (Default value = constants.DEFAULT_DEST_PREFIX)
     :param dockerfile_path: unused (Default value = None)
     :param base_image: string, base image, example: gcr.io/kubeflow-image
-    :param install_reqs_before_copy: boolean, whether to install the prerequisites (Default value = False)
+    :param install_reqs_before_copy: whether to install the prerequisites (Default value = False)
 
     """
     if not destination:
