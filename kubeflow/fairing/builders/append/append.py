@@ -21,7 +21,7 @@ class AppendBuilder(BaseBuilder):
     """Builds a docker image by appending a new layer tarball to an existing
     base image. Does not require docker and runs in userspace.
 
-    :param base_image: Base image to use for the image build (default: {constants.DEFAULT_BASE_IMAGE})
+    :param base_image: Base image to use for the build (default: {constants.DEFAULT_BASE_IMAGE})
     :param image_name: image name to use for the new image(default: {constants.DEFAULT_IMAGE_NAME})
     :param preprocessor：Preprocessor{BasePreProcessor} to use to modify inputs
                          before sending them to docker build
@@ -86,7 +86,7 @@ class AppendBuilder(BaseBuilder):
         """Push image to the registry and log the time spent to the log
 
         :param transport: the http transport to use for sending requests
-        :param src: repo from which to mount blobs 
+        :param src: repo from which to mount blobs
         :param img: the image to be pushed
         :param dst: the fully-qualified name of the tag to push
 

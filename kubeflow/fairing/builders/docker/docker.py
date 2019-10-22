@@ -35,7 +35,6 @@ class DockerBuilder(BaseBuilder):
         if self.push:
             self.publish()
 
-    
     def _build(self):
         """build the docker image"""
         docker_command = self.preprocessor.get_command()
@@ -63,7 +62,7 @@ class DockerBuilder(BaseBuilder):
             )
         for line in bld:
             self._process_stream(line)
-    
+
     def publish(self):
         """push the docker image to the docker registry"""
         logger.warning('Publishing image {}...'.format(self.image_tag))
