@@ -62,12 +62,14 @@ class BaseTask:
         logger.warning("Using builder: {}".format(type(self.builder)))
 
     def _build(self):
+        """Build the docker image. """
         logging.info("Building the docker image.")
         self.builder.build()
         self.pod_spec = self.builder.generate_pod_spec()
 
 
 class TrainJob(BaseTask):
+    """Create a train job. """
 
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None,  # pylint:disable=useless-super-delegation
                  input_files=None, backend=None, pod_spec_mutators=None):
@@ -75,6 +77,7 @@ class TrainJob(BaseTask):
                          input_files, backend, pod_spec_mutators)
 
     def submit(self):
+        """Submit a train job. """
         self._build()
         deployer = self._backend.get_training_deployer(
             pod_spec_mutators=self._pod_spec_mutators)
@@ -82,6 +85,7 @@ class TrainJob(BaseTask):
 
 
 class PredictionEndpoint(BaseTask):
+    """Create a prediction endpoint. """
 
     def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None,
                  backend=None, service_type='ClusterIP', pod_spec_mutators=None):
@@ -91,6 +95,7 @@ class PredictionEndpoint(BaseTask):
                          input_files, backend, pod_spec_mutators)
 
     def create(self):
+        """Create prediction endpoint. """
         self._build()
         logging.info("Deploying the endpoint.")
         self._deployer = self._backend.get_serving_deployer(
@@ -101,6 +106,12 @@ class PredictionEndpoint(BaseTask):
         logger.warning("Prediction endpoint: {}".format(self.url))
 
     def predict_nparray(self, data, feature_names=None):
+        """Return the prediction result.
+
+        :param data: Data to be predicted.
+        :param feature_names:Feature extracted from data  (Default value = None)
+
+        """
         pdata = {
             "data": {
                 "names": feature_names,
@@ -115,5 +126,6 @@ class PredictionEndpoint(BaseTask):
         return json.loads(r.text)
 
     def delete(self):
-        logging.info("Deleting the endpoint.")
+        """Delete prediction endpoint. """
+        logging.info("Deleting the endpoint. ")
         self._deployer.delete()
