@@ -14,18 +14,6 @@ logger = logging.getLogger(__name__)
 
 class ClusterBuilder(BaseBuilder):
     """Builds a docker image in a Kubernetes cluster.
-
-
-     Args:
-        registry (str): Required. Registry to push image to
-                        Example: gcr.io/kubeflow-images
-        base_image (str): Base image to use for the image build
-        preprocessor (BasePreProcessor): Preprocessor to use to modify inputs
-                                         before sending them to docker build
-        context_source (ContextSourceInterface): context available to the
-                                                 cluster build
-        push {bool} -- Whether or not to push the image to the registry
-        cleanup {bool} -- Whether or not to clean up the Kaniko build job
     """
 
     def __init__(self,
