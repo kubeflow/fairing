@@ -29,7 +29,8 @@ class TfJob(Job):
         """
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
                                     deployer_type=constants.TF_JOB_DEPLOYER_TYPE, labels=labels,
-                                    pod_spec_mutators=pod_spec_mutators, cleanup=cleanup, annotations=annotations)
+                                    pod_spec_mutators=pod_spec_mutators, cleanup=cleanup,
+                                    annotations=annotations)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
