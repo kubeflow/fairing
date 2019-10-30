@@ -1,0 +1,5 @@
+FROM registry.hub.docker.com/library/python:3.7.5
+WORKDIR /app/
+ENV FAIRING_RUNTIME 1
+RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
+COPY /app/ /app/

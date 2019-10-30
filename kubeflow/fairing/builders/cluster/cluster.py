@@ -32,7 +32,8 @@ class ClusterBuilder(BaseBuilder):
             image_name=image_name,
             push=push,
             preprocessor=preprocessor,
-            base_image=base_image)
+            base_image=base_image,
+            dockerfile_path=dockerfile_path)
         self.manager = KubeManager()
         if context_source is None:
             raise RuntimeError("context_source is not specified")
@@ -44,12 +45,14 @@ class ClusterBuilder(BaseBuilder):
     def build(self):
         logging.info("Building image using cluster builder.")
         install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
-        dockerfile_path = dockerfile.write_dockerfile(
-            dockerfile_path=self.dockerfile_path,
-            path_prefix=self.preprocessor.path_prefix,
-            base_image=self.base_image,
-            install_reqs_before_copy=install_reqs_before_copy
-        )
+        if self.dockerfile_path:
+            dockerfile_path = self.dockerfile_path
+        else:
+            dockerfile_path = dockerfile.write_dockerfile(
+                path_prefix=self.preprocessor.path_prefix,
+                base_image=self.base_image,
+                install_reqs_before_copy=install_reqs_before_copy
+            )
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_path, context_hash = self.preprocessor.context_tar_gz()
         self.image_tag = self.full_image_name(context_hash)
