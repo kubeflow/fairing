@@ -26,6 +26,7 @@ class TfJob(Job):
         :param labels: labels to be assigned to the training job
         :param pod_spec_mutators: pod spec mutators (Default value = None)
         :param cleanup: clean up deletes components after job finished
+        :param annotations: annotations (Default value = None)
         """
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
                                     deployer_type=constants.TF_JOB_DEPLOYER_TYPE, labels=labels,
