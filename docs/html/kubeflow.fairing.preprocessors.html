@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kubeflow.fairing.preprocessors package &mdash; Fairing V0.6.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Fairing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">kubeflow.fairing.preprocessors package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.preprocessors.base">kubeflow.fairing.preprocessors.base module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.preprocessors.converted_notebook">kubeflow.fairing.preprocessors.converted_notebook module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.preprocessors.full_notebook">kubeflow.fairing.preprocessors.full_notebook module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.preprocessors.function">kubeflow.fairing.preprocessors.function module</a></li>
+<li><a class="reference internal" href="#module-kubeflow.fairing.preprocessors">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Fairing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>kubeflow.fairing.preprocessors package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/kubeflow.fairing.preprocessors.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kubeflow-fairing-preprocessors-package">
+<h1>kubeflow.fairing.preprocessors package<a class="headerlink" href="#kubeflow-fairing-preprocessors-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kubeflow.fairing.preprocessors.base">
+<span id="kubeflow-fairing-preprocessors-base-module"></span><h2>kubeflow.fairing.preprocessors.base module<a class="headerlink" href="#module-kubeflow.fairing.preprocessors.base" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.base.</code><code class="sig-name descname">BasePreProcessor</code><span class="sig-paren">(</span><em class="sig-param">input_files=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">executable=None</em>, <em class="sig-param">path_prefix='/app/'</em>, <em class="sig-param">output_map=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Prepares a context that gets sent to the builder for the docker build and sets the entrypoint
+:param input_files: the source files to be processed
+:param executable: the file to execute using command (e.g. main.py)
+:param output_map: a dict of files to be added without preprocessing
+:param path_prefix: the prefix of the path where the files will be added in the container
+:param command: the command to pass to the builder</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.context_map">
+<code class="sig-name descname">context_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.context_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create context mapping from destination to source to avoid duplicates in context archive</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>c_map: a context map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.context_tar_gz">
+<code class="sig-name descname">context_tar_gz</code><span class="sig-paren">(</span><em class="sig-param">output_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.context_tar_gz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creating docker context file and compute a running cyclic redundancy check checksum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – output file (Default value = None)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>output_file,checksum: docker context file and checksum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.fairing_runtime_files">
+<code class="sig-name descname">fairing_runtime_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.fairing_runtime_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search the fairing runtime files ‘runtime_config.py’
+:returns: cmd: the execute with absolute path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.get_command">
+<code class="sig-name descname">get_command</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.get_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the execute with absolute path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>cmd: the execute with absolute path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.is_requirements_txt_file_present">
+<code class="sig-name descname">is_requirements_txt_file_present</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.is_requirements_txt_file_present" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verfiy the requirements txt file if it is present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>res: get the present required files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.preprocess">
+<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess the ‘input_files’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>input_files: get the input files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.base.BasePreProcessor.set_default_executable">
+<code class="sig-name descname">set_default_executable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor.set_default_executable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the default executable file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>executable: get the default executable file if it is not existing, Or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kubeflow.fairing.preprocessors.base.reset_tar_mtime">
+<code class="sig-prename descclassname">kubeflow.fairing.preprocessors.base.</code><code class="sig-name descname">reset_tar_mtime</code><span class="sig-paren">(</span><em class="sig-param">tarinfo</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.base.reset_tar_mtime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the mtime on the the tarball for reproducibility.</p>
+<p>:param tarinfo: the tarball var
+:returns: tarinfo: the modified tar ball</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.preprocessors.converted_notebook">
+<span id="kubeflow-fairing-preprocessors-converted-notebook-module"></span><h2>kubeflow.fairing.preprocessors.converted_notebook module<a class="headerlink" href="#module-kubeflow.fairing.preprocessors.converted_notebook" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.converted_notebook.</code><code class="sig-name descname">ConvertNotebookPreprocessor</code><span class="sig-paren">(</span><em class="sig-param">notebook_file=None, notebook_preprocessor=&lt;class 'kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands'&gt;, executable=None, command=['python'], path_prefix='/app/', output_map=None, overwrite=True</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor" title="kubeflow.fairing.preprocessors.base.BasePreProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">kubeflow.fairing.preprocessors.base.BasePreProcessor</span></code></a></p>
+<p>Convert the notebook preprocessor.
+:param BasePreProcessor: a context that gets sent to the builder for the docker build
+and sets the entrypoint.</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor.preprocess">
+<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocessor the Notebook
+:return:[]: the converted notebook list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessorWithFire">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.converted_notebook.</code><code class="sig-name descname">ConvertNotebookPreprocessorWithFire</code><span class="sig-paren">(</span><em class="sig-param">class_name=None, notebook_file=None, notebook_preprocessor=&lt;class 'kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell'&gt;, executable=None, command=['python'], path_prefix='/app/', output_map=None, overwrite=True</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessorWithFire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor" title="kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessor</span></code></a></p>
+<p>Create an entrpoint using pyfire.</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessorWithFire.preprocess">
+<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.ConvertNotebookPreprocessorWithFire.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocessor the Notebook.
+:return: results: the preprocessed notebook list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.converted_notebook.</code><code class="sig-name descname">FilterIncludeCell</code><span class="sig-paren">(</span><em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nbconvert.preprocessors.base.Preprocessor</span></code></p>
+<p>Notebook preprocessor that only includes cells that have a comment ‘fairing:include-cell’.
+:param NbPreProcessor: the notebook preprocessor.</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell.filter_include_cell">
+<code class="sig-name descname">filter_include_cell</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell.filter_include_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the cell that have a comment ‘fairing:include-cell’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>src: the source cell.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>src: if the source cell matched the filter pattern, or Null.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell.preprocess_cell">
+<code class="sig-name descname">preprocess_cell</code><span class="sig-paren">(</span><em class="sig-param">cell</em>, <em class="sig-param">resources</em>, <em class="sig-param">index</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.FilterIncludeCell.preprocess_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess the notebook cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell</strong> – the notebook cell</p></li>
+<li><p><strong>resources</strong> – the code source of the notebook cell.</p></li>
+<li><p><strong>index</strong> – unused argumnet.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>cell,resources: the notebook cell and its filtered with magic pattern commands.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.converted_notebook.</code><code class="sig-name descname">FilterMagicCommands</code><span class="sig-paren">(</span><em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nbconvert.preprocessors.base.Preprocessor</span></code></p>
+<p>Notebook preprocessor that have a comment which started with ‘!’ or ‘%’.
+:param NbPreProcessor: the notebook preprocessor.</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands.filter_magic_commands">
+<code class="sig-name descname">filter_magic_commands</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands.filter_magic_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out the source commands with magic pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>src</strong> – the source commands.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>filtered: the filtered commands list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands.preprocess_cell">
+<code class="sig-name descname">preprocess_cell</code><span class="sig-paren">(</span><em class="sig-param">cell</em>, <em class="sig-param">resources</em>, <em class="sig-param">index</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.converted_notebook.FilterMagicCommands.preprocess_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>preprocessor that includes cells</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>cell: the notebook cell.</p>
+</dd>
+<dt class="field-even">Param</dt>
+<dd class="field-even"><p>resources: the code source of the notebook cell.</p>
+</dd>
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>index: unused argumnet.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>cell,resources: the notebook cell and its filtered with magic pattern commands.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.preprocessors.full_notebook">
+<span id="kubeflow-fairing-preprocessors-full-notebook-module"></span><h2>kubeflow.fairing.preprocessors.full_notebook module<a class="headerlink" href="#module-kubeflow.fairing.preprocessors.full_notebook" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.full_notebook.FullNotebookPreProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.full_notebook.</code><code class="sig-name descname">FullNotebookPreProcessor</code><span class="sig-paren">(</span><em class="sig-param">notebook_file=None</em>, <em class="sig-param">output_file='fairing_output_notebook.ipynb'</em>, <em class="sig-param">input_files=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">path_prefix='/app/'</em>, <em class="sig-param">output_map=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.full_notebook.FullNotebookPreProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor" title="kubeflow.fairing.preprocessors.base.BasePreProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">kubeflow.fairing.preprocessors.base.BasePreProcessor</span></code></a></p>
+<p>The Full notebook preprocess for the context which comes from BasePreProcessor.
+:param BasePreProcessor: a context that gets sent to the builder for the docker build and
+sets the entrypoint</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.full_notebook.FullNotebookPreProcessor.set_default_executable">
+<code class="sig-name descname">set_default_executable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.full_notebook.FullNotebookPreProcessor.set_default_executable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ingore the default executable setting for the full_notebook preprocessor.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.preprocessors.function">
+<span id="kubeflow-fairing-preprocessors-function-module"></span><h2>kubeflow.fairing.preprocessors.function module<a class="headerlink" href="#module-kubeflow.fairing.preprocessors.function" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kubeflow.fairing.preprocessors.function.FunctionPreProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">kubeflow.fairing.preprocessors.function.</code><code class="sig-name descname">FunctionPreProcessor</code><span class="sig-paren">(</span><em class="sig-param">function_obj</em>, <em class="sig-param">path_prefix='/app/'</em>, <em class="sig-param">output_map=None</em>, <em class="sig-param">input_files=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.function.FunctionPreProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kubeflow.fairing.preprocessors.base.BasePreProcessor" title="kubeflow.fairing.preprocessors.base.BasePreProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">kubeflow.fairing.preprocessors.base.BasePreProcessor</span></code></a></p>
+<p>FunctionPreProcessor preprocesses a single function.
+It sets as the command a function_shim that calls the function directly.
+:param BasePreProcessor: a context that gets sent to the builder for the docker build
+and sets the entrypoint.</p>
+<dl class="method">
+<dt id="kubeflow.fairing.preprocessors.function.FunctionPreProcessor.get_command">
+<code class="sig-name descname">get_command</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kubeflow.fairing.preprocessors.function.FunctionPreProcessor.get_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the execute python command.
+:returns: command: the command line will be executed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kubeflow.fairing.preprocessors">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kubeflow.fairing.preprocessors" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kubeflow Author
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

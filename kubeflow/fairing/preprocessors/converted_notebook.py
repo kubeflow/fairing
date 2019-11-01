@@ -80,7 +80,7 @@ class FilterIncludeCell(NbPreProcessor):
 class ConvertNotebookPreprocessor(BasePreProcessor):
     """Convert the notebook preprocessor.
     :param BasePreProcessor: a context that gets sent to the builder for the docker build
-       and sets the entrypoint.
+    and sets the entrypoint.
     """
     def __init__(self, #pylint:disable=dangerous-default-value
                  notebook_file=None,
@@ -91,12 +91,12 @@ class ConvertNotebookPreprocessor(BasePreProcessor):
                  output_map=None,
                  overwrite=True):
         """The init function ConvertNotebookPreprocessor class.
-           :param notebook_file: the notebook file.
-           :param notebook_preprocessor: the class FilterMagicCommands.
-           :param executable: the file to execute using command (e.g. main.py)
-           :param command: the python command.
-           :param path_prefix: the defaut destion path prefix '/app/'.
-           :param output_map: a dict of files to be added without preprocessing.
+        :param notebook_file: the notebook file.
+        :param notebook_preprocessor: the class FilterMagicCommands.
+        :param executable: the file to execute using command (e.g. main.py)
+        :param command: the python command.
+        :param path_prefix: the defaut destion path prefix '/app/'.
+        :param output_map: a dict of files to be added without preprocessing.
         """
 
         super().__init__(
@@ -142,12 +142,12 @@ class ConvertNotebookPreprocessorWithFire(ConvertNotebookPreprocessor):
                  output_map=None,
                  overwrite=True):
         """The init function ConvertNotebookPreprocessorWithFire class
-           :param class_name: the name of the notebook preprocessor.
-           :param notebook_file: the notebook file.
-           :param notebook_preprocessor: the class FilterIncludeCell.
-           :param command: the python command.
-           :param path_prefix: the defaut destion path prefix '/app/'.
-           :param output_map: a dict of files to be added without preprocessing.
+        :param class_name: the name of the notebook preprocessor.
+        :param notebook_file: the notebook file.
+        :param notebook_preprocessor: the class FilterIncludeCell.
+        :param command: the python command.
+        :param path_prefix: the defaut destion path prefix '/app/'.
+        :param output_map: a dict of files to be added without preprocessing.
         """
 
         super().__init__(

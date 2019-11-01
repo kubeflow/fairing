@@ -143,7 +143,7 @@ class KubernetesBackend(BackendInterface):
         """Creates a deployer to be used with a training job for the Kubernetes
 
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
         :returns: job for handle all the k8s' template building for a training
 
         """
@@ -156,7 +156,7 @@ class KubernetesBackend(BackendInterface):
         :param model_class: the name of the class that holds the predict function.
         :param service_type: service type (Default value = 'ClusterIP')
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
 
         """
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
@@ -228,7 +228,7 @@ class GKEBackend(KubernetesBackend):
         """Creates a deployer to be used with a training job for GKE
 
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
         :returns: job for handle all the k8s' template building for a training
 
         """
@@ -243,7 +243,7 @@ class GKEBackend(KubernetesBackend):
         :param model_class: the name of the class that holds the predict function.
         :param service_type: service type (Default value = 'ClusterIP')
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
 
         """
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
@@ -296,7 +296,7 @@ class AWSBackend(KubernetesBackend):
         """Creates a deployer to be used with a training job for AWS
 
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
         :returns: job for handle all the k8s' template building for a training
 
         """
@@ -311,7 +311,7 @@ class AWSBackend(KubernetesBackend):
         :param model_class: the name of the class that holds the predict function.
         :param service_type: service type (Default value = 'ClusterIP')
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
 
         """
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
@@ -439,7 +439,7 @@ class GCPManagedBackend(BackendInterface):
         """Creates a deployer to be used with a training job for GCP
 
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
         :returns: job for handle all the k8s' template building for a training
 
         """
@@ -451,7 +451,7 @@ class GCPManagedBackend(BackendInterface):
         :param model_class: the name of the class that holds the predict function.
         :param service_type: service type (Default value = 'ClusterIP')
         :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
-        (Default value = None)
+            (Default value = None)
 
         """
         # currently GCP serving deployer doesn't implement deployer interface

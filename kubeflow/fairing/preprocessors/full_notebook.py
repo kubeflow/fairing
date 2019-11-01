@@ -8,7 +8,7 @@ from kubeflow.fairing.notebook import notebook_util
 class FullNotebookPreProcessor(BasePreProcessor):
     """ The Full notebook preprocess for the context which comes from BasePreProcessor.
     :param BasePreProcessor: a context that gets sent to the builder for the docker build and
-                             sets the entrypoint
+    sets the entrypoint
     """
     # TODO: Allow configuration of errors / timeout options
     def __init__(self,
@@ -19,12 +19,12 @@ class FullNotebookPreProcessor(BasePreProcessor):
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map=None):
         """ Init the full notebook preprocess.
-            :param notebook_file: the jupyter notebook file.
-            :param output_file: the output file, the defaut name is 'fairing_output_notebook.ipynb'.
-            :param input_files: the source files to be processed.
-            :param command: the command to pass to the builder.
-            :param path_prefix: the defaut destion path prefix '/app/'.
-            :param output_map: a dict of files to be added without preprocessing.
+        :param notebook_file: the jupyter notebook file.
+        :param output_file: the output file, the defaut name is 'fairing_output_notebook.ipynb'.
+        :param input_files: the source files to be processed.
+        :param command: the command to pass to the builder.
+        :param path_prefix: the defaut destion path prefix '/app/'.
+        :param output_map: a dict of files to be added without preprocessing.
 
         """
         if notebook_file is None and notebook_util.is_in_notebook():
@@ -54,6 +54,6 @@ class FullNotebookPreProcessor(BasePreProcessor):
 
 
     def set_default_executable(self):
-        """ Ingore the default executable setting for the full_notebook preprocessor.
+        """Ingore the default executable setting for the full_notebook preprocessor.
         """
         pass

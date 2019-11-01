@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 class BaseTask:
     """
     Base class for handling high level ML tasks.
-    args:
-        entry_point: An object or reference to the source code that has to be deployed.
-        base_docker_image: Name of the base docker image that should be used as a base image
-            when building a new docker image as part of an ML task deployment.
-        docker_registry: Docker registry to store output docker images.
-        input_files: list of files that needs to be packaged along with the entry point.
-            E.g. local python modules, trained model weigths, etc.
+
+    :param entry_point: An object or reference to the source code that has to be deployed.
+    :param base_docker_image: Name of the base docker image that should be used as a base image
+           when building a new docker image as part of an ML task deployment.
+    :param docker_registry: Docker registry to store output docker images.
+    :param input_files: list of files that needs to be packaged along with the entry point.
+           E.g. local python modules, trained model weigths, etc.
     """
 
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None,
@@ -109,7 +109,7 @@ class PredictionEndpoint(BaseTask):
         """Return the prediction result.
 
         :param data: Data to be predicted.
-        :param feature_names:Feature extracted from data  (Default value = None)
+        :param feature_names: Feature extracted from data (Default value = None)
 
         """
         pdata = {

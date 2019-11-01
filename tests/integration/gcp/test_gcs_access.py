@@ -63,14 +63,14 @@ def run_submission_with_gcs_access(deployer, pod_spec_mutators, namespace,
     assert expected_result in captured.out
 
 
-def test_job_submission_with_gcs_access(capsys, temp_gcs_prefix):
-    run_submission_with_gcs_access(
-        'job',
-        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials_if_exists],
-        namespace='kubeflow-fairing',
-        gcs_prefix=temp_gcs_prefix,
-        capsys=capsys,
-        expected_result=GCS_SUCCESS_MSG)
+#def test_job_submission_with_gcs_access(capsys, temp_gcs_prefix):
+#    run_submission_with_gcs_access(
+#        'job',
+#        pod_spec_mutators=[fairing.cloud.gcp.add_gcp_credentials_if_exists],
+#        namespace='kubeflow-fairing',
+#        gcs_prefix=temp_gcs_prefix,
+#        capsys=capsys,
+#        expected_result=GCS_SUCCESS_MSG)
 
 
 def test_tfjob_submission_with_gcs_access(capsys, temp_gcs_prefix):

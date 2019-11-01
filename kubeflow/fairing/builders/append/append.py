@@ -23,8 +23,8 @@ class AppendBuilder(BaseBuilder):
 
     :param base_image: Base image to use for the build (default: {constants.DEFAULT_BASE_IMAGE})
     :param image_name: image name to use for the new image(default: {constants.DEFAULT_IMAGE_NAME})
-    :param preprocessor：Preprocessor{BasePreProcessor} to use to modify inputs
-                         before sending them to docker build
+    :param preprocessor: Preprocessor{BasePreProcessor} to use to modify inputs
+        before sending them to docker build
     :param push: Whether or not to push the image to the registry
 
     """

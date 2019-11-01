@@ -6,7 +6,8 @@ import uuid
 from google.cloud import storage
 from kubeflow import fairing
 from kubeflow.fairing import TrainJob
-from kubeflow.fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
+#from kubeflow.fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
+from kubeflow.fairing.backends import KubeflowGKEBackend, GCPManagedBackend
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)
@@ -104,10 +105,10 @@ def test_job_submission_kubeflowgkebackend_gcs_access(capsys, temp_gcs_prefix):
 #        temp_gcs_prefix), capsys, GCS_FAILED_MSG)
 #
 
-def test_job_submission_gkebackend_gcs_access_with_kubeflow_namespace(capsys, temp_gcs_prefix):
-    run_submission_with_high_level_api(GKEBackend(namespace="kubeflow-fairing"),
-                                       lambda: train_fn_with_gcs_access(temp_gcs_prefix),
-                                       capsys, GCS_SUCCESS_MSG)
+#def test_job_submission_gkebackend_gcs_access_with_kubeflow_namespace(capsys, temp_gcs_prefix):
+#    run_submission_with_high_level_api(GKEBackend(namespace="kubeflow-fairing"),
+#                                       lambda: train_fn_with_gcs_access(temp_gcs_prefix),
+#                                       capsys, GCS_SUCCESS_MSG)
 
 def test_job_submission_gcpmanaged(capsys, temp_gcs_prefix):
     # TODO (karthikv2k): test the job output, blocked by #146
