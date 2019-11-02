@@ -43,9 +43,9 @@ TF_JOB_DEPLOYER_TYPE = 'tfjob'
 
 # KFServing constants
 KFSERVING_GROUP = "serving.kubeflow.org"
-KFSERVING_KIND = "KFService"
-KFSERVING_PLURAL = "kfservices"
-KFSERVING_VERSION = "v1alpha1"
+KFSERVING_KIND = "InferenceService"
+KFSERVING_PLURAL = "inferenceservices"
+KFSERVING_VERSION = 'v1alpha2'
 KFSERVING_DEFAULT_NAME = 'fairing-kfserving-'
 KFSERVING_DEPLOYER_TYPE = 'kfservice'
 KFSERVING_CONTAINER_NAME = 'user-container'

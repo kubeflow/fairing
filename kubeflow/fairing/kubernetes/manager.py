@@ -1,4 +1,6 @@
 from kubernetes import client, config, watch
+from kfserving import KFServingClient
+
 from kubeflow.fairing.utils import is_running_in_k8s
 from kubeflow.fairing.constants import constants
 
@@ -81,42 +83,36 @@ class KubeManager(object):
         api_instance = client.AppsV1Api()
         return api_instance.create_namespaced_deployment(namespace, deployment)
 
-    def create_kfserving(self, namespace, kfservice):
-        """Create the provided KFServing in the specified namespace.
+    def create_isvc(self, namespace, isvc):
+        """Create the provided InferenceService in the specified namespace.
 
         :param namespace: The custom resource
-        :param kfservice: The kfservice body
-        :returns: object: Created KFService.
+        :param InferenceService: The InferenceService body
+        :returns: object: Created InferenceService.
 
         """
-        api_instance = client.CustomObjectsApi()
+        KFServing = KFServingClient()
         try:
-            return api_instance.create_namespaced_custom_object(
-                constants.KFSERVING_GROUP,
-                constants.KFSERVING_VERSION,
-                namespace,
-                constants.KFSERVING_PLURAL,
-                kfservice)
+            created_isvc = KFServing.create(isvc, namespace=namespace)
+            isvc_name = created_isvc['metadata']['name']
+            isvc_namespace = created_isvc['metadata']['namespace']
+            KFServing.get(isvc_name, isvc_namespace, watch=True)
+            return created_isvc
         except client.rest.ApiException:
-            raise RuntimeError("Failed to create KFService. Perhaps the CRD KFServing version "
-                               "{} is not installed?".format(constants.KFSERVING_VERSION))
+            raise RuntimeError("Failed to create InferenceService. Perhaps the CRD "
+                               "InferenceService version {} is not installed? "\
+                                   .format(constants.KFSERVING_VERSION))
 
-    def delete_kfserving(self, name, namespace):
-        """Delete the provided KFServing in the specified namespace.
+    def delete_isvc(self, name, namespace):
+        """Delete the provided InferenceService in the specified namespace.
 
         :param name: The custom object
         :param namespace: The custom resource
-        :returns: object: The deleted kfservice.
+        :returns: object: The deleted InferenceService.
 
         """
-        api_instance = client.CustomObjectsApi()
-        return api_instance.delete_namespaced_custom_object(
-            constants.KFSERVING_GROUP,
-            constants.KFSERVING_VERSION,
-            namespace,
-            constants.KFSERVING_PLURAL,
-            name,
-            client.V1DeleteOptions())
+        KFServing = KFServingClient()
+        return KFServing.delete(name, namespace=namespace)
 
     def delete_job(self, name, namespace):
         """Delete the specified job and related pods.

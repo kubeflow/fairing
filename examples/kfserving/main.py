@@ -1,4 +1,4 @@
-# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2019 The Kubeflow Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,5 @@ from kubeflow import fairing
 if __name__ == '__main__':
     fairing.config.set_deployer(
         'kfserving', namespace='kubeflow', framework='tensorflow',
-        default_model_uri='gs://kfserving-samples/models/tensorflow/flowers',
-        cleanup=True)
+        default_storage_uri='gs://kfserving-samples/models/tensorflow/flowers')
     fairing.config.run()
