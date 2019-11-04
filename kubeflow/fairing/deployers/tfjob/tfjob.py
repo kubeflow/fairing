@@ -12,7 +12,7 @@ class TfJob(Job):
         training job using Kubeflow TFOperator"""
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
                  chief_count=1, runs=1, job_name=constants.TF_JOB_DEFAULT_NAME, stream_log=True,
-                 labels=None, pod_spec_mutators=None, cleanup=False):
+                 labels=None, pod_spec_mutators=None, cleanup=False, annotations=None):
         """
 
         :param namespace: k8s namespace where the training's components
@@ -26,10 +26,12 @@ class TfJob(Job):
         :param labels: labels to be assigned to the training job
         :param pod_spec_mutators: pod spec mutators (Default value = None)
         :param cleanup: clean up deletes components after job finished
+        :param annotations: annotations (Default value = None)
         """
         super(TfJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
                                     deployer_type=constants.TF_JOB_DEPLOYER_TYPE, labels=labels,
-                                    pod_spec_mutators=pod_spec_mutators, cleanup=cleanup)
+                                    pod_spec_mutators=pod_spec_mutators, cleanup=cleanup,
+                                    annotations=annotations)
         self.distribution = {
             'Worker': worker_count,
             'PS': ps_count,
