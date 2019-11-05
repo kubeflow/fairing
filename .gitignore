@@ -110,3 +110,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 .DS_Store
+
+# dev tools
+.ycm_extra_conf.py
+# ctags
+tags
