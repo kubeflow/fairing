@@ -31,10 +31,11 @@ def test_xgboost_highlevel_apis_gke():
         "Model export success: trained_ames_model.dat", #KF training
         "Prediction endpoint: http", #create endpoint success
     ]
-    parameters = {
-        "FAIRING_BACKEND": "KubeflowGKEBackend"
-    }
-    run_notebook_test(notebook_abs_path, expected_messages, parameters=parameters)
+    #parameters = {
+    #    "FAIRING_BACKEND": "KubeflowGKEBackend"
+    #}
+    #run_notebook_test(notebook_abs_path, expected_messages, parameters=parameters)
+    run_notebook_test(notebook_abs_path, expected_messages)
 
 
 def test_lightgbm():
