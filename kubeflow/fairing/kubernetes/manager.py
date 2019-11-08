@@ -189,7 +189,10 @@ class KubeManager(object):
                              event['object'])
                 ing = svc.status.load_balancer.ingress
                 if ing is not None and len(ing) > 0: #pylint:disable=len-as-condition
-                    url = "http://{}:5000/predict".format(ing[0].ip or ing[0].hostname)
+                    # temporarily disable hostname. It's causing CI to fail when
+                    # run through papermill
+                    #url = "http://{}:5000/predict".format(ing[0].ip or ing[0].hostname)
+                    url = "http://{}:5000/predict".format(ing[0].ip)
                     return url
         except ValueError as v:
             logger.error("error getting status for {} {}".format(name, str(v)))
