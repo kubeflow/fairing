@@ -11,7 +11,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=docker_session_.py,oci_compat_.py,__init__.py,v2_compat_.py,append_.py,retry_.py,transport_pool_.py,save_.py,docker_creds_.py,metadata_.py,docker_image_.py,docker_digest_.py,v1_compat_.py,docker_http_.py,docker_name_.py,docker_image_list_.py,nested_.py,util_.py,monitor_.py,test_notebook.py
+ignore-patterns=docker_session_.py,oci_compat_.py,__init__.py,v2_compat_.py,append_.py,retry_.py,transport_pool_.py,save_.py,docker_creds_.py,metadata_.py,docker_image_.py,docker_digest_.py,v1_compat_.py,docker_http_.py,docker_name_.py,docker_image_list_.py,nested_.py,util_.py,monitor_.py,test_notebook.py,conf.py
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
