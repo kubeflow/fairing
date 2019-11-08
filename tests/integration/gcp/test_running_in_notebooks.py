@@ -19,9 +19,6 @@ def test_xgboost_highlevel_apis_gcp_managed():
     }
     run_notebook_test(notebook_abs_path, expected_messages, parameters=parameters)
 
-# TODO(abhishek): The invocation of the prediction endpoint fails possibly
-# because the endpoint may not be ready when the prediction calls are made.
-# Temporarily disabling this test until I find the fix.
 def test_xgboost_highlevel_apis_gke():
     file_dir = os.path.dirname(__file__)
     notebook_rel_path = "../../../examples/prediction/xgboost-high-level-apis.ipynb"
