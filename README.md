@@ -15,10 +15,8 @@ To learn how Kubeflow Fairing streamlines the process of training and deploying
 ML models in the cloud, read the [Kubeflow Fairing
 documentation][fairing-overview]. 
 
-To learn the details of Kubeflow Fairing API, read the
-[markdown documentation][markdown-doc] or [HTML documentation][html-doc]
-via `htmlpreview.github.io`.
+To learn the Kubeflow Fairing SDK API, read the [HTML documentation][html-doc].
 
 [fairing-overview]: https://www.kubeflow.org/docs/fairing/fairing-overview/
-[markdown-doc]: https://github.com/kubeflow/fairing/tree/master/docs/markdown
-[html-doc]: http://htmlpreview.github.io/?https://github.com/kubeflow/fairing/blob/master/docs/html/kubeflow.fairing.html
+[html-doc]: https://kubeflow-fairing.readthedocs.io/en/latest/index.html
+
