@@ -19,7 +19,6 @@ from kubeflow.fairing.cloud import gcp
 from kubeflow.fairing.cloud import docker
 from kubeflow.fairing.ml_tasks import utils as ml_tasks_utils
 from kubeflow.fairing.constants import constants
-from kubeflow.fairing.kubernetes.manager import KubeManager
 
 logger = logging.getLogger(__name__)
 
@@ -210,11 +209,6 @@ class GKEBackend(KubernetesBackend):
                                  registry=registry)
         else:
             msg = ["Not able to guess the right builder for this job!"]
-            if KubeManager().secret_exists(constants.GCP_CREDS_SECRET_NAME, self._namespace):
-                msg.append("It seems you don't have permission to list/access secrets in your "
-                           "Kubeflow cluster. We need this permission in order to build a docker "
-                           "image using Kubeflow cluster. Adding Kubeneters Admin role to the "
-                           "service account you are using might solve this issue.")
             if not utils.is_running_in_k8s():
                 msg.append(" Also If you are using 'sudo' to access docker in your system you can"
                            " solve this problem by adding your username to the docker group. "
