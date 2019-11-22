@@ -18,8 +18,10 @@ class ContextSourceInterface(object):
 
     @abc.abstractmethod
     def generate_pod_spec(self, pod_spec):
-        """
-        Generates a pod spec for building the image in the cluster, pointing to
+        """Generates a pod spec for building the image in the cluster, pointing to
         the prepared build context
+
+        :param pod_spec: pod spec
+
         """
         raise NotImplementedError('ContextSourceInterface.modify_pod_spec')

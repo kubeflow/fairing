@@ -1,7 +1,7 @@
 import logging
 import tempfile
 
-from ..constants import constants
+from kubeflow.fairing.constants import constants
 
 logger = logging.getLogger('fairing')
 
@@ -10,9 +10,17 @@ def write_dockerfile(
         docker_command=None,
         destination=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
-        dockerfile_path=None, #pylint:disable=unused-argument
         base_image=None,
         install_reqs_before_copy=False):
+    """Generate dockerfile accoding to the parameters
+
+    :param docker_command: string, CMD of the dockerfile (Default value = None)
+    :param destination: string, destination folder for this dockerfile (Default value = None)
+    :param path_prefix: string, WORKDIR (Default value = constants.DEFAULT_DEST_PREFIX)
+    :param base_image: string, base image, example: gcr.io/kubeflow-image
+    :param install_reqs_before_copy: whether to install the prerequisites (Default value = False)
+
+    """
     if not destination:
         _, destination = tempfile.mkstemp(prefix="/tmp/fairing_dockerfile_")
     content_lines = ["FROM {}".format(base_image),

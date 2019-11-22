@@ -1,1 +1,1 @@
-from .backends import *
+from kubeflow.fairing.backends.backends import *

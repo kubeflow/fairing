@@ -1,13 +1,13 @@
 import os
 
-from ...cloud import gcp
-from ... import utils
-from ...constants import constants
-from ...kubernetes.manager import client, KubeManager
-from .context_source import ContextSourceInterface
-
+from kubeflow.fairing.cloud import gcp
+from kubeflow.fairing import utils
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.manager import client, KubeManager
+from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
 
 class GCSContextSource(ContextSourceInterface):
+    """Google cloud storage context for docker builder"""
     def __init__(self,
                  gcp_project=None,
                  credentials_file=os.environ.get(constants.GOOGLE_CREDS_ENV),
@@ -39,10 +39,11 @@ class GCSContextSource(ContextSourceInterface):
                 "--cache=true"]
         if not push:
             args.append("--no-push")
+
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='kaniko',
-                image='gcr.io/kaniko-project/executor:v0.7.0',
+                image=constants.KANIKO_IMAGE,
                 args=args,
             )],
             restart_policy='Never'

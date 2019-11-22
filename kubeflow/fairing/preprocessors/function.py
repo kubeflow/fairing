@@ -5,10 +5,10 @@ import sys
 import tempfile
 
 from kubeflow import fairing
-from ..constants import constants
-from .base import BasePreProcessor
-from ..functions.function_shim import get_execution_obj_type, ObjectType
-from ..notebook import notebook_util
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.preprocessors.base import BasePreProcessor
+from kubeflow.fairing.functions.function_shim import get_execution_obj_type, ObjectType
+from kubeflow.fairing.notebook import notebook_util
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +22,10 @@ OUTPUT_FILE = """import cloudpickle
 
 
 class FunctionPreProcessor(BasePreProcessor):
-    """
-    FunctionPreProcessor preprocesses a single function.
-    It sets as the command a function_shim that calls the function directly.
-
-    args: function_name - the name of the function to be called
+    """FunctionPreProcessor preprocesses a single function.
+       It sets as the command a function_shim that calls the function directly.
+       :param BasePreProcessor: a context that gets sent to the builder for the docker build
+       and sets the entrypoint.
     """
 
     def __init__(self,
@@ -34,6 +33,13 @@ class FunctionPreProcessor(BasePreProcessor):
                  path_prefix=constants.DEFAULT_DEST_PREFIX,
                  output_map=None,
                  input_files=None):
+        """Init the function preprocess class
+        :param function_obj: the name of the function or class to be called.
+        :param path_prefix: the defaut destion path prefix '/app/'.
+        :param output_map: a dict of files to be added without preprocessing.
+        :param input_files: the source files to be processed.
+
+        """
         super().__init__(
             output_map=output_map,
             path_prefix=path_prefix,
@@ -82,11 +88,14 @@ class FunctionPreProcessor(BasePreProcessor):
         self.output_map[temp_payload_wrapper_file] = payload_wrapper_file_in_context
 
         local_python_version = ".".join(
-            [str(x) for x in sys.version_info[0:3]])
+            [str(x) for x in sys.version_info[0:2]])
 
         self.command = ["python", os.path.join(self.path_prefix, FUNCTION_SHIM),
                         "--serialized_fn_file", payload_file_in_context,
                         "--python_version", local_python_version]
 
     def get_command(self):
+        """ Get the execute python command.
+        :returns: command: the command line will be executed
+        """
         return self.command

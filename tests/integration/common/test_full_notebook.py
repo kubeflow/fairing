@@ -8,12 +8,13 @@ NOTEBOOK_PATH = os.path.join(os.path.dirname(__file__), 'test_notebook.ipynb')
 
 
 def run_full_notebook_submission(capsys, notebook_file, expected_result,
-                                 deployer='job', builder='docker'):
+                                 deployer='job', builder='docker',
+                                 namespace='default'):
     py_version = ".".join([str(x) for x in sys.version_info[0:3]])
     base_image = 'python:{}'.format(py_version)
     fairing.config.set_builder(
         builder, base_image=base_image, registry=DOCKER_REGISTRY)
-    fairing.config.set_deployer(deployer, namespace='default')
+    fairing.config.set_deployer(deployer, namespace=namespace)
 
     requirements_file = os.path.relpath(
         os.path.join(os.path.dirname(__file__), 'requirements.txt'))
@@ -32,4 +33,4 @@ def test_full_notebook_job(capsys):
 
 def test_full_notebook_tfjob(capsys):
     run_full_notebook_submission(capsys, NOTEBOOK_PATH, 'Hello World',
-                                 deployer='tfjob')
+                                 deployer='tfjob', namespace='kubeflow-fairing')

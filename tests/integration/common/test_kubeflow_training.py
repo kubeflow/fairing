@@ -1,6 +1,7 @@
 import sys
 import time
 import uuid
+import os
 
 from kubernetes import client
 
@@ -36,16 +37,26 @@ def get_tfjobs_with_labels(labels):
 
 
 def run_submission_with_function_preprocessor(capsys, deployer="job", builder="append",
-                                              namespace="default", cleanup=False):
+                                              namespace="default", dockerfile_path=None,
+                                              cleanup=False):
     py_version = ".".join([str(x) for x in sys.version_info[0:3]])
     base_image = 'registry.hub.docker.com/library/python:{}'.format(py_version)
     if builder == 'cluster':
-        fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY,
-                                   pod_spec_mutators=[
-                                       fairing.cloud.gcp.add_gcp_credentials],
-                                   context_source=gcs_context.GCSContextSource(
-                                       namespace=namespace),
-                                   namespace=namespace)
+        if dockerfile_path is None:
+            fairing.config.set_builder(builder, base_image=base_image, registry=DOCKER_REGISTRY,
+                                       pod_spec_mutators=[
+                                           fairing.cloud.gcp.add_gcp_credentials_if_exists],
+                                       context_source=gcs_context.GCSContextSource(
+                                           namespace=namespace),
+                                       namespace=namespace)
+        else:
+            fairing.config.set_builder(builder, registry=DOCKER_REGISTRY,
+                                       dockerfile_path=dockerfile_path,
+                                       pod_spec_mutators=[
+                                           fairing.cloud.gcp.add_gcp_credentials_if_exists],
+                                       context_source=gcs_context.GCSContextSource(
+                                           namespace=namespace),
+                                       namespace=namespace)
     else:
         fairing.config.set_builder(
             builder, base_image=base_image, registry=DOCKER_REGISTRY)
@@ -74,12 +85,12 @@ def test_job_deployer(capsys):
 
 def test_tfjob_deployer(capsys):
     run_submission_with_function_preprocessor(
-        capsys, deployer="tfjob", namespace="kubeflow")
+        capsys, deployer="tfjob", namespace="kubeflow-fairing")
 
 
 def test_tfjob_deployer_cleanup(capsys):
     run_submission_with_function_preprocessor(capsys, deployer="tfjob",
-                                              namespace="kubeflow", cleanup=True)
+                                              namespace="kubeflow-fairing", cleanup=True)
 
 
 def test_docker_builder(capsys):
@@ -88,4 +99,11 @@ def test_docker_builder(capsys):
 
 def test_cluster_builder(capsys):
     run_submission_with_function_preprocessor(
-        capsys, builder="cluster", namespace="kubeflow")
+        capsys, builder="cluster", namespace="kubeflow-fairing")
+
+
+def test_cluster_builder_with_dockerfile(capsys):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    run_submission_with_function_preprocessor(
+        capsys, builder="cluster", dockerfile_path=dir_path + "/Dockerfile.test",
+        namespace="kubeflow-fairing")

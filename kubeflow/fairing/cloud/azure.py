@@ -13,8 +13,8 @@ from azure.mgmt.storage.models import Kind
 from azure.storage.file import FileService
 from kubernetes import client
 
-from ..constants import constants
-from ..kubernetes.manager import KubeManager
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.manager import KubeManager
 
 logger = logging.getLogger(__name__)
 

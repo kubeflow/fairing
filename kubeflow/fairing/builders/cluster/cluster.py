@@ -3,29 +3,17 @@ import uuid
 
 from kubernetes import client
 
-from ... import utils
-from ..base_builder import BaseBuilder
-from .. import dockerfile
-from ...constants import constants
-from ...kubernetes.manager import KubeManager
+from kubeflow.fairing import utils
+from kubeflow.fairing.builders.base_builder import BaseBuilder
+from kubeflow.fairing.builders import dockerfile
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.kubernetes.manager import KubeManager
 
 logger = logging.getLogger(__name__)
 
 
 class ClusterBuilder(BaseBuilder):
     """Builds a docker image in a Kubernetes cluster.
-
-
-     Args:
-        registry (str): Required. Registry to push image to
-                        Example: gcr.io/kubeflow-images
-        base_image (str): Base image to use for the image build
-        preprocessor (BasePreProcessor): Preprocessor to use to modify inputs
-                                         before sending them to docker build
-        context_source (ContextSourceInterface): context available to the
-                                                 cluster build
-        push {bool} -- Whether or not to push the image to the registry
-        cleanup {bool} -- Whether or not to clean up the Kaniko build job
     """
 
     def __init__(self,
@@ -44,7 +32,8 @@ class ClusterBuilder(BaseBuilder):
             image_name=image_name,
             push=push,
             preprocessor=preprocessor,
-            base_image=base_image)
+            base_image=base_image,
+            dockerfile_path=dockerfile_path)
         self.manager = KubeManager()
         if context_source is None:
             raise RuntimeError("context_source is not specified")
@@ -56,12 +45,14 @@ class ClusterBuilder(BaseBuilder):
     def build(self):
         logging.info("Building image using cluster builder.")
         install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
-        dockerfile_path = dockerfile.write_dockerfile(
-            dockerfile_path=self.dockerfile_path,
-            path_prefix=self.preprocessor.path_prefix,
-            base_image=self.base_image,
-            install_reqs_before_copy=install_reqs_before_copy
-        )
+        if self.dockerfile_path:
+            dockerfile_path = self.dockerfile_path
+        else:
+            dockerfile_path = dockerfile.write_dockerfile(
+                path_prefix=self.preprocessor.path_prefix,
+                base_image=self.base_image,
+                install_reqs_before_copy=install_reqs_before_copy
+            )
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_path, context_hash = self.preprocessor.context_tar_gz()
         self.image_tag = self.full_image_name(context_hash)

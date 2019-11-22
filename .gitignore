@@ -69,6 +69,9 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/html/_sources/
+docs/html/.buildinfo
+docs/markdown/index.md
 
 # PyBuilder
 target/
@@ -107,3 +110,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 .DS_Store
+
+# dev tools
+.ycm_extra_conf.py
+# ctags
+tags

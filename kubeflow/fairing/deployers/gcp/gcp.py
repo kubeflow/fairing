@@ -1,26 +1,26 @@
 from googleapiclient import discovery
 from googleapiclient import errors
 
-from ... import utils
-from ... import http_utils
-from ..deployer import DeployerInterface
-from ...cloud.gcp import guess_project_name
+from kubeflow.fairing import utils
+from kubeflow.fairing import http_utils
+from kubeflow.fairing.deployers.deployer import DeployerInterface
+from kubeflow.fairing.cloud.gcp import guess_project_name
 
 class GCPJob(DeployerInterface):
-    """Handle submitting training job to GCP.
-    Attributes:
-        project_id: Google Cloud project ID to use.
-        region: region in which the job has to be deployed.
+    """Handle submitting training job to GCP."""
+
+    def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None):
+        """
+        :param project_id: Google Cloud project ID to use.
+        :param region: region in which the job has to be deployed.
             Ref: https://cloud.google.com/compute/docs/regions-zones/
-        scale_tier: machine type to use for the job.
+        :param scale_tier: machine type to use for the job.
             Ref: https://cloud.google.com/ml-engine/docs/tensorflow/machine-types
-        job_config: Custom job configuration options. If an option is specified
+        :param job_config: Custom job configuration options. If an option is specified
             in the job_config and as a top-level parameter, the parameter overrides
             the value in the job_config.
             Ref: https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs
-    """
-
-    def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None):
+        """
         self._project_id = project_id or guess_project_name()
         self._region = region or 'us-central1'
         self._job_config = job_config or {}
@@ -29,7 +29,11 @@ class GCPJob(DeployerInterface):
         self._ml._http = http_utils.configure_http_instance(self._ml._http) #pylint:disable=protected-access
 
     def create_request_dict(self, pod_template_spec):
-        """Return the request to be sent to the ML Engine API."""
+        """Return the request to be sent to the ML Engine API.
+
+        :param pod_template_spec: pod spec template of the training job
+
+        """
         # TODO: Update deploy interface to pass image directly instad of
         # PodTemplateSpec.
         # Retrieve image uri from pod template spec.
@@ -55,7 +59,11 @@ class GCPJob(DeployerInterface):
         return request_dict
 
     def deploy(self, pod_template_spec):
-        """Deploys the training job"""
+        """Deploys the training job
+
+        :param pod_template_spec: pod spec template of the training job
+
+        """
         request_dict = self.create_request_dict(pod_template_spec)
 
         try:

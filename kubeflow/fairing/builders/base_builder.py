@@ -2,9 +2,9 @@ import logging
 
 from kubernetes import client
 
-from .builder import BuilderInterface
-from ..constants import constants
-from ..cloud import gcp
+from kubeflow.fairing.builders.builder import BuilderInterface
+from kubeflow.fairing.constants import constants
+from kubeflow.fairing.cloud import gcp
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,6 @@ class BaseBuilder(BuilderInterface): #pylint:disable=too-many-instance-attribute
         self.docker_client = None
 
     def generate_pod_spec(self):
-        """return a V1PodSpec initialized with the proper container"""
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='model',
@@ -59,6 +58,11 @@ class BaseBuilder(BuilderInterface): #pylint:disable=too-many-instance-attribute
         )
 
     def full_image_name(self, tag):
+        """Retrun the full image name
+
+        :param tag:  the new tag for the image
+
+        """
         return '{}/{}:{}'.format(self.registry, self.image_name, tag)
 
     def build(self):

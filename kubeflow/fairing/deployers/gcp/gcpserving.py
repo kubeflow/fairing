@@ -1,9 +1,9 @@
 from googleapiclient import discovery
 from googleapiclient import errors
 
-from ..deployer import DeployerInterface
-from ...cloud.gcp import guess_project_name
-from ... import http_utils
+from kubeflow.fairing.deployers.deployer import DeployerInterface
+from kubeflow.fairing.cloud.gcp import guess_project_name
+from kubeflow.fairing import http_utils
 
 
 # TODO: Implement predict and delete methods.
@@ -27,7 +27,11 @@ class GCPServingDeployer(DeployerInterface):
             self._deploy_kwargs['python_version'] = '3.5'
 
     def deploy(self, pod_template_spec):
-        """Deploys the model to Cloud ML Engine."""
+        """Deploys the model to Cloud ML Engine.
+
+        :param pod_template_spec: pod spec template of training job
+
+        """
         # Check if the model exists
         try:
             res = self._ml.projects().models().get(
@@ -74,4 +78,5 @@ class GCPServingDeployer(DeployerInterface):
             self._model_name, self._version_name, self._project_id))
 
     def get_logs(self):
+        """ abstract get log"""
         raise NotImplementedError('Retrieving logs is not supported for the GCP Serving deployer.')

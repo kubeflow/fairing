@@ -6,7 +6,8 @@ import uuid
 from google.cloud import storage
 from kubeflow import fairing
 from kubeflow.fairing import TrainJob
-from kubeflow.fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
+#from kubeflow.fairing.backends import KubeflowGKEBackend, GKEBackend, GCPManagedBackend
+from kubeflow.fairing.backends import KubeflowGKEBackend, GCPManagedBackend
 
 GCS_PROJECT_ID = fairing.cloud.gcp.guess_project_name()
 TEST_GCS_BUCKET = '{}-fairing'.format(GCS_PROJECT_ID)
@@ -64,6 +65,7 @@ train_fn_with_gcs_access.__module__ = '__main__'
 
 
 def run_submission_with_high_level_api(backend, entry_point, capsys, expected_result):
+
     py_version = ".".join([str(x) for x in sys.version_info[0:3]])
     base_image = 'python:{}'.format(py_version)
 
@@ -79,30 +81,34 @@ def run_submission_with_high_level_api(backend, entry_point, capsys, expected_re
 
 def test_job_submission_kubeflowgkebackend(capsys):
     expected_result = str(uuid.uuid4())
-    run_submission_with_high_level_api(KubeflowGKEBackend(
-    ), lambda: train_fn(expected_result), capsys, expected_result)
+    run_submission_with_high_level_api(
+        KubeflowGKEBackend(namespace='kubeflow-fairing'),
+        lambda: train_fn(expected_result), capsys, expected_result)
 
 
 def test_job_submission_kubeflowgkebackend_gcs_access(capsys, temp_gcs_prefix):
-    run_submission_with_high_level_api(KubeflowGKEBackend(
-    ), lambda: train_fn_with_gcs_access(temp_gcs_prefix), capsys, GCS_SUCCESS_MSG)
+    run_submission_with_high_level_api(
+        KubeflowGKEBackend(namespace='kubeflow-fairing'),
+        lambda: train_fn_with_gcs_access(temp_gcs_prefix), capsys, GCS_SUCCESS_MSG)
 
 
-def test_job_submission_gkebackend_with_default_namespace(capsys):
-    expected_result = str(uuid.uuid4())
-    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn(
-        expected_result), capsys, expected_result)
+# Disabling the following tests that launch jobs in 'default' namespace.
+# 'default' namespace is no longer available to fairing
+#def test_job_submission_gkebackend_with_default_namespace(capsys):
+#    expected_result = str(uuid.uuid4())
+#    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn(
+#        expected_result), capsys, expected_result)
+#
+#
+#def test_job_submission_gkebackend_gcs_access_with_default_namespace(capsys, temp_gcs_prefix):
+#    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn_with_gcs_access(
+#        temp_gcs_prefix), capsys, GCS_FAILED_MSG)
+#
 
-
-def test_job_submission_gkebackend_gcs_access_with_default_namespace(capsys, temp_gcs_prefix):
-    run_submission_with_high_level_api(GKEBackend(), lambda: train_fn_with_gcs_access(
-        temp_gcs_prefix), capsys, GCS_FAILED_MSG)
-
-
-def test_job_submission_gkebackend_gcs_access_with_kubeflow_namespace(capsys, temp_gcs_prefix):
-    run_submission_with_high_level_api(GKEBackend(namespace="kubeflow"),
-                                       lambda: train_fn_with_gcs_access(temp_gcs_prefix),
-                                       capsys, GCS_SUCCESS_MSG)
+#def test_job_submission_gkebackend_gcs_access_with_kubeflow_namespace(capsys, temp_gcs_prefix):
+#    run_submission_with_high_level_api(GKEBackend(namespace="kubeflow-fairing"),
+#                                       lambda: train_fn_with_gcs_access(temp_gcs_prefix),
+#                                       capsys, GCS_SUCCESS_MSG)
 
 def test_job_submission_gcpmanaged(capsys, temp_gcs_prefix):
     # TODO (karthikv2k): test the job output, blocked by #146

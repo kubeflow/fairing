@@ -2,12 +2,14 @@ import uuid
 
 from kubernetes import client
 
-from ... import utils
-from .context_source import ContextSourceInterface
-from ...cloud import azure
-from ...constants import constants
+from kubeflow.fairing import utils
+from kubeflow.fairing.builders.cluster.context_source import ContextSourceInterface
+from kubeflow.fairing.cloud import azure
+from kubeflow.fairing.constants import constants
+
 
 class StorageContextSource(ContextSourceInterface):
+    """Azure storage context source"""
     def __init__(self, namespace=None, region=None,
                  resource_group_name=None, storage_account_name=None):
         self.namespace = namespace or utils.get_default_target_namespace()
@@ -61,7 +63,7 @@ class StorageContextSource(ContextSourceInterface):
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='kaniko',
-                image='gcr.io/kaniko-project/executor:v0.7.0',
+                image=constants.KANIKO_IMAGE,
                 args=args,
             )],
             restart_policy='Never'

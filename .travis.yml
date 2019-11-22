@@ -1,13 +1,26 @@
 dist: xenial # required for Python >= 3.7
 language: python
-# Python versions to test
-python:
-    - "3.7"
+
 # Command to install dependencies
 install:
-    - python setup.py install
-    - pip install --upgrade pytest
+  # NOTE: We install requirements explicitly with pip to avoid
+  # always installing packaged pre-releases as happens when we
+  # use setup.py to install our packages.
+  - pip install -r requirements.txt ${PIP_PRE_RELEASES:+--pre}
+  - python setup.py install
+  - pip install --upgrade pytest
+  - pip freeze
 # Command to run tests
 script:
-    - cd tests/unit
-    - pytest
+  - cd tests/unit
+  - pytest --verbose
+
+matrix:
+  include:
+    - python: 3.7
+      env: []
+    - python: 3.7
+      env: &allowed_failure_1 [PIP_PRE_RELEASES=True]
+  allow_failures:
+    - env: *allowed_failure_1
+  fast_finish: true
