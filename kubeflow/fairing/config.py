@@ -124,7 +124,7 @@ class Config(object):
         builder = self.get_builder(preprocessor)
         logging.info("Using builder: %s", builder)
         deployer = self.get_deployer()
-        logging.info("Using deployer: %s", builder)
+        logging.info("Using deployer: %s", deployer)
 
         builder.build()
         pod_spec = builder.generate_pod_spec()
