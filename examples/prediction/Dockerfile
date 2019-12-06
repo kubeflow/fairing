@@ -20,5 +20,6 @@ ENV PATH $PATH:/root/tools/google-cloud-sdk/bin
 
 RUN pip install -U pip && mkdir -p /app
 COPY requirements.txt /app/
+ADD ames_dataset /app/ames_dataset
 WORKDIR /app
 RUN pip install -r requirements.txt
