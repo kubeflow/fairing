@@ -18,7 +18,10 @@ import joblib
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import Imputer
+try:
+    from sklearn.preprocessing import Imputer
+except ImportError:
+    from sklearn.impute import SimpleImputer as Imputer
 from xgboost import XGBRegressor
 
 
