@@ -1,6 +1,8 @@
 from kubernetes import client, config, watch
 from kfserving import KFServingClient
 
+from kubeflow.tfjob import TFJobClient
+
 from kubeflow.fairing.utils import is_running_in_k8s
 from kubeflow.fairing.constants import constants
 
@@ -30,25 +32,19 @@ class KubeManager(object):
         api_instance = client.BatchV1Api()
         return api_instance.create_namespaced_job(namespace, job)
 
-    def create_tf_job(self, namespace, job):
+    def create_tf_job(self, namespace, tfjob):
         """Create the provided TFJob in the specified namespace.
         The TFJob version is defined in TF_JOB_VERSION in fairing.constants.
         The version TFJob need to be installed before creating the TFJob.
 
         :param namespace: The custom resource
-        :param job: The JSON schema of the Resource to create
+        :param tfjob: The JSON schema of the Resource to create
         :returns: object: Created TFJob.
 
         """
-        api_instance = client.CustomObjectsApi()
+        tfjob_client = TFJobClient()
         try:
-            return api_instance.create_namespaced_custom_object(
-                constants.TF_JOB_GROUP,
-                constants.TF_JOB_VERSION,
-                namespace,
-                constants.TF_JOB_PLURAL,
-                job
-            )
+            return tfjob_client.create(tfjob, namespace=namespace)
         except client.rest.ApiException:
             raise RuntimeError("Failed to create TFJob. Perhaps the CRD TFJob version "
                                "{} in not installed(If you use different version you can pass it "
@@ -63,14 +59,8 @@ class KubeManager(object):
         :returns: object: The deleted TFJob.
 
         """
-        api_instance = client.CustomObjectsApi()
-        return api_instance.delete_namespaced_custom_object(
-            constants.TF_JOB_GROUP,
-            constants.TF_JOB_VERSION,
-            namespace,
-            constants.TF_JOB_PLURAL,
-            name,
-            client.V1DeleteOptions())
+        tfjob_client = TFJobClient()
+        return tfjob_client.delete(name, namespace=namespace)
 
     def create_deployment(self, namespace, deployment):
         """Create an V1Deployment in the specified namespace.

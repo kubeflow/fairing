@@ -1,6 +1,10 @@
 import logging
 from kubernetes import client as k8s_client
 
+from kubeflow.tfjob import V1ReplicaSpec
+from kubeflow.tfjob import V1TFJob
+from kubeflow.tfjob import V1TFJobSpec
+
 from kubeflow.fairing.constants import constants
 from kubeflow.fairing.deployers.job.job import Job
 
@@ -51,34 +55,34 @@ class TfJob(Job):
         """
         self.set_container_name(pod_template_spec)
 
-        worker_replica_spec = {}
-        worker_replica_spec['replicas'] = self.distribution['Worker']
-        worker_replica_spec['template'] = pod_template_spec
+        tf_replica_specs = {}
+        worker = V1ReplicaSpec(
+            replicas=self.distribution['Worker'],
+            template=pod_template_spec
+        )
+        tf_replica_specs = {"Worker": worker}
 
-        ps_replica_spec = {}
-        ps_replica_spec['replicas'] = self.distribution.get('PS', 0)
-        ps_replica_spec['template'] = pod_template_spec
+        if self.distribution.get('Chief', 0) > 0:
+            chief = V1ReplicaSpec(
+                replicas=self.distribution.get('Chief', 0),
+                template=pod_template_spec)
+            tf_replica_specs.update(Chief=chief)
 
-        chief_replica_spec = {}
-        chief_replica_spec['replicas'] = self.distribution.get('Chief', 0)
-        chief_replica_spec['template'] = pod_template_spec
+        if self.distribution.get('PS', 0) > 0:
+            ps = V1ReplicaSpec(
+                replicas=self.distribution.get('PS', 0),
+                template=pod_template_spec)
+            tf_replica_specs.update(PS=ps)
 
-        spec = {}
-        spec['tfReplicaSpecs'] = {}
-        spec['tfReplicaSpecs']['Worker'] = worker_replica_spec
-        if chief_replica_spec['replicas'] > 0:
-            spec['tfReplicaSpecs']['Chief'] = chief_replica_spec
-        if ps_replica_spec['replicas'] > 0:
-            spec['tfReplicaSpecs']['PS'] = ps_replica_spec
+        tfjob = V1TFJob(
+            api_version=constants.TF_JOB_GROUP + "/" + constants.TF_JOB_VERSION,
+            kind=constants.TF_JOB_KIND,
+            metadata=k8s_client.V1ObjectMeta(generate_name=self.job_name,
+                                             labels=self.labels),
+            spec=V1TFJobSpec(tf_replica_specs=tf_replica_specs)
+        )
 
-        tf_job = {}
-        tf_job['kind'] = constants.TF_JOB_KIND
-        tf_job['apiVersion'] = 'kubeflow.org/' + constants.TF_JOB_VERSION
-        tf_job['metadata'] = k8s_client.V1ObjectMeta(generate_name=self.job_name,
-                                                     labels=self.labels)
-        tf_job['spec'] = spec
-
-        return tf_job
+        return tfjob
 
     def set_container_name(self, pod_template_spec):
         """Sets the name of the main container to `tensorflow`.
