@@ -10,6 +10,7 @@ from kubeflow.fairing.builders.cluster.cluster import ClusterBuilder
 from kubeflow.fairing.deployers.job.job import Job
 from kubeflow.fairing.deployers.serving.serving import Serving
 from kubeflow.fairing.deployers.tfjob.tfjob import TfJob
+from kubeflow.fairing.deployers.pytorchjob.pytorchjob import PyTorchJob
 from kubeflow.fairing.deployers.gcp.gcp import GCPJob
 from kubeflow.fairing.deployers.kfserving.kfserving import KFServing
 
@@ -38,6 +39,7 @@ builder_map = {
 deployer_map = {
     'job': Job,
     'tfjob': TfJob,
+    'pytorchjob': PyTorchJob,
     'gcp': GCPJob,
     'serving': Serving,
     'kfserving': KFServing,

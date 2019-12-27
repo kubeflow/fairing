@@ -36,6 +36,15 @@ def get_tfjobs_with_labels(labels):
         label_selector=labels)
 
 
+def get_pytorchjob_with_labels(labels):
+    api_instance = client.CustomObjectsApi()
+    return api_instance.list_cluster_custom_object(
+        constants.PYTORCH_JOB_GROUP,
+        constants.PYTORCH_JOB_VERSION,
+        constants.PYTORCH_JOB_PLURAL,
+        label_selector=labels)
+
+
 def run_submission_with_function_preprocessor(capsys, deployer="job", builder="append",
                                               namespace="default", dockerfile_path=None,
                                               cleanup=False):
@@ -78,6 +87,13 @@ def run_submission_with_function_preprocessor(capsys, deployer="job", builder="a
             assert expected_result in str(
                 get_tfjobs_with_labels('pytest-id=' + expected_result))
 
+    if deployer == "pytorchjob":
+        if cleanup:
+            assert expected_result not in str(
+                get_pytorchjob_with_labels('pytest-id=' + expected_result))
+        else:
+            assert expected_result in str(
+                get_pytorchjob_with_labels('pytest-id=' + expected_result))
 
 def test_job_deployer(capsys):
     run_submission_with_function_preprocessor(capsys, deployer="job")
@@ -92,6 +108,14 @@ def test_tfjob_deployer_cleanup(capsys):
     run_submission_with_function_preprocessor(capsys, deployer="tfjob",
                                               namespace="kubeflow-fairing", cleanup=True)
 
+def test_pytorchjob_deployer(capsys):
+    run_submission_with_function_preprocessor(
+        capsys, deployer="pytorchjob", namespace="kubeflow-fairing")
+
+
+def test_pytorchjob_deployer_cleanup(capsys):
+    run_submission_with_function_preprocessor(
+        capsys, deployer="pytorchjob", namespace="kubeflow-fairing", cleanup=True)
 
 def test_docker_builder(capsys):
     run_submission_with_function_preprocessor(capsys, builder="docker")
