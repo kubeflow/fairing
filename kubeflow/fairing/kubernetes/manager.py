@@ -1,3 +1,7 @@
+Start Time:     Mon, 30 Dec 2019 22:45:17 -0800
+import logging
+import retrying
+
 from kubernetes import client, config, watch
 from kfserving import KFServingClient
 
@@ -199,6 +203,7 @@ class KubeManager(object):
         except client.rest.ApiException as e:
             logger.error("error getting status for {} {}".format(name, str(e)))
 
+    @retrying.retry(wait_fixed=1000, stop_max_attempt_number=20)
     def log(self, name, namespace, selectors=None, container='', follow=True):
         """Get log of the specified pod.
 
