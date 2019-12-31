@@ -1,4 +1,3 @@
-Start Time:     Mon, 30 Dec 2019 22:45:17 -0800
 import logging
 import retrying
 
@@ -8,7 +7,6 @@ from kfserving import KFServingClient
 from kubeflow.fairing.utils import is_running_in_k8s
 from kubeflow.fairing.constants import constants
 
-import logging
 logger = logging.getLogger(__name__)
 
 MAX_STREAM_BYTES = 1024
