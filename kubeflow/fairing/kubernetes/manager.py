@@ -1,10 +1,12 @@
+import logging
+import retrying
+
 from kubernetes import client, config, watch
 from kfserving import KFServingClient
 
 from kubeflow.fairing.utils import is_running_in_k8s
 from kubeflow.fairing.constants import constants
 
-import logging
 logger = logging.getLogger(__name__)
 
 MAX_STREAM_BYTES = 1024
@@ -199,6 +201,7 @@ class KubeManager(object):
         except client.rest.ApiException as e:
             logger.error("error getting status for {} {}".format(name, str(e)))
 
+    @retrying.retry(wait_fixed=1000, stop_max_attempt_number=20)
     def log(self, name, namespace, selectors=None, container='', follow=True):
         """Get log of the specified pod.
 
