@@ -5,6 +5,7 @@ from kubernetes import client, config, watch
 from kfserving import KFServingClient
 
 from kubeflow.tfjob import TFJobClient
+from kubeflow.pytorchjob import PyTorchJobClient
 
 from kubeflow.fairing.utils import is_running_in_k8s
 from kubeflow.fairing.constants import constants
@@ -63,6 +64,37 @@ class KubeManager(object):
         """
         tfjob_client = TFJobClient()
         return tfjob_client.delete(name, namespace=namespace)
+
+
+    def create_pytorch_job(self, namespace, pytorchjob):
+        """Create the provided PyTorchJob in the specified namespace.
+        The PyTorchJob version is defined in PYTORCH_JOB_VERSION in kubeflow.pytorch.constants.
+        The version PyTorchJob need to be installed before creating the PyTorchJob.
+
+        :param namespace: The custom resource
+        :param pytorchjob: The JSON schema of the Resource to create
+        :returns: object: Created TFJob.
+
+        """
+        pytorchjob_client = PyTorchJobClient()
+        try:
+            return pytorchjob_client.create(pytorchjob, namespace=namespace)
+        except client.rest.ApiException:
+            raise RuntimeError("Failed to create PyTorchJob. Perhaps the CRD PyTorchJob version "
+                               "{} in not installed(If you use different version you can pass it "
+                               "as ENV variable called `PYTORCH_JOB_VERSION`)? "
+                               .format(constants.PYTORCH_JOB_VERSION))
+
+    def delete_pytorch_job(self, name, namespace):
+        """Delete the provided PyTorchJob in the specified namespace.
+
+        :param name: The custom object
+        :param namespace: The custom resource
+        :returns: object: The deleted PyTorchJob.
+
+        """
+        pytorchjob_client = PyTorchJobClient()
+        return pytorchjob_client.delete(name, namespace=namespace)
 
     def create_deployment(self, namespace, deployment):
         """Create an V1Deployment in the specified namespace.

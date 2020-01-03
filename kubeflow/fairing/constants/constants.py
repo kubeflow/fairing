@@ -41,6 +41,14 @@ TF_JOB_PLURAL = "tfjobs"
 TF_JOB_DEFAULT_NAME = 'fairing-tfjob-'
 TF_JOB_DEPLOYER_TYPE = 'tfjob'
 
+#PyTorchJob Constants
+PYTORCH_JOB_VERSION = os.environ.get('PYTORCH_JOB_VERSION', 'v1')
+PYTORCH_JOB_GROUP = "kubeflow.org"
+PYTORCH_JOB_KIND = "PyTorchJob"
+PYTORCH_JOB_PLURAL = "pytorchjobs"
+PYTORCH_JOB_DEFAULT_NAME = 'fairing-pytorchjob-'
+PYTORCH_JOB_DEPLOYER_TYPE = 'pytorchjob'
+
 # KFServing constants
 KFSERVING_GROUP = "serving.kubeflow.org"
 KFSERVING_KIND = "InferenceService"
