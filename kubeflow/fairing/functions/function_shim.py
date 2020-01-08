@@ -1,3 +1,5 @@
+from kubeflow.fairing.constants import constants
+
 import argparse
 import cloudpickle
 import sys
@@ -5,8 +7,11 @@ import types
 from enum import Enum
 import logging
 
-logging.basicConfig(format='%(message)s')
-logging.getLogger().setLevel(logging.INFO)
+logging.basicConfig(
+    format=constants.FAIRING_LOG_FORMAT,
+    datefmt=constants.FAIRING_LOG_DATEFMT,
+)
+logging.getLogger().setLevel(constants.FAIRING_LOG_LEVEL)
 
 class ObjectType(Enum):
     FUNCTION = 1
