@@ -1,9 +1,14 @@
+from kubeflow.fairing.constants import constants
+
 import importlib
 import argparse
 import logging
 
-logging.basicConfig(format='%(message)s')
-logging.getLogger().setLevel(logging.INFO)
+logging.basicConfig(
+    format=constants.FAIRING_LOG_FORMAT,
+    datefmt=constants.FAIRING_LOG_DATEFMT,
+)
+logging.getLogger().setLevel(constants.FAIRING_LOG_LEVEL)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Initializes environment for distributed LightGBM')

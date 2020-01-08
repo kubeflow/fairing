@@ -64,3 +64,8 @@ PVC_DEFAULT_VOLUME_NAME = 'fairing-volume-'
 
 # Kaniko Constants
 KANIKO_IMAGE = 'gcr.io/kaniko-project/executor:v0.14.0'
+
+#Fairing Logging Constants
+FAIRING_LOG_LEVEL = os.environ.get('FAIRING_LOG_LEVEL', 'INFO').upper()
+FAIRING_LOG_FORMAT = '%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'
+FAIRING_LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
