@@ -4,8 +4,13 @@
 python HousingTrain.py --model-file=trained_ames_model.dat --train-input=ames_dataset/train.csv
 ```
 
-### Serve on Kubernetes
+### Serve on your local Kubernetes cluster
 
+Add the bellow line and set your working directory which stroed the following files:`HousingServe.py`,`requirements.txt` and `trained_ames_model.dat`
+
+```
+fairing.config.set_preprocessor('python', input_files=['HousingServe.py','requirements.txt','trained_ames_model.dat'],path_prefix='<YOUR-WORKDIR-HERE>')
+```
 Set a docker registry that you are authenticated to in the set_builder command.
 
 ```
