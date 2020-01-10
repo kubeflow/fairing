@@ -19,6 +19,7 @@ def test_xgboost_highlevel_apis_gcp_managed():
     }
     run_notebook_test(notebook_abs_path, expected_messages, parameters=parameters)
 
+@pytest.mark.skip(reason="debugging tests")
 def test_xgboost_highlevel_apis_gke():
     file_dir = os.path.dirname(__file__)
     notebook_rel_path = "../../../examples/prediction/xgboost-high-level-apis.ipynb"
@@ -33,7 +34,7 @@ def test_xgboost_highlevel_apis_gke():
     }
     run_notebook_test(notebook_abs_path, expected_messages, parameters=parameters)
 
-
+@pytest.mark.skip(reason="debugging tests")
 def test_lightgbm():
     file_dir = os.path.dirname(__file__)
     notebook_rel_path = "../../../examples/lightgbm/distributed-training.ipynb"
