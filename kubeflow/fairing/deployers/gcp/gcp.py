@@ -1,3 +1,6 @@
+from logging import getLogger
+
+from google.cloud import logging
 from googleapiclient import discovery
 from googleapiclient import errors
 
@@ -6,10 +9,13 @@ from kubeflow.fairing import http_utils
 from kubeflow.fairing.deployers.deployer import DeployerInterface
 from kubeflow.fairing.cloud.gcp import guess_project_name
 
+
+logger = getLogger(__name__)
+
 class GCPJob(DeployerInterface):
     """Handle submitting training job to GCP."""
 
-    def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None):
+    def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None, fetch_stream_logs=False):
         """
         :param project_id: Google Cloud project ID to use.
         :param region: region in which the job has to be deployed.
@@ -20,6 +26,7 @@ class GCPJob(DeployerInterface):
             in the job_config and as a top-level parameter, the parameter overrides
             the value in the job_config.
             Ref: https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs
+        :param fetch_stream_logs: stream log flg
         """
         self._project_id = project_id or guess_project_name()
         self._region = region or 'us-central1'
@@ -27,6 +34,7 @@ class GCPJob(DeployerInterface):
         self.scale_tier = scale_tier
         self._ml = discovery.build('ml', 'v1')
         self._ml._http = http_utils.configure_http_instance(self._ml._http) #pylint:disable=protected-access
+        self._fetch_stream_logs = fetch_stream_logs
 
     def create_request_dict(self, pod_template_spec):
         """Return the request to be sent to the ML Engine API.
@@ -85,3 +93,39 @@ class GCPJob(DeployerInterface):
         print('Access job logs at the following URL:')
         print('https://console.cloud.google.com/mlengine/jobs/{}?project={}'
               .format(self._job_name, self._project_id))
+
+        if self._fetch_stream_logs:
+            # client for fetching logs from stackdriver
+            client = logging.client.Client(self._project_id)
+            fetch_with_timestamp_filter = lambda timestamp: client.list_entries(
+                filter_='resource.labels.job_id="{}" timestamp>={}'.format(
+                    self._project_id, timestamp))
+
+            # request for getting job info
+            req = self._ml.projects().jobs().get(name='projects/{}/jobs/{}'.format(
+                self._project_id, self._job_name))
+            job_info = req.execute()
+            last_updated_at = job_info['createTime']
+            last_insert_id_set = set()
+            finished = False
+            try:
+                while not finished:
+                    job_info = req.execute()
+                    # When `finished` is true, job has been finished. See below for a list of status.
+                    # https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs?hl=ja#State
+                    finished = job_info['status'] in ('SUCCEEDED', 'FAILED', 'CANCELLED')
+
+                    # For prevent duplicate logging
+                    entries = [e for e in fetch_with_timestamp_filter(last_updated_at)
+                               if e not in last_insert_id_set]
+                    for entry in entries:
+                        print(entry.payload) #TODO Add custom filtering
+                    if len(entries) > 0:
+                        # update filtering condition
+                        last_updated_at = entries[-1].timestamp.isoformat()
+                        last_insert_id_set = set(map(lambda e: e.insert_id, entries))
+
+            except ValueError as v:
+                pass
+            finally:
+              print('Job has been finished.')
