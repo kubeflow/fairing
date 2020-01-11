@@ -109,7 +109,7 @@ class GCPJob(DeployerInterface):
         fetch_with_timestamp_filter = lambda timestamp: client.list_log_entries(
             resource_names=['projects/{}'.format(self._project_id)],
             filter_='resource.labels.job_id="{}" '
-                    'timestamp>={}'.format(self._project_id, timestamp))
+                    'timestamp>="{}"'.format(self._job_name, timestamp))
 
         # request for getting job info
         req = self._ml.projects().jobs().get(name='projects/{}/jobs/{}'.format(
@@ -123,7 +123,7 @@ class GCPJob(DeployerInterface):
                 job_info = req.execute()
                 # When `finished` is true, job has been finished. See below for a list of status.
                 # https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs?hl=ja#State
-                finished = job_info['status'] in ('SUCCEEDED', 'FAILED', 'CANCELLED')
+                finished = job_info['state'] in ('SUCCEEDED', 'FAILED', 'CANCELLED')
 
                 # For prevent duplicate logging
                 entries = [e for e in fetch_with_timestamp_filter(last_updated_at)
