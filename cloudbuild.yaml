@@ -19,7 +19,7 @@ steps:
   entrypoint: 'bash'
   args: 
       - '-c'
-      - 'gcloud container clusters get-credentials fairing-ci-0-7 --zone us-central1-a && pytest -n 8 -v --durations=10 --cov=fairing --ignore=tests/integration/azure/ tests/integration/common'
+      - 'gcloud container clusters get-credentials fairing-ci-0-7 --zone us-central1-a && pytest -n 4 -v --durations=10 --cov=fairing --ignore=tests/integration/azure/ tests/integration/common'
 
 images: ['gcr.io/$PROJECT_ID/fairing-test:latest']
 timeout: 3600s
