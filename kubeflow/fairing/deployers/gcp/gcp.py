@@ -19,7 +19,8 @@ DEFAULT_LOGGING_INTERVAL_TIME_SEC = 30
 class GCPJob(DeployerInterface):
     """Handle submitting training job to GCP."""
 
-    def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None, use_stream_logs=False):
+    def __init__(self, project_id=None, region=None, scale_tier=None,
+                 job_config=None, use_stream_logs=False):
         """
         :param project_id: Google Cloud project ID to use.
         :param region: region in which the job has to be deployed.

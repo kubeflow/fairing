@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BackendInterface(object):
+class BackendInterface:
     """ Backend interface.
     Creating a builder instance or a deployer to be used with a traing job or a serving job
     for the given backend.
