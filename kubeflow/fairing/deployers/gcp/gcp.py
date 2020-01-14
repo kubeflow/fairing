@@ -137,9 +137,9 @@ class GCPJob(DeployerInterface):
                     if 'message' in entry.json_payload.keys():
                         msg = entry.json_payload['message']
                         if msg:
-                            logger.info(msg)
+                            logger.info(msg.strip())
                     if entry.text_payload:
-                        logger.info(entry.text_payload)
+                        logger.info(entry.text_payload.strip())
                 if len(entries) > 0:
                     # update filtering condition
                     last_updated_at = datetime.utcfromtimestamp(
