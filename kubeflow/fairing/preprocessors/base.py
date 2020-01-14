@@ -27,6 +27,8 @@ class BasePreProcessor(object):
         input_files = input_files or []
         command = command or ["python"]
         self.input_files = set([os.path.normpath(f) for f in input_files])
+        if self.executable is not None:
+            self.input_files.add(os.path.normpath(executable))
         output_map = output_map if output_map else {}
         normalized_map = {}
         for src, dst in output_map.items():
