@@ -102,7 +102,11 @@ class GCPJob(DeployerInterface):
             self.stream_logs()
 
     def stream_logs(self, interval_time_sec=DEFAULT_LOGGING_INTERVAL_TIME_SEC):
-        """Streams the logs for the training job from stackdriver logging"""
+        """Streams the logs for the training job from stackdriver logging
+
+        :param interval_time_sec: the interval time fetching logs.
+
+        """
 
         # client for fetching logs from stackdriver
         client = logging_v2.LoggingServiceV2Client()
