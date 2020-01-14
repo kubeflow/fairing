@@ -7,6 +7,7 @@ kubernetes>=10.0.1
 future>=0.17.1
 six>=1.11.0
 google-cloud-storage>=1.13.2
+google-cloud-logging>=1.13.0
 requests>=2.21.0
 setuptools>=34.0.0
 google-auth>=1.6.2
