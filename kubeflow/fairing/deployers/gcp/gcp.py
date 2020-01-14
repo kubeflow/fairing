@@ -141,7 +141,7 @@ class GCPJob(DeployerInterface):
                             logger.info(msg.strip())
                     if entry.text_payload:
                         logger.info(entry.text_payload.strip())
-                if len(entries) > 0:
+                if entries:
                     # update filtering condition
                     last_updated_at = datetime.utcfromtimestamp(
                         entries[-1].timestamp.seconds).isoformat()
