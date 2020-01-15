@@ -24,9 +24,9 @@ if __name__ == '__main__':
         DOCKER_REGISTRY = 'gcr.io/{}/fairing-job'.format(GCP_PROJECT)
         file_name = os.path.basename(__file__)
         print("Executing {} remotely.".format(file_name))
-        fairing.config.set_preprocessor('python', executable=file_name)
+        fairing.config.set_preprocessor('python', executable=file_name, input_files=[file_name])
         fairing.config.set_builder(
             'append', base_image='pytorch/pytorch:1.0-cuda10.0-cudnn7-devel',
             registry=DOCKER_REGISTRY, push=True)
-        fairing.config.set_deployer('gcp', scale_tier='BASIC_GPU')
+        fairing.config.set_deployer('gcp', scale_tier='BASIC_GPU', use_stream_logs=True)
         fairing.config.run()

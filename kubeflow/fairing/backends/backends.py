@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BackendInterface(object):
+class BackendInterface:
     """ Backend interface.
     Creating a builder instance or a deployer to be used with a traing job or a serving job
     for the given backend.
@@ -384,11 +384,29 @@ class GCPManagedBackend(BackendInterface):
     """ Use to create a builder instance and create a deployer to be used with a traing job
     or a serving job for the GCP.
     """
-    def __init__(self, project_id=None, region=None, training_scale_tier=None):
+    def __init__(self, project_id=None, region=None, training_scale_tier=None,
+                 job_config=None, use_stream_logs=False):
+        """Creates an instance of GCPManagedBackend
+
+        :param project_id: Google Cloud project ID to use.
+        :param region: region in which the job has to be deployed.
+            Ref: https://cloud.google.com/compute/docs/regions-zones/
+        :param training_scale_tier: machine type to use for the job.
+            Ref: https://cloud.google.com/ml-engine/docs/tensorflow/machine-types
+        :param job_config: Custom job configuration options. If an option is specified
+            in the job_config and as a top-level parameter, the parameter overrides
+            the value in the job_config.
+            Ref: https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs
+        :param use_stream_logs: If true, when deploying a job, output the job stream
+            log until the job ends.
+        """
+
         super(GCPManagedBackend, self).__init__()
         self._project_id = project_id or gcp.guess_project_name()
         self._region = region or 'us-central1'
         self._training_scale_tier = training_scale_tier or 'BASIC'
+        self._job_config = job_config
+        self._use_stream_logs = use_stream_logs
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,  # pylint:disable=arguments-differ
                     pod_spec_mutators=None):
@@ -437,7 +455,8 @@ class GCPManagedBackend(BackendInterface):
         :returns: job for handle all the k8s' template building for a training
 
         """
-        return GCPJob(self._project_id, self._region, self._training_scale_tier)
+        return GCPJob(self._project_id, self._region, self._training_scale_tier,
+                      self._job_config, self._use_stream_logs)
 
     def get_serving_deployer(self, model_class, pod_spec_mutators=None): # pylint:disable=arguments-differ
         """Creates a deployer to be used with a serving job for GCP

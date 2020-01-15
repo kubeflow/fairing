@@ -1,3 +1,8 @@
+from datetime import datetime
+from logging import getLogger
+import time
+
+from google.cloud import logging_v2
 from googleapiclient import discovery
 from googleapiclient import errors
 
@@ -6,10 +11,16 @@ from kubeflow.fairing import http_utils
 from kubeflow.fairing.deployers.deployer import DeployerInterface
 from kubeflow.fairing.cloud.gcp import guess_project_name
 
+logger = getLogger(__name__)
+
+DEFAULT_LOGGING_INTERVAL_TIME_SEC = 30
+
+
 class GCPJob(DeployerInterface):
     """Handle submitting training job to GCP."""
 
-    def __init__(self, project_id=None, region=None, scale_tier=None, job_config=None):
+    def __init__(self, project_id=None, region=None, scale_tier=None,
+                 job_config=None, use_stream_logs=False):
         """
         :param project_id: Google Cloud project ID to use.
         :param region: region in which the job has to be deployed.
@@ -20,6 +31,8 @@ class GCPJob(DeployerInterface):
             in the job_config and as a top-level parameter, the parameter overrides
             the value in the job_config.
             Ref: https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs
+        :param use_stream_logs: If true, when deploying a job, output the job stream
+            log until the job ends.
         """
         self._project_id = project_id or guess_project_name()
         self._region = region or 'us-central1'
@@ -27,6 +40,7 @@ class GCPJob(DeployerInterface):
         self.scale_tier = scale_tier
         self._ml = discovery.build('ml', 'v1')
         self._ml._http = http_utils.configure_http_instance(self._ml._http) #pylint:disable=protected-access
+        self._use_stream_logs = use_stream_logs
 
     def create_request_dict(self, pod_template_spec):
         """Return the request to be sent to the ML Engine API.
@@ -85,3 +99,55 @@ class GCPJob(DeployerInterface):
         print('Access job logs at the following URL:')
         print('https://console.cloud.google.com/mlengine/jobs/{}?project={}'
               .format(self._job_name, self._project_id))
+        if self._use_stream_logs:
+            self.stream_logs()
+
+    def stream_logs(self, interval_time_sec=DEFAULT_LOGGING_INTERVAL_TIME_SEC):
+        """Streams the logs for the training job from stackdriver logging
+
+        :param interval_time_sec: the interval time fetching logs.
+
+        """
+
+        # client for fetching logs from stackdriver
+        client = logging_v2.LoggingServiceV2Client()
+        fetch_with_timestamp_filter = lambda timestamp: client.list_log_entries(
+            resource_names=['projects/{}'.format(self._project_id)],
+            filter_='resource.labels.job_id="{}" '
+                    'timestamp>="{}"'.format(self._job_name, timestamp))
+
+        # request for getting job info
+        req = self._ml.projects().jobs().get(name='projects/{}/jobs/{}'.format(
+            self._project_id, self._job_name))
+        job_info = req.execute()
+        last_updated_at = job_info['createTime']
+        last_insert_id_set = set()
+        finished = False
+        try:
+            while not finished:
+                job_info = req.execute()
+                # When `finished` is true, job has been finished. See below for a list of status.
+                # https://cloud.google.com/ml-engine/reference/rest/v1/projects.jobs?hl=ja#State
+                finished = job_info['state'] in ('SUCCEEDED', 'FAILED', 'CANCELLED')
+
+                # For prevent duplicate logging
+                entries = [e for e in fetch_with_timestamp_filter(last_updated_at)
+                           if e.insert_id not in last_insert_id_set]
+                for entry in entries:
+                    # TODO Add custom filtering
+                    if 'message' in entry.json_payload.keys():
+                        msg = entry.json_payload['message']
+                        if msg:
+                            logger.info(msg.strip())
+                    if entry.text_payload:
+                        logger.info(entry.text_payload.strip())
+                if entries:
+                    # update filtering condition
+                    last_updated_at = datetime.utcfromtimestamp(
+                        entries[-1].timestamp.seconds).isoformat()
+                    last_insert_id_set = set(map(lambda e: e.insert_id, entries))
+                if not finished:
+                    time.sleep(interval_time_sec)
+        finally:
+            logger.info('Job has been finished.')
+            logger.info(job_info)
