@@ -5,8 +5,6 @@ import types
 from enum import Enum
 import logging
 
-from kubeflow.fairing.constants import constants
-
 logging.basicConfig(format='%(message)s')
 logging.getLogger().setLevel(logging.INFO)
 

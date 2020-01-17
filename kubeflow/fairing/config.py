@@ -15,6 +15,7 @@ from kubeflow.fairing.deployers.gcp.gcp import GCPJob
 from kubeflow.fairing.deployers.kfserving.kfserving import KFServing
 
 from kubeflow.fairing.notebook import notebook_util
+from kubeflow.fairing.constants import constants
 
 import logging
 logging.basicConfig(format='%(message)s')
