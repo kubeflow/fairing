@@ -18,7 +18,10 @@ from kubeflow.fairing.notebook import notebook_util
 from kubeflow.fairing.constants import constants
 
 import logging
-logging.basicConfig(format='%(message)s')
+logging.basicConfig(
+    format=constants.FAIRING_LOG_LEVEL,
+    datefmt=constants.FAIRING_LOG_DATEFMT,
+)
 
 DEFAULT_PREPROCESSOR = 'python'
 DEFAULT_BUILDER = 'append'
