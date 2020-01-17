@@ -22,7 +22,7 @@ logging.basicConfig(
     format=constants.FAIRING_LOG_FORMAT,
     datefmt=constants.FAIRING_LOG_DATEFMT,
 )
-loggin.getLogger().setLevel(constant.FAIRING_LOG_LEVEL)
+logging.getLogger().setLevel(constant.FAIRING_LOG_LEVEL)
 
 DEFAULT_PREPROCESSOR = 'python'
 DEFAULT_BUILDER = 'append'
