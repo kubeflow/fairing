@@ -45,10 +45,17 @@ class MinioContextSource(ContextSourceInterface):
                                            args=["--dockerfile=Dockerfile",
                                                  "--destination=" + image_name,
                                                  "--context=" + self.uploaded_context_url],
-                                           env=[client.V1EnvVar(name='AWS_REGION',
-                                                                value=self.region_name)])],
-            restart_policy='Never')
-    
+                                           env=[client.V1EnvVar(name='AWS_REGION', value=self.region_name), 
+                                                client.V1EnvVar(name='AWS_ACCESS_KEY_ID', value=self.minio_secret), 
+                                                client.V1EnvVar(name='AWS_SECRET_ACCESS_KEY', value=self.minio_secret_key), 
+                                                client.V1EnvVar(name='S3_ENDPOINT', value=self.endpoint_url), 
+                                                client.V1EnvVar(name='S3_FORCE_PATH_STYLE', value="true")],
+                                           volume_mounts=[client.V1VolumeMount(name="docker-config",
+                                                                             mount_path="/kaniko/.docker/")],
+                                          )],
+                                        restart_policy='Never',
+                                        volumes=[client.V1Volume(name="docker-config", 
+                                                                 config_map=client.V1ConfigMapVolumeSource(name="docker-config"))])
     def cleanup(self):
-        #TODO(swiftdiaries)
+        # TODO(swiftdiaries)
         pass
