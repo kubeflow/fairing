@@ -15,7 +15,7 @@ class TfJob(Job):
     """ Handle all the k8s' template building to create tensorflow
         training job using Kubeflow TFOperator"""
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
-                 chief_count=1, runs=1, job_name=constants.TF_JOB_DEFAULT_NAME, stream_log=True,
+                 chief_count=1, runs=1, job_name=None, stream_log=True,
                  labels=None, pod_spec_mutators=None, cleanup=False, annotations=None):
         """
 
@@ -25,7 +25,7 @@ class TfJob(Job):
         :param ps_count: Number of parameter set pods created for training job.
         :param chief_count: Number of Chief pods created for training job.
         :param runs: number of runs
-        :param job_name: name of the job
+        :param job_name: name of the TFJob
         :param stream_log: stream the log from deployed tfjob
         :param labels: labels to be assigned to the training job
         :param pod_spec_mutators: pod spec mutators (Default value = None)
@@ -77,7 +77,8 @@ class TfJob(Job):
         tfjob = V1TFJob(
             api_version=constants.TF_JOB_GROUP + "/" + constants.TF_JOB_VERSION,
             kind=constants.TF_JOB_KIND,
-            metadata=k8s_client.V1ObjectMeta(generate_name=self.job_name,
+            metadata=k8s_client.V1ObjectMeta(name=self.job_name,
+                                             generate_name=constants.TF_JOB_DEFAULT_NAME,
                                              labels=self.labels),
             spec=V1TFJobSpec(tf_replica_specs=tf_replica_specs)
         )

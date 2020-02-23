@@ -17,7 +17,7 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
     """Handle all the k8s' template building for a training"""
 
     def __init__(self, namespace=None, runs=1, output=None,
-                 cleanup=True, labels=None, job_name=constants.JOB_DEFAULT_NAME,
+                 cleanup=True, labels=None, job_name=None,
                  stream_log=True, deployer_type=constants.JOB_DEPLOPYER_TYPE,
                  pod_spec_mutators=None, annotations=None):
         """
@@ -141,9 +141,9 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
             api_version="batch/v1",
             kind="Job",
             metadata=k8s_client.V1ObjectMeta(
-                generate_name=self.job_name,
-                labels=self.labels,
-            ),
+                name=self.job_name,
+                generate_name=constants.JOB_DEFAULT_NAME,
+                labels=self.labels),
             spec=job_spec
         )
 
