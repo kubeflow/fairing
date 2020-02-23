@@ -18,11 +18,28 @@ MAX_STREAM_BYTES = 1024
 class KubeManager(object):
     """Handles communication with Kubernetes' client."""
 
-    def __init__(self):
-        if is_running_in_k8s():
-            config.load_incluster_config()
+    def __init__(self, config_file=None, context=None,
+                 client_configuration=None, persist_config=True):
+        """
+        :param config_file: kubeconfig file, defaults to ~/.kube/config. Note that for the case
+               that the SDK is running in cluster and you want to operate in another remote
+               cluster, user must set config_file to load kube-config file explicitly.
+        :param context: kubernetes context
+        :param client_configuration: The kubernetes.client.Configuration to set configs to.
+        :param persist_config: If True, config file will be updated when changed
+        """
+        self.config_file = config_file
+        self.context = context
+        self.client_configuration = client_configuration
+        self.persist_config = persist_config
+        if config_file or not is_running_in_k8s():
+            config.load_kube_config(
+                config_file=self.config_file,
+                context=self.context,
+                client_configuration=self.client_configuration,
+                persist_config=self.persist_config)
         else:
-            config.load_kube_config()
+            config.load_incluster_config()
 
     def create_job(self, namespace, job):
         """Creates a V1Job in the specified namespace.
@@ -45,7 +62,11 @@ class KubeManager(object):
         :returns: object: Created TFJob.
 
         """
-        tfjob_client = TFJobClient()
+        tfjob_client = TFJobClient(
+            config_file=self.config_file,
+            context=self.context,
+            client_configuration=self.client_configuration,
+            persist_config=self.persist_config)
         try:
             return tfjob_client.create(tfjob, namespace=namespace)
         except client.rest.ApiException:
@@ -62,7 +83,11 @@ class KubeManager(object):
         :returns: object: The deleted TFJob.
 
         """
-        tfjob_client = TFJobClient()
+        tfjob_client = TFJobClient(
+            config_file=self.config_file,
+            context=self.context,
+            client_configuration=self.client_configuration,
+            persist_config=self.persist_config)
         return tfjob_client.delete(name, namespace=namespace)
 
 
@@ -76,7 +101,11 @@ class KubeManager(object):
         :returns: object: Created TFJob.
 
         """
-        pytorchjob_client = PyTorchJobClient()
+        pytorchjob_client = PyTorchJobClient(
+            config_file=self.config_file,
+            context=self.context,
+            client_configuration=self.client_configuration,
+            persist_config=self.persist_config)
         try:
             return pytorchjob_client.create(pytorchjob, namespace=namespace)
         except client.rest.ApiException:
@@ -93,7 +122,11 @@ class KubeManager(object):
         :returns: object: The deleted PyTorchJob.
 
         """
-        pytorchjob_client = PyTorchJobClient()
+        pytorchjob_client = PyTorchJobClient(
+            config_file=self.config_file,
+            context=self.context,
+            client_configuration=self.client_configuration,
+            persist_config=self.persist_config)
         return pytorchjob_client.delete(name, namespace=namespace)
 
     def create_deployment(self, namespace, deployment):
@@ -115,7 +148,11 @@ class KubeManager(object):
         :returns: object: Created InferenceService.
 
         """
-        KFServing = KFServingClient()
+        KFServing = KFServingClient(
+            config_file=self.config_file,
+            context=self.context,
+            client_configuration=self.client_configuration,
+            persist_config=self.persist_config)
         try:
             created_isvc = KFServing.create(isvc, namespace=namespace)
             isvc_name = created_isvc['metadata']['name']
@@ -135,7 +172,11 @@ class KubeManager(object):
         :returns: object: The deleted InferenceService.
 
         """
-        KFServing = KFServingClient()
+        KFServing = KFServingClient(
+            config_file=self.config_file,
+            context=self.context,
+            client_configuration=self.client_configuration,
+            persist_config=self.persist_config)
         return KFServing.delete(name, namespace=namespace)
 
     def delete_job(self, name, namespace):
