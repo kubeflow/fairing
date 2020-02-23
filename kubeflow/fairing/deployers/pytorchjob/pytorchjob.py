@@ -15,9 +15,8 @@ class PyTorchJob(Job):
     """ Handle all the k8s' template building to create pytorch
         training job using Kubeflow PyTorch Operator"""
     def __init__(self, namespace=None, master_count=1, worker_count=1,
-                 runs=1, job_name=constants.PYTORCH_JOB_DEFAULT_NAME,
-                 stream_log=True, labels=None, pod_spec_mutators=None,
-                 cleanup=False, annotations=None):
+                 runs=1, job_name=None, stream_log=True, labels=None,
+                 pod_spec_mutators=None, cleanup=False, annotations=None):
         """
 
         :param namespace: k8s namespace where the training's components
@@ -25,8 +24,8 @@ class PyTorchJob(Job):
         :param worker_count: Number of worker pods created for training job.
         :param master_count: Number of master pods created for training job.
         :param runs: number of runs
-        :param job_name: name of the job
-        :param stream_log: stream the log from deployed pytorchjob
+        :param job_name: name of the PytorchJob
+        :param stream_log: stream the log from deployed PytorchJob
         :param labels: labels to be assigned to the training job
         :param pod_spec_mutators: pod spec mutators (Default value = None)
         :param cleanup: clean up deletes components after job finished
@@ -73,7 +72,8 @@ class PyTorchJob(Job):
             api_version=constants.PYTORCH_JOB_GROUP + "/" + \
                 constants.PYTORCH_JOB_VERSION,
             kind=constants.PYTORCH_JOB_KIND,
-            metadata=k8s_client.V1ObjectMeta(generate_name=self.job_name,
+            metadata=k8s_client.V1ObjectMeta(name=self.job_name,
+                                             generate_name=constants.PYTORCH_JOB_DEFAULT_NAME,
                                              labels=self.labels),
             spec=V1PyTorchJobSpec(pytorch_replica_specs=pytorch_replica_specs)
         )

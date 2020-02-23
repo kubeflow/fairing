@@ -44,7 +44,7 @@ class KFServing(DeployerInterface):
     def __init__(self, framework, default_storage_uri=None, canary_storage_uri=None,
                  canary_traffic_percent=0, namespace=None, labels=None, annotations=None,
                  custom_default_container=None, custom_canary_container=None,
-                 stream_log=False, cleanup=False):
+                 isvc_name=None, stream_log=False, cleanup=False):
         """
         :param framework: The framework for the InferenceService, such as Tensorflow,
             XGBoost and ScikitLearn etc.
@@ -59,10 +59,12 @@ class KFServing(DeployerInterface):
                                  provided containers.
         :param custom_canary_container: A flexible custom canary container for arbitrary customer
                                  provided containers.
+        :param isvc_name: The InferenceService name.
         :param stream_log: Show log or not when InferenceService started, defaults to True.
         :param cleanup: Delete the kfserving or not, defaults to False.
         """
         self.framework = framework
+        self.isvc_name = isvc_name
         self.default_storage_uri = default_storage_uri
         self.canary_storage_uri = canary_storage_uri
         self.canary_traffic_percent = canary_traffic_percent
@@ -153,6 +155,7 @@ class KFServing(DeployerInterface):
         return V1alpha2InferenceService(api_version=api_version,
                                         kind=constants.KFSERVING_KIND,
                                         metadata=k8s_client.V1ObjectMeta(
+                                            name=self.isvc_name,
                                             generate_name=constants.KFSERVING_DEFAULT_NAME,
                                             namespace=self.namespace),
                                         spec=isvc_spec)
