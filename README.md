@@ -17,6 +17,8 @@ documentation][fairing-overview].
 
 To learn the Kubeflow Fairing SDK API, read the [HTML documentation][html-doc].
 
+To quick start, you can run the [E2E MNIST sample](examples/mnist).
+
 [fairing-overview]: https://www.kubeflow.org/docs/fairing/fairing-overview/
 [html-doc]: https://kubeflow-fairing.readthedocs.io/en/latest/index.html
 
