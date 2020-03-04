@@ -53,9 +53,7 @@ class S3ContextSource(ContextSourceInterface):
         return client.V1PodSpec(
             containers=[client.V1Container(name='kaniko',
                                            image=constants.KANIKO_IMAGE,
-                                           args=["--dockerfile=Dockerfile",
-                                                 "--destination=" + image_name,
-                                                 "--context=" + self.uploaded_context_url],
+                                           args=args,
                                            env=[client.V1EnvVar(name='AWS_REGION',
                                                                 value=self.region)])],
             restart_policy='Never')
