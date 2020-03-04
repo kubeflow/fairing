@@ -6,6 +6,7 @@ from kubeflow.fairing.preprocessors.function import FunctionPreProcessor
 from kubeflow.fairing.builders.append.append import AppendBuilder
 from kubeflow.fairing.builders.docker.docker import DockerBuilder
 from kubeflow.fairing.builders.cluster.cluster import ClusterBuilder
+from kubeflow.fairing.builders.podman.podman import PodmanBuilder
 
 from kubeflow.fairing.deployers.job.job import Job
 from kubeflow.fairing.deployers.serving.serving import Serving
@@ -34,6 +35,7 @@ builder_map = {
     'append': AppendBuilder,
     'docker': DockerBuilder,
     'cluster': ClusterBuilder,
+    'podman': PodmanBuilder
 }
 
 deployer_map = {
