@@ -41,7 +41,7 @@ class PodmanBuilder(BaseBuilder):
     def _build(self):
         """
         build the podman image
-        see podman-build.1.md for args
+        see https://github.com/containers/libpod/blob/master/docs/source/markdown/podman-build.1.md for detail
         """
         docker_command = self.preprocessor.get_command()
         logger.warning("Podman command: {}".format(docker_command))
@@ -61,7 +61,7 @@ class PodmanBuilder(BaseBuilder):
         self.image_tag = self.full_image_name(context_hash)
         logger.warning('Building podman image {}...'.format(self.image_tag))
 
-        # Due to this issue, instead of using 'podman_client.images.build', have to call command line to build
+        # Due to this issue, instead of using 'podman_client.image.push', call command line to build
         # https://github.com/containers/python-podman/issues/51
         cmd_build = 'podman build -t {} - < {}'.format(self.image_tag, context_file)
         build_return = os.system(cmd_build)
@@ -69,12 +69,15 @@ class PodmanBuilder(BaseBuilder):
             raise Exception('Image build failed')
 
     def publish(self):
-        """push the podman image to the registry"""
+        """
+        push the podman image to registry
+        see https://github.com/containers/libpod/blob/master/docs/source/markdown/podman-push.1.md for detail
+        """
         logger.warning('Publishing image {}...'.format(self.image_tag))
 
-        # Due to this issue, instead of using 'podman_client.images.build', have to call command line to build
+        # Due to this issue, instead of using 'podman_client.images.build', call command line to push
         # https://github.com/containers/python-podman/issues/77
-        cmd_push = 'podman push {} --tls-verify={}'.format(self.image_tag, self.tls_verify.lower())
+        cmd_push = 'podman push {} --tls-verify={}'.format(self.image_tag, str(self.tls_verify).lower())
         push_return = os.system(cmd_push)
         if push_return != 0:
             raise Exception('Image push failed')
