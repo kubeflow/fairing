@@ -8,6 +8,7 @@ from kubeflow.fairing.builders.docker.docker import DockerBuilder
 from kubeflow.fairing.builders.cluster import gcs_context
 from kubeflow.fairing.builders.cluster.cluster import ClusterBuilder
 from kubeflow.fairing.builders.cluster import s3_context
+from kubeflow.fairing.builders.cluster import cos_context
 from kubeflow.fairing.builders.cluster import azurestorage_context
 from kubeflow.fairing.builders.append.append import AppendBuilder
 from kubeflow.fairing.deployers.gcp.gcp import GCPJob
@@ -310,6 +311,62 @@ class AWSBackend(KubernetesBackend):
         """
         return Serving(model_class, namespace=self._namespace, service_type=service_type,
                        pod_spec_mutators=pod_spec_mutators)
+
+
+class IBMCloudBackend(KubernetesBackend):
+    """ Use to create a builder instance and create a deployer to be used with a traing job
+    or a serving job for the IBM Cloud backend.
+    """
+
+    def __init__(self, namespace=None, build_context_source=None):
+        build_context_source = build_context_source or cos_context.COSContextSource()
+        super(IBMCloudBackend, self).__init__(namespace, build_context_source)
+
+    def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,
+                    pod_spec_mutators=None):
+        """Creates a builder instance with right config for IBM Cloud
+
+        :param preprocessor: Preprocessor to use to modify inputs
+        :param base_image: Base image to use for this job
+        :param registry: Registry to push image to. Example: gcr.io/kubeflow-images
+        :param needs_deps_installation:  need depends on installation(Default value = True)
+        :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
+                                  e.g. fairing.cloud.gcp.add_gcp_credentials_if_exists
+                                  This can used to set things like volumes and security context.
+                                  (Default value =None)
+
+        """
+        pod_spec_mutators = pod_spec_mutators or []
+        return super(IBMCloudBackend, self).get_builder(preprocessor,
+                                                   base_image,
+                                                   registry,
+                                                   needs_deps_installation,
+                                                   pod_spec_mutators)
+
+    def get_training_deployer(self, pod_spec_mutators=None):
+        """Creates a deployer to be used with a training job for IBM Cloud
+
+        :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
+            (Default value = None)
+        :returns: job for handle all the k8s' template building for a training
+
+        """
+        pod_spec_mutators = pod_spec_mutators or []
+        return Job(namespace=self._namespace, pod_spec_mutators=pod_spec_mutators)
+
+    def get_serving_deployer(self, model_class, service_type='ClusterIP', # pylint:disable=arguments-differ
+                             pod_spec_mutators=None):
+        """Creates a deployer to be used with a serving job for IBM Cloud
+
+        :param model_class: the name of the class that holds the predict function.
+        :param service_type: service type (Default value = 'ClusterIP')
+        :param pod_spec_mutators: list of functions that is used to mutate the podsspec.
+            (Default value = None)
+
+        """
+        return Serving(model_class, namespace=self._namespace, service_type=service_type,
+                       pod_spec_mutators=pod_spec_mutators)
+
 
 class AzureBackend(KubernetesBackend):
     """ Use to create a builder instance and create a deployer to be used with a traing job or
