@@ -63,7 +63,7 @@ class PodmanBuilder(BaseBuilder):
 
         # Due to this issue, instead of using 'podman_client.images.build', have to call command line to build
         # https://github.com/containers/python-podman/issues/51
-        cmd_build = 'podman build -t {} .'.format(self.image_tag)
+        cmd_build = 'podman build -t {} - < {}'.format(self.image_tag, context_file)
         build_return = os.system(cmd_build)
         if build_return != 0:
             raise Exception('Image build failed')
