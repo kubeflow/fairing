@@ -40,7 +40,8 @@ class MinioContextSource(ContextSourceInterface):
         :param push: whether to push image to given registry or not
         """
         args = [
-            "--dockerfile=Dockerfile", "--destination=" + image_name,
+            "--dockerfile=Dockerfile",
+            "--destination=" + image_name,
             "--context=" + self.uploaded_context_url
         ]
         if not push:
@@ -51,11 +52,7 @@ class MinioContextSource(ContextSourceInterface):
                 client.V1Container(
                     name='kaniko',
                     image=constants.constants.KANIKO_IMAGE,
-                    args=[
-                        "--dockerfile=Dockerfile",
-                        "--destination=" + image_name,
-                        "--context=" + self.uploaded_context_url
-                    ],
+                    args=args,
                     env=[
                         client.V1EnvVar(name='AWS_REGION',
                                         value=self.region_name),
