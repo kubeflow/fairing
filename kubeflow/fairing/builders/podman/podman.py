@@ -61,7 +61,7 @@ class PodmanBuilder(BaseBuilder):
         self.image_tag = self.full_image_name(context_hash)
         logger.warning('Building podman image {}...'.format(self.image_tag))
 
-        # Due to this issue, instead of using 'podman_client.image.push', call command line to build
+        # Due to this issue, instead of using 'podman_client.images.build', call command line to build
         # https://github.com/containers/python-podman/issues/51
         cmd_build = 'podman build -t {} - < {}'.format(self.image_tag, context_file)
         build_return = os.system(cmd_build)
@@ -75,7 +75,7 @@ class PodmanBuilder(BaseBuilder):
         """
         logger.warning('Publishing image {}...'.format(self.image_tag))
 
-        # Due to this issue, instead of using 'podman_client.images.build', call command line to push
+        # Due to this issue, instead of using 'podman_client.image.push', call command line to push
         # https://github.com/containers/python-podman/issues/77
         cmd_push = 'podman push {} --tls-verify={}'.format(self.image_tag, str(self.tls_verify).lower())
         push_return = os.system(cmd_push)
