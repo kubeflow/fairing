@@ -44,7 +44,8 @@ class KFServing(DeployerInterface):
     def __init__(self, framework, default_storage_uri=None, canary_storage_uri=None,
                  canary_traffic_percent=0, namespace=None, labels=None, annotations=None,
                  custom_default_container=None, custom_canary_container=None,
-                 isvc_name=None, stream_log=False, cleanup=False):
+                 isvc_name=None, stream_log=False, cleanup=False, config_file=None,
+                 context=None, client_configuration=None, persist_config=True):
         """
         :param framework: The framework for the InferenceService, such as Tensorflow,
             XGBoost and ScikitLearn etc.
@@ -62,6 +63,12 @@ class KFServing(DeployerInterface):
         :param isvc_name: The InferenceService name.
         :param stream_log: Show log or not when InferenceService started, defaults to True.
         :param cleanup: Delete the kfserving or not, defaults to False.
+        :param config_file: kubeconfig file, defaults to ~/.kube/config. Note that for the case
+               that the SDK is running in cluster and you want to operate in another remote
+               cluster, user must set config_file to load kube-config file explicitly.
+        :param context: kubernetes context
+        :param client_configuration: The kubernetes.client.Configuration to set configs to.
+        :param persist_config: If True, config file will be updated when changed
         """
         self.framework = framework
         self.isvc_name = isvc_name
@@ -74,7 +81,11 @@ class KFServing(DeployerInterface):
         self.custom_default_container = custom_default_container
         self.custom_canary_container = custom_canary_container
         self.stream_log = stream_log
-        self.backend = KubeManager()
+        self.backend = KubeManager(
+            config_file=config_file,
+            context=context,
+            client_configuration=client_configuration,
+            persist_config=persist_config)
 
         if namespace is None:
             self.namespace = utils.get_default_target_namespace()

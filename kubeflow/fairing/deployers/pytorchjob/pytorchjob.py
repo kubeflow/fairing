@@ -16,7 +16,9 @@ class PyTorchJob(Job):
         training job using Kubeflow PyTorch Operator"""
     def __init__(self, namespace=None, master_count=1, worker_count=1,
                  runs=1, job_name=None, stream_log=True, labels=None,
-                 pod_spec_mutators=None, cleanup=False, annotations=None):
+                 pod_spec_mutators=None, cleanup=False, annotations=None,
+                 config_file=None, context=None, client_configuration=None,
+                 persist_config=True):
         """
 
         :param namespace: k8s namespace where the training's components
@@ -30,11 +32,20 @@ class PyTorchJob(Job):
         :param pod_spec_mutators: pod spec mutators (Default value = None)
         :param cleanup: clean up deletes components after job finished
         :param annotations: annotations (Default value = None)
+        :param config_file: kubeconfig file, defaults to ~/.kube/config. Note that for the case
+               that the SDK is running in cluster and you want to operate in another remote
+               cluster, user must set config_file to load kube-config file explicitly.
+        :param context: kubernetes context
+        :param client_configuration: The kubernetes.client.Configuration to set configs to.
+        :param persist_config: If True, config file will be updated when changed
         """
         super(PyTorchJob, self).__init__(namespace, runs, job_name=job_name, stream_log=stream_log,
                                          deployer_type=constants.PYTORCH_JOB_DEPLOYER_TYPE,
                                          pod_spec_mutators=pod_spec_mutators, cleanup=cleanup,
-                                         labels=labels, annotations=annotations)
+                                         labels=labels, annotations=annotations,
+                                         config_file=config_file, context=context,
+                                         client_configuration=client_configuration,
+                                         persist_config=persist_config)
         self.distribution = {
             'Master': master_count,
             'Worker': worker_count,
