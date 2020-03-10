@@ -1,11 +1,17 @@
-# Q2 2019
-1. Distirbuted trianing TF (1.x and 2.0)
-1. Distirbuted training for LightGBM
-1. TF-Serving as an option for delpolyment in addition to Seldon model server
-1. Improve documentation and testing
-1. Improved support for Append builder
+# 2020 Roadmap
 
-# Q3 and Q4 2019 Big Rocks
-1. Support for distributed training in other frameworks: PyTorch, Spark ML, etc.
-1. Integrations: KF-Serving, KF-Pipelines, Katib
-1. Integration tests for on-prem use case
+1. Fairing 1.0 release (P1, 2020 Q2)
+   - Improve Fairing quality for 1.0 production readiness, and enhance testing and examples.
+   - Enhancement [API Documents](https://kubeflow-fairing.readthedocs.io/en/latest/index.html).
+   - Deprecating high level API `ml_tasks`, maybe warn the deprecating in 1.0 release.
+
+2. Fairing provides a python SDK for Kubeflows components
+   - Support Tekton (P1, 2020 Q2).
+   - More generic interacts with Kubernetes such as bulk apply YAML Specs (P1, 20202 Q2).
+   - Support more builder such as podman or s2i and more backends such as IBM Cloud (P2, 20202 Q2-Q3)
+   - Intergration with other kubeflow components such as Katib and more frameworks etc. (P2, 2020 Q3-Q4).
+   - Add istio routing rules in Fairing (P2, 2020 Q3-Q4)
+
+3. Generate one single SDK for Kubeflow components (P2 2020 Q3-Q4).
+   - Consider and make an auto mechanism to generate Kubeflow master SDK (maybe better to name `kubeflow`).
+   - Reconcile the APIs of kubeflow components and satisfy ML logical manner.
