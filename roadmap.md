@@ -1,11 +1,14 @@
-# Q2 2019
-1. Distirbuted trianing TF (1.x and 2.0)
-1. Distirbuted training for LightGBM
-1. TF-Serving as an option for delpolyment in addition to Seldon model server
-1. Improve documentation and testing
-1. Improved support for Append builder
-
-# Q3 and Q4 2019 Big Rocks
-1. Support for distributed training in other frameworks: PyTorch, Spark ML, etc.
-1. Integrations: KF-Serving, KF-Pipelines, Katib
-1. Integration tests for on-prem use case
+# 2020 Roadmap
+1. Supports local podman builder to submit jobs to CRI-O runtime [#472](https://github.com/kubeflow/fairing/issues/472)
+1. Support more backends cluster, such as IBM Cloud
+1. Add a GCP function to generate stackdriver links [#455](https://github.com/kubeflow/fairing/issues/455)
+1. Better Tekton support (possibly replace ClusterBuilder) [#454](https://github.com/kubeflow/fairing/issues/454)
+1. Make new high level API using KFServing [#428](https://github.com/kubeflow/fairing/issues/428)
+1. Create a release process doc and a way to run tests on wheel package [#250](https://github.com/kubeflow/fairing/issues/250)
+1. Add istio routing rules in Fairing [#208](https://github.com/kubeflow/fairing/issues/208)
+1. Clean up examples
+1. Integration with Pipeline and katic etc.
+1. Improve quality and test cases
+1. Support for distributed training in other frameworks
+1. Enhancement [API Documents](https://kubeflow-fairing.readthedocs.io/en/latest/index.html)
+1. Fairing support feedbacking training time so that admin can using the time for resource (such as GPU) billing.
