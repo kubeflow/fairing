@@ -77,7 +77,8 @@ class AzureFileUploader(object):
             StorageAccountCreateParameters(
                 sku=Sku(name=SkuName.standard_ragrs),
                 kind=Kind.storage,
-                location=region
+                location=region,
+                enable_https_traffic_only=True
             )
         )
         return storage_async_operation.result()
