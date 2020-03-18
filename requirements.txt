@@ -3,12 +3,12 @@ numpy>=1.17.3
 kfserving>=0.2.1.1
 docker>=3.4.1
 notebook>=5.6.0
-kubernetes>=10.0.1
+kubernetes==10.0.1
 future>=0.17.1
 six>=1.11.0
 google-cloud-storage>=1.13.2
 google-cloud-logging>=1.13.0
-requests>=2.21.0
+requests>=2.21.0,<2.23
 setuptools>=34.0.0
 google-auth>=1.6.2
 httplib2>=0.12.0
