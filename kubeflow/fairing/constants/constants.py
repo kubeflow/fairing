@@ -16,6 +16,11 @@ GCP_CREDS_SECRET_NAME = 'user-gcp-sa'
 AWS_CREDS_SECRET_NAME = 'aws-secret'
 DOCKER_CREDS_SECRET_NAME = "docker-secret"
 
+# IBM Cloud Constants
+IBM_COS_CREDS_FILE_NAME = 'cos_credentials'
+IBM_COS_CREDS_SECRET_NAME = 'ibm-cos-creds'
+IBM_COS_DEFAULT_ENDPOINT = 'https://s3.us.cloud-object-storage.appdomain.cloud'
+
 # See https://github.com/kubeflow/website/issues/1033 for documentation about these secrets.
 AZURE_CREDS_SECRET_NAME = 'azcreds'
 AZURE_ACR_CREDS_SECRET_NAME = 'acrcreds'

@@ -1,174 +1,77 @@
-import boto3
-import logging
-import re
-from botocore.exceptions import ClientError
+import json
+import base64
+import ibm_boto3
+from ibm_botocore.exceptions import ClientError
 from kubernetes import client
 
 from kubeflow.fairing.constants import constants
-
-logger = logging.getLogger(__name__)
+from kubeflow.fairing.kubernetes.manager import KubeManager
+from kubeflow.fairing import utils
 
 class COSUploader(object):
-    """ For AWS S3 up load """
-    def __init__(self, region):
-        self.region = region
-        self.storage_client = boto3.client('s3', region_name=region)
+    """
+    IBM Cloud Object Storage Uploader.
 
-    def upload_to_bucket(self,
-                         blob_name,
-                         bucket_name,
-                         file_to_upload):
-        """Upload a file to an S3 bucket
+    :param namespace(str): namespace that IBM COS credential secret created in.
+    :param cos_endpoint_url(str): IBM COS endpoint url, such as "https://s3..."
+    """
+    def __init__(self, namespace=None,
+                 cos_endpoint_url=constants.IBM_COS_DEFAULT_ENDPOINT):
+        self.namespace = namespace or utils.get_default_target_namespace()
 
-        :param blob_name: S3 object name
-        :param bucket_name: Bucket to upload to
-        :param file_to_upload: File to upload
+        aws_access_key_id, aws_secret_accesss_key = get_ibm_cos_credentials(self.namespace)
 
+        self.client = ibm_boto3.client(
+            "s3",
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_accesss_key,
+            endpoint_url=cos_endpoint_url
+        )
+
+    def create_bucket(self, bucket_name):
         """
-        self.create_bucket_if_not_exists(bucket_name)
-        self.storage_client.upload_file(file_to_upload, bucket_name, blob_name)
-        return "s3://{}/{}".format(bucket_name, blob_name)
+        Create Bucket in IBM IBM Cloud Object Storage.
 
-    def create_bucket_if_not_exists(self, bucket_name):
-        """Create bucket if this bucket not exists
-
-        :param bucket_name: Bucket name
-
+        :param bucket_name(str): Bucket name.
         """
         try:
-            self.storage_client.head_bucket(Bucket=bucket_name)
+            self.client.head_bucket(Bucket=bucket_name)
         except ClientError:
-            bucket = {'Bucket': bucket_name}
-            if self.region != 'us-east-1':
-                bucket['CreateBucketConfiguration'] = {'LocationConstraint': self.region}
-            self.storage_client.create_bucket(**bucket)
+            self.client.create_bucket(Bucket=bucket_name)
+
+    def upload_to_bucket(self, blob_name, bucket_name, file_to_upload):
+        """
+        Uploaded file to IBM IBM Cloud Object Storage.
+
+        :param bucket_name(str): The path to the file to upload.
+        :param bucket_name(str): The name of the bucket to upload to.
+        :param bucket_name(str): The name of the key to upload to.
+        """
+        self.create_bucket(bucket_name)
+        self.client.upload_file(file_to_upload, bucket_name, blob_name)
+        return "s3://{}/{}".format(bucket_name, blob_name)
 
 
-def guess_account_id():
-    """ Get account id """
-    account_id = boto3.client('sts').get_caller_identity()["Account"]
-
-    if account_id is None:
-        raise Exception('Could not determine account id.')
-
-    return account_id
-
-
-def add_aws_credentials_if_exists(kube_manager, pod_spec, namespace):
-    """add AWS credential
-
-    :param kube_manager: kube manager for handles communication with Kubernetes' client
-    :param pod_spec: pod spec like volumes and security context
-    :param namespace: The custom resource
-
+def get_ibm_cos_credentials(namespace):
     """
-    try:
-        if kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
-            add_aws_credentials(kube_manager, pod_spec, namespace)
-        else:
-            logger.warning("Not able to find aws credentials secret: {}"
-                           .format(constants.AWS_CREDS_SECRET_NAME))
-    except Exception as e:
-        logger.warning("could not check for secret: {}".format(e))
+    Get the IBM COS credential from secret.
 
-
-def add_aws_credentials(kube_manager, pod_spec, namespace):
-    """add AWS credential
-
-    :param kube_manager: kube manager for handles communication with Kubernetes' client
-    :param pod_spec: pod spec like volumes and security context
-    :param namespace: The custom resource
-
+    :param namespace(str): The namespace that IBM COS credential secret created in.
     """
-    if not kube_manager.secret_exists(constants.AWS_CREDS_SECRET_NAME, namespace):
-        raise ValueError('Unable to mount credentials: Secret aws-secret not found in namespace {}'
-                         .format(namespace))
+    secret_name = constants.IBM_COS_CREDS_SECRET_NAME
+    if not KubeManager().secret_exists(secret_name, namespace):
+        raise Exception("Secret '{}' not found in namespace '{}'".format(secret_name, namespace))
 
-    # Set appropriate secrets env to enable kubeflow-user service
-    # account.
-    env = [
-        client.V1EnvVar(
-            name='AWS_ACCESS_KEY_ID',
-            value_from=client.V1EnvVarSource(
-                secret_key_ref=client.V1SecretKeySelector(
-                    name=constants.AWS_CREDS_SECRET_NAME,
-                    key='AWS_ACCESS_KEY_ID'
-                )
-            )
-        ),
-        client.V1EnvVar(
-            name='AWS_SECRET_ACCESS_KEY',
-            value_from=client.V1EnvVarSource(
-                secret_key_ref=client.V1SecretKeySelector(
-                    name=constants.AWS_CREDS_SECRET_NAME,
-                    key='AWS_SECRET_ACCESS_KEY'
-                )
-            )
-        )]
+    secret = client.CoreV1Api().read_namespaced_secret(secret_name, namespace)
+    creds_data = secret.data[constants.IBM_COS_CREDS_FILE_NAME]
+    creds_json = base64.b64decode(creds_data).decode('utf-8')
 
-    if pod_spec.containers[0].env:
-        pod_spec.containers[0].env.extend(env)
+    cos_creds = json.loads(creds_json)
+    if cos_creds.get('cos_hmac_keys', ''):
+        aws_access_key_id = cos_creds['cos_hmac_keys'].get('access_key_id', '')
+        aws_secret_accesss_key = cos_creds['cos_hmac_keys'].get('secret_access_key', '')
     else:
-        pod_spec.containers[0].env = env
+        raise RuntimeError("Kaniko needs AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\
+                           if using S3 Bucket. Please use HMAC Credential.")
 
-
-def add_ecr_config(kube_manager, pod_spec, namespace):
-    """add secret
-
-    :param kube_manager: kube manager for handles communication with Kubernetes' client
-    :param pod_spec: pod spec like volumes and security context
-    :param namespace: The custom resource
-
-    """
-    if not kube_manager.secret_exists('ecr-config', namespace):
-        secret = client.V1Secret(metadata=client.V1ObjectMeta(name='ecr-config'),
-                                 string_data={
-                                     'config.json': '{"credsStore": "ecr-login"}'
-                                 })
-        kube_manager.create_secret(namespace, secret)
-
-    volume_mount = client.V1VolumeMount(name='ecr-config',
-                                        mount_path='/kaniko/.docker/', read_only=True)
-
-    if pod_spec.containers[0].volume_mounts:
-        pod_spec.containers[0].volume_mounts.append(volume_mount)
-    else:
-        pod_spec.containers[0].volume_mounts = [volume_mount]
-
-    volume = client.V1Volume(name='ecr-config',
-                             secret=client.V1SecretVolumeSource(secret_name='ecr-config'))
-
-    if pod_spec.volumes:
-        pod_spec.volumes.append(volume)
-    else:
-        pod_spec.volumes = [volume]
-
-
-def is_ecr_registry(registry):
-    """verify secrte registy
-
-    :param registry: registry
-
-    """
-    pattern = r'(.+)\.dkr\.ecr\.(.+)\.amazonaws\.com'
-    return bool(re.match(pattern, registry))
-
-
-def create_ecr_registry(registry, repository):
-    """create secret registry
-
-    :param registry: registry
-    :param repository: repository name
-
-    """
-    registry = registry.split('.')
-    registry_id = registry[0]
-    region = registry[3]
-
-    ecr_client = boto3.client('ecr', region_name=region)
-
-    try:
-        ecr_client.describe_repositories(registryId=registry_id,
-                                         repositoryNames=[repository])
-    except ClientError:
-        ecr_client.create_repository(repositoryName=repository)
+    return aws_access_key_id, aws_secret_accesss_key

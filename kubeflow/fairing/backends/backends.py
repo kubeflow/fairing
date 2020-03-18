@@ -318,8 +318,9 @@ class IBMCloudBackend(KubernetesBackend):
     or a serving job for the IBM Cloud backend.
     """
 
-    def __init__(self, namespace=None, build_context_source=None):
-        build_context_source = build_context_source or cos_context.COSContextSource()
+    def __init__(self, namespace=None, cos_endpoint_url=None, build_context_source=None):
+        build_context_source = build_context_source or\
+            cos_context.COSContextSource(namespace=namespace, cos_endpoint_url=cos_endpoint_url)
         super(IBMCloudBackend, self).__init__(namespace, build_context_source)
 
     def get_builder(self, preprocessor, base_image, registry, needs_deps_installation=True,
@@ -338,10 +339,10 @@ class IBMCloudBackend(KubernetesBackend):
         """
         pod_spec_mutators = pod_spec_mutators or []
         return super(IBMCloudBackend, self).get_builder(preprocessor,
-                                                   base_image,
-                                                   registry,
-                                                   needs_deps_installation,
-                                                   pod_spec_mutators)
+                                                        base_image,
+                                                        registry,
+                                                        needs_deps_installation,
+                                                        pod_spec_mutators)
 
     def get_training_deployer(self, pod_spec_mutators=None):
         """Creates a deployer to be used with a training job for IBM Cloud
