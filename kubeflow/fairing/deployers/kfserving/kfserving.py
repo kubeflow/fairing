@@ -193,7 +193,7 @@ class KFServing(DeployerInterface):
                 tensorrt=V1alpha2TensorRTSpec(storage_uri=storage_uri))
         elif self.framework == 'xgboost':
             predictor = V1alpha2PredictorSpec(
-                xgboost=V1alpha2XGBoostSpec(storage_uri=V1alpha2XGBoostSpec))
+                xgboost=V1alpha2XGBoostSpec(storage_uri=storage_uri))
         elif self.framework == 'custom':
             predictor = V1alpha2PredictorSpec(
                 custom=V1alpha2CustomSpec(container=container))
