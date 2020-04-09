@@ -1,7 +1,7 @@
 import os
 import zlib
 import uuid
-
+import re
 
 def get_image(repository, name):
     """Get the full image name by integrating repository and image name.
@@ -47,3 +47,10 @@ def crc(file_name):
 def random_tag():
     """Get a random tag."""
     return str(uuid.uuid4()).split('-')[0]
+
+def camel_to_snake(name):
+    """
+    Converts a string that is camelCase into snake_case
+    """
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()

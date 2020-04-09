@@ -1,5 +1,6 @@
 import logging
 import retrying
+import yaml
 
 from kubernetes import client, config, watch
 from kfserving import KFServingClient
@@ -7,8 +8,9 @@ from kfserving import KFServingClient
 from kubeflow.tfjob import TFJobClient
 from kubeflow.pytorchjob import PyTorchJobClient
 
-from kubeflow.fairing.utils import is_running_in_k8s
+from kubeflow.fairing.utils import is_running_in_k8s, camel_to_snake
 from kubeflow.fairing.constants import constants
+from kubeflow.fairing import utils
 
 logger = logging.getLogger(__name__)
 
@@ -331,3 +333,89 @@ class KubeManager(object):
                     print(chunk.rstrip().decode('utf8'))
             finally:
                 tail.release_conn()
+
+
+    def apply_namespaced_object(self, spec, mode='create'): #pylint:disable=too-many-branches
+        """Run apply on the provided Kubernetes specs.
+
+        :param specs: The YAML specs to apply.
+        :param mode: 4 valid modes: create, patch, replace and delete.
+        :returns: applied resources.
+        """
+
+        if mode not in ['create', 'patch', 'replace', 'delete']:
+            raise ValueError("Unknown mode %s, "
+                             "valid modes: create, patch, replace and delete." % mode)
+
+        if not isinstance(spec, dict):
+            spec = yaml.load(spec)
+
+        try:
+            namespace = spec["metadata"]["namespace"]
+        except KeyError:
+            namespace = utils.get_default_target_namespace()
+
+        kind = spec["kind"]
+        kind_snake = camel_to_snake(kind)
+        plural = spec["kind"].lower() + "s"
+
+        if mode in ['patch', 'replace', 'delete']:
+            try:
+                name = spec["metadata"]["name"]
+            except Exception:
+                raise RuntimeError("Cannot get the name in the spec for the operation %s." % mode)
+
+        if not "/" in spec["apiVersion"]:
+            group = None
+        else:
+            group, version = spec["apiVersion"].split("/", 1)
+
+        if group is None or group.lower() == "apps":
+            if group is None:
+                api = client.CoreV1Api()
+            else:
+                api = client.AppsV1Api()
+            method_name = mode + "_namespaced_" + kind_snake
+            if mode == 'create':
+                method_args = [namespace, spec]
+            elif mode == 'delete':
+                method_args = [name, namespace]
+            else:
+                method_args = [name, namespace, spec]
+        else:
+            api = client.CustomObjectsApi()
+            method_name = mode + "_namespaced_custom_object"
+
+            if mode == 'create':
+                method_args = [group, version, namespace, plural, spec]
+            elif mode == 'delete':
+                method_args = [group, version, namespace, plural, name, client.V1DeleteOptions()]
+            else:
+                method_args = [group, version, namespace, plural, name, spec]
+
+        apply_method = getattr(api, method_name)
+
+        try:
+            result = apply_method(*method_args)
+        except client.rest.ApiException as e:
+            raise RuntimeError(
+                "Exception when calling %s->%s: %s\n" % api, apply_method, e)
+
+        return result
+
+
+    def apply_namespaced_objects(self, specs, mode='create'):
+        """Run apply on the provided Kubernetes specs.
+
+        :param specs:  A list of strings or dicts providing the YAML specs to apply.
+        :param mode: 4 valid modes: create, patch, replace and delete.
+        :returns:
+
+        """
+        results = []
+
+        for spec in specs:
+            result = self.apply_namespaced_object(spec, mode=mode)
+            results.append(result)
+
+        return results
