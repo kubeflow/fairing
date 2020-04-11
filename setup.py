@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name='kubeflow-fairing',
-    version='0.7.1',
+    version='0.7.2',
     author="Kubeflow Authors",
     author_email='hejinchi@cn.ibm.com',
     license="Apache License Version 2.0",
