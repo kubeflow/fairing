@@ -3,7 +3,7 @@ from kubernetes.client.models.v1_resource_requirements import V1ResourceRequirem
 from kubeflow.fairing.constants import constants
 
 
-def get_resource_mutator(cpu=None, memory=None):
+def get_resource_mutator(cpu=None, memory=None, gpu=None, gpu_vendor='nvidia'):
     """The mutator for getting the resource setting for pod spec.
 
     The useful example:
@@ -11,11 +11,13 @@ def get_resource_mutator(cpu=None, memory=None):
 
     :param cpu: Limits and requests for CPU resources (Default value = None)
     :param memory: Limits and requests for memory (Default value = None)
+    :param gpu: Limits for GPU (Default value = None)
+    :param gpu_vendor: Default value is 'nvidia', also can be set to 'amd'.
     :returns: object: The mutator function for setting cpu and memory in pod spec.
 
     """
     def _resource_mutator(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
-        if cpu is None and memory is None:
+        if cpu is None and memory is None and gpu is None:
             return
         if pod_spec.containers and len(pod_spec.containers) >= 1:
             # All cloud providers specify their instace memory in GB
@@ -27,6 +29,8 @@ def get_resource_mutator(cpu=None, memory=None):
             if memory:
                 memory_gib = "{}Gi".format(round(memory/1.073741824, 2))
                 limits['memory'] = memory_gib
+            if gpu:
+                limits[gpu_vendor + '.com/gpu'] = gpu
             if pod_spec.containers[0].resources:
                 if pod_spec.containers[0].resources.limits:
                     pod_spec.containers[0].resources.limits = {}
