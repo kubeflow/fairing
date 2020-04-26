@@ -34,3 +34,23 @@ def test_resource_mutator_no_mem():
     actual = pod_spec.containers[0].resources.limits
     expected = {'cpu': 1.5}
     assert actual == expected
+
+def test_resource_mutator_gpu():
+    pod_spec = V1PodSpec(containers=[V1Container(
+        name='model',
+        image="image"
+    )],)
+    k8s_utils.get_resource_mutator(gpu=1)(None, pod_spec, "")
+    actual = pod_spec.containers[0].resources.limits
+    expected = {'nvidia.com/gpu': 1}
+    assert actual == expected
+
+def test_resource_mutator_gpu_vendor():
+    pod_spec = V1PodSpec(containers=[V1Container(
+        name='model',
+        image="image"
+    )],)
+    k8s_utils.get_resource_mutator(gpu=2, gpu_vendor='amd')(None, pod_spec, "")
+    actual = pod_spec.containers[0].resources.limits
+    expected = {'amd.com/gpu': 2}
+    assert actual == expected
