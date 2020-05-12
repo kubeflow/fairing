@@ -4,7 +4,7 @@ from kubeflow.fairing.kubernetes.manager import client, KubeManager
 from kubeflow.fairing import utils
 from kubeflow.fairing import constants
 
-constants.constants.KANIKO_IMAGE = "gcr.io/kaniko-project/executor:v0.14.0"
+constants.constants.KANIKO_IMAGE = "gcr.io/kaniko-project/executor:v0.22.0"
 
 
 class MinioContextSource(ContextSourceInterface):
