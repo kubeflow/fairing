@@ -40,7 +40,8 @@ class MinioContextSource(ContextSourceInterface):
         args = [
             "--dockerfile=Dockerfile",
             "--destination=" + image_name,
-            "--context=" + self.uploaded_context_url
+            "--context=" + self.uploaded_context_url,
+            "--single-snapshot"
         ]
         if not push:
             args.append("--no-push")
