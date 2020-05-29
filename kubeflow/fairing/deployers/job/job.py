@@ -18,7 +18,7 @@ class Job(DeployerInterface): #pylint:disable=too-many-instance-attributes
 
     def __init__(self, namespace=None, runs=1, output=None,
                  cleanup=True, labels=None, job_name=None,
-                 stream_log=True, deployer_type=constants.JOB_DEPLOPYER_TYPE,
+                 stream_log=True, deployer_type=constants.JOB_DEPLOYER_TYPE,
                  pod_spec_mutators=None, annotations=None, config_file=None,
                  context=None, client_configuration=None, persist_config=True):
         """
