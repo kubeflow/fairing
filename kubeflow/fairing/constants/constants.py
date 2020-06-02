@@ -33,7 +33,7 @@ DEFAULT_USER_AGENT = 'kubeflow-fairing/{VERSION}'
 
 # Job Constants
 JOB_DEFAULT_NAME = 'fairing-job-'
-JOB_DEPLOPYER_TYPE = 'job'
+JOB_DEPLOYER_TYPE = 'job'
 
 # Serving Constants
 SERVING_DEPLOPYER_TYPE = 'serving'
