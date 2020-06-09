@@ -10,7 +10,7 @@ class BuilderInterface(object):
         raise NotImplementedError('BuilderInterface.build')
 
     @abc.abstractmethod
-    def generate_pod_spec(self):
+    def generate_pod_spec(self, image=None):
         """This method should return a V1PodSpec with the correct image set.
             This is also where the builder should set the environment variables
             and volume/volumeMounts that it may need to work
