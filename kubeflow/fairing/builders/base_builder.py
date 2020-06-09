@@ -38,11 +38,13 @@ class BaseBuilder(BuilderInterface): #pylint:disable=too-many-instance-attribute
         self.image_tag = None
         self.docker_client = None
 
-    def generate_pod_spec(self):
+    def generate_pod_spec(self, image=None):
+        if not image:
+            image = self.image_tag
         return client.V1PodSpec(
             containers=[client.V1Container(
                 name='model',
-                image=self.image_tag,
+                image=image,
                 command=self.preprocessor.get_command(),
                 security_context=client.V1SecurityContext(
                     run_as_user=0,
