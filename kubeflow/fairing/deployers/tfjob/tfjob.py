@@ -1,4 +1,5 @@
 import logging
+import copy
 from kubernetes import client as k8s_client
 
 from kubeflow.tfjob import V1ReplicaSpec
@@ -15,7 +16,7 @@ class TfJob(Job):
     """ Handle all the k8s' template building to create tensorflow
         training job using Kubeflow TFOperator"""
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
-                 chief_count=1, runs=1, job_name=None, stream_log=True,
+                 chief_count=0, runs=1, job_name=None, stream_log=True,
                  labels=None, pod_spec_mutators=None, cleanup=False, annotations=None,
                  config_file=None, context=None, client_configuration=None, persist_config=True):
         """
@@ -80,7 +81,7 @@ class TfJob(Job):
         if self.distribution.get('PS', 0) > 0:
             ps = V1ReplicaSpec(
                 replicas=self.distribution.get('PS', 0),
-                template=pod_template_spec)
+                template=self.detach_gpu(pod_template_spec))
             tf_replica_specs.update(PS=ps)
 
         tfjob = V1TFJob(
@@ -118,3 +119,19 @@ class TfJob(Job):
         if self.cleanup:
             logger.warning("Cleaning up TFJob {}...".format(name))
             self.backend.delete_tf_job(name, self.namespace)
+
+    def detach_gpu(self, pod_spec):
+        """Since only worker needs GPU resource, no need for PS.
+        Hard to skip PS node while setting, so detach that here.
+
+        :param pod_spec: spec for pod template
+
+        """
+        ps_spec = copy.deepcopy(pod_spec)
+
+        if ps_spec.spec.containers[0].resources:
+            if ps_spec.spec.containers[0].resources.limits:
+                ps_spec.spec.containers[0].resources.limits.pop('nvidia.com/gpu', 'No Key found')
+                ps_spec.spec.containers[0].resources.limits.pop('amd.com/gpu', 'No Key found')
+
+        return ps_spec
