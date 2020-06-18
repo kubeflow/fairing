@@ -14,8 +14,8 @@ setuptools.setup(
     url="https://github.com/kubeflow/fairing",
     packages=setuptools.find_packages(
         include=("kubeflow*", "containerregistry*",)),
-    package_data={},
-    include_package_data=False,
+    package_data={'': ['requirements.txt']},
+    include_package_data=True,
     zip_safe=False,
     classifiers=(
         'Programming Language :: Python :: 3.5',
