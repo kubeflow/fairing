@@ -9,6 +9,15 @@ run your ML training job locally or in the cloud, directly from Python code or
 a Jupyter notebook. After your training job is complete, you can use Kubeflow
 Fairing to deploy your trained model as a prediction endpoint.
 
+## Use Kubeflow Fairing SDK
+
+To install the SDK:
+  ```
+  pip install kubeflow-fairing
+  ```
+
+To quick start, you can run the [E2E MNIST sample](examples/mnist).
+
 ## Documentation
 
 To learn how Kubeflow Fairing streamlines the process of training and deploying
@@ -16,8 +25,6 @@ ML models in the cloud, read the [Kubeflow Fairing
 documentation][fairing-overview]. 
 
 To learn the Kubeflow Fairing SDK API, read the [HTML documentation][html-doc].
-
-To quick start, you can run the [E2E MNIST sample](examples/mnist).
 
 [fairing-overview]: https://www.kubeflow.org/docs/fairing/fairing-overview/
 [html-doc]: https://kubeflow-fairing.readthedocs.io/en/latest/index.html
