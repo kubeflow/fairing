@@ -1,7 +1,9 @@
+import logging
 from kubernetes import client
 from kubernetes.client.models.v1_resource_requirements import V1ResourceRequirements
 from kubeflow.fairing.constants import constants
 
+logger = logging.getLogger(__name__)
 
 def get_resource_mutator(cpu=None, memory=None, gpu=None, gpu_vendor='nvidia'):
     """The mutator for getting the resource setting for pod spec.
@@ -42,30 +44,55 @@ def get_resource_mutator(cpu=None, memory=None, gpu=None, gpu_vendor='nvidia'):
 
 
 def mounting_pvc(pvc_name, pvc_mount_path=constants.PVC_DEFAULT_MOUNT_PATH):
-    """The function for pod_spec_mutators to mount persistent volume claim.
+    """The function has been deprecated, please use `volume_mounts`.
 
-    :param pvc_name: The name of persistent volume claim
-    :param pvc_mount_path: Path for the persistent volume claim mounts to.
+    """
+    logger.warning("The function mounting_pvc has been deprecated, \
+                    please use `volume_mounts`")
+
+    return volume_mounts('pvc', pvc_name, mount_path=pvc_mount_path)
+
+
+def volume_mounts(volume_type, volume_name, mount_path):
+    """The function for pod_spec_mutators to mount volumes.
+
+    :param volume_type: support type: secret, config_map and pvc
+    :param name: The name of volume
+    :param mount_path: Path for the volume mounts to.
     :returns: object: function for mount the pvc to pods.
 
     """
-    mounting_name = str(constants.PVC_DEFAULT_VOLUME_NAME) + pvc_name
-    def _mounting_pvc(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
+    mount_name = str(constants.DEFAULT_VOLUME_NAME) + volume_name
+
+    def _volume_mounts(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
         volume_mount = client.V1VolumeMount(
-            name=mounting_name, mount_path=pvc_mount_path)
+            name=mount_name, mount_path=mount_path)
         if pod_spec.containers[0].volume_mounts:
             pod_spec.containers[0].volume_mounts.append(volume_mount)
         else:
             pod_spec.containers[0].volume_mounts = [volume_mount]
 
-        volume = client.V1Volume(
-            name=mounting_name,
-            persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=pvc_name))
+        if volume_type == 'pvc':
+            volume = client.V1Volume(
+                name=mount_name,
+                persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
+                    claim_name=volume_name))
+        elif volume_type == 'secret':
+            volume = client.V1Volume(
+                name=mount_name,
+                secret=client.V1SecretVolumeSource(secret_name=volume_name))
+        elif volume_type == 'config_map':
+            volume = client.V1Volume(
+                name=mount_name,
+                config_map=client.V1ConfigMapVolumeSource(name=volume_name))
+        else:
+            raise RuntimeError("Unsupport type %s" % volume_type)
+
         if pod_spec.volumes:
             pod_spec.volumes.append(volume)
         else:
             pod_spec.volumes = [volume]
-    return _mounting_pvc
+    return _volume_mounts
 
 def add_env(env_vars):
     """The function for pod_spec_mutators to add custom environment vars.

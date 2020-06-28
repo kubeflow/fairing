@@ -65,7 +65,7 @@ KFSERVING_CONTAINER_NAME = 'user-container'
 
 # persistent volume claim constants
 PVC_DEFAULT_MOUNT_PATH = '/mnt'
-PVC_DEFAULT_VOLUME_NAME = 'fairing-volume-'
+DEFAULT_VOLUME_NAME = 'fairing-volume-'
 
 # Kaniko Constants
 KANIKO_IMAGE = 'gcr.io/kaniko-project/executor:v0.22.0'
