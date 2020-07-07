@@ -23,7 +23,7 @@ from kfserving import V1alpha2TensorflowSpec
 from kfserving import V1alpha2ONNXSpec
 from kfserving import V1alpha2PyTorchSpec
 from kfserving import V1alpha2SKLearnSpec
-from kfserving import V1alpha2TensorRTSpec
+from kfserving import V1alpha2TritonSpec
 from kfserving import V1alpha2XGBoostSpec
 from kfserving import V1alpha2CustomSpec
 from kfserving import V1alpha2InferenceServiceSpec
@@ -188,9 +188,9 @@ class KFServing(DeployerInterface):
         elif self.framework == 'sklearn':
             predictor = V1alpha2PredictorSpec(
                 sklearn=V1alpha2SKLearnSpec(storage_uri=storage_uri))
-        elif self.framework == 'tensorrt':
+        elif self.framework == 'triton':
             predictor = V1alpha2PredictorSpec(
-                tensorrt=V1alpha2TensorRTSpec(storage_uri=storage_uri))
+                triton=V1alpha2TritonSpec(storage_uri=storage_uri))
         elif self.framework == 'xgboost':
             predictor = V1alpha2PredictorSpec(
                 xgboost=V1alpha2XGBoostSpec(storage_uri=storage_uri))
