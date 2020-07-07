@@ -66,3 +66,22 @@ def mounting_pvc(pvc_name, pvc_mount_path=constants.PVC_DEFAULT_MOUNT_PATH):
         else:
             pod_spec.volumes = [volume]
     return _mounting_pvc
+
+def add_env(env_vars):
+    """The function for pod_spec_mutators to add custom environment vars.
+
+    :param vars: dict of custom environment vars.
+    :returns: object: function for add environment vars to pods.
+
+    """
+    def _add_env(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
+        env_list = []
+        for env_name, env_value in env_vars.items():
+            env_list.append(client.V1EnvVar(name=env_name, value=env_value))
+
+        if pod_spec.containers and len(pod_spec.containers) >= 1:
+            if pod_spec.containers[0].env:
+                pod_spec.containers[0].env.extend(env_list)
+            else:
+                pod_spec.containers[0].env = env_list
+    return _add_env
