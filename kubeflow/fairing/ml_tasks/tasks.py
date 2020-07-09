@@ -88,11 +88,11 @@ class PredictionEndpoint(BaseTask):
     """Create a prediction endpoint. """
 
     def __init__(self, model_class, base_docker_image=None, docker_registry=None, input_files=None,
-                 backend=None, service_type='ClusterIP', pod_spec_mutators=None):
+                 output_map=None, backend=None, service_type='ClusterIP', pod_spec_mutators=None):
         self.model_class = model_class
         self.service_type = service_type
         super().__init__(model_class, base_docker_image, docker_registry,
-                         input_files, backend, pod_spec_mutators)
+                         input_files, output_map, backend, pod_spec_mutators)
 
     def create(self):
         """Create prediction endpoint. """
