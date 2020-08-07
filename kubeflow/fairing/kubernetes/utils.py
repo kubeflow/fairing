@@ -53,12 +53,13 @@ def mounting_pvc(pvc_name, pvc_mount_path=constants.PVC_DEFAULT_MOUNT_PATH):
     return volume_mounts('pvc', pvc_name, mount_path=pvc_mount_path)
 
 
-def volume_mounts(volume_type, volume_name, mount_path):
+def volume_mounts(volume_type, volume_name, mount_path, sub_path=None):
     """The function for pod_spec_mutators to mount volumes.
 
     :param volume_type: support type: secret, config_map and pvc
     :param name: The name of volume
     :param mount_path: Path for the volume mounts to.
+    :param sub_path: SubPath for the volume mounts to (Default value = None).
     :returns: object: function for mount the pvc to pods.
 
     """
@@ -66,7 +67,7 @@ def volume_mounts(volume_type, volume_name, mount_path):
 
     def _volume_mounts(kube_manager, pod_spec, namespace): #pylint:disable=unused-argument
         volume_mount = client.V1VolumeMount(
-            name=mount_name, mount_path=mount_path)
+            name=mount_name, mount_path=mount_path, sub_path=sub_path)
         if pod_spec.containers[0].volume_mounts:
             pod_spec.containers[0].volume_mounts.append(volume_mount)
         else:
