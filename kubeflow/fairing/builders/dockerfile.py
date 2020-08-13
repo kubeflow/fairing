@@ -30,7 +30,7 @@ def write_dockerfile(
     if install_reqs_before_copy:
         content_lines.append("COPY {}/requirements.txt {}".format(path_prefix, path_prefix))
     content_lines.append("RUN if [ -e requirements.txt ];" +
-                         "then pip install --no-cache -r requirements.txt; fi")
+                         "then pip install --user --no-cache -r requirements.txt; fi")
     content_lines.append(copy_context)
 
     if docker_command:
