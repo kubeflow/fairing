@@ -28,7 +28,8 @@ def parse_cluster_spec_env():
             host, port = item.split(":")
             hosts.append(host)
             ports.append(port)
-    ips = [nslookup(host) for host in hosts]
+    retries = max(len(hosts)*1.2, 600) # upto 500 num_machines, the functionality will be same.
+    ips = [nslookup(host, retries) for host in hosts]
 
     # Finding the RANK of the current node using hostname or ip address of the current node
     cur_hostname = socket.gethostname()
@@ -45,13 +46,15 @@ def parse_cluster_spec_env():
     return hosts, ips, ports, rank
 
 
-def nslookup(hostname, retries=600):
+def nslookup(hostname, retries):
     """Does nslookup for the hostname and returns the IPs for it.
 
     :param hostname:  hostname to be looked up
-    :param retries:  Number of retries before failing. In autoscaled cluster,
-                    it might take upto 10mins to create a new node so the default value
-                    is set high.(Default value = 600)
+    :param retries:  Number of retries in seconds before failing. Defaults to 600
+                     seconds for a job submitted with upto 500 machines, and up
+                     and above that it'll wait for a maximum of (1.2*500) seconds.
+                     This will allow for retries to scale with num_machines found
+                     in the job configuration.
 
     """
     last_exception = None
