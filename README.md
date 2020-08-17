@@ -26,6 +26,6 @@ documentation][fairing-overview].
 
 To learn the Kubeflow Fairing SDK API, read the [HTML documentation][html-doc].
 
-[fairing-overview]: https://www.kubeflow.org/docs/fairing/fairing-overview/
+[fairing-overview]: https://www.kubeflow.org/docs/components/fairing/fairing-overview/
 [html-doc]: https://kubeflow-fairing.readthedocs.io/en/latest/index.html
 
