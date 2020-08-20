@@ -19,7 +19,8 @@ class PodmanBuilder(BaseBuilder):
                  preprocessor=None,
                  push=True,
                  dockerfile_path=None,
-                 tls_verify=False):
+                 tls_verify=False,
+                 executable_path_prefix=None):
         """
         Initiate a Podman builder to build and publish images
 
@@ -30,6 +31,7 @@ class PodmanBuilder(BaseBuilder):
         :param push:  whether to publish image to registry
         :param dockerfile_path:  specify the dockerfile path for image built
         :param tls_verify:  when publishing image, whether to skip tls verify
+        :param executable_path_prefix: prefix for /.local/bin. Combined path added to PATH variable
         """
         super().__init__(
             registry=registry,
@@ -39,6 +41,7 @@ class PodmanBuilder(BaseBuilder):
             preprocessor=preprocessor,
             dockerfile_path=dockerfile_path)
         self.tls_verify = tls_verify
+        self.executable_path_prefix = executable_path_prefix
 
     def build(self):
         logging.info("Building image using podman")
@@ -98,7 +101,8 @@ class PodmanBuilder(BaseBuilder):
                     docker_command=docker_command,
                     path_prefix=self.preprocessor.path_prefix,
                     base_image=self.base_image,
-                    install_reqs_before_copy=install_reqs_before_copy)
+                    install_reqs_before_copy=install_reqs_before_copy,
+                    executable_path_prefix=self.executable_path_prefix)
             self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
             self.context_file, context_hash = self.preprocessor.context_tar_gz()
             self.image_tag = self.full_image_name(context_hash)
