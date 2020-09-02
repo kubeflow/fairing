@@ -19,7 +19,8 @@ class DockerBuilder(BaseBuilder):
                  base_image=constants.DEFAULT_BASE_IMAGE,
                  preprocessor=None,
                  push=True,
-                 dockerfile_path=None):
+                 dockerfile_path=None,
+                 executable_path_prefix=None):
         super().__init__(
             registry=registry,
             image_name=image_name,
@@ -27,6 +28,7 @@ class DockerBuilder(BaseBuilder):
             base_image=base_image,
             preprocessor=preprocessor,
             dockerfile_path=dockerfile_path)
+        self.executable_path_prefix = executable_path_prefix
 
     def build(self):
         logging.info("Building image using docker")
@@ -49,7 +51,8 @@ class DockerBuilder(BaseBuilder):
                 docker_command=docker_command,
                 path_prefix=self.preprocessor.path_prefix,
                 base_image=self.base_image,
-                install_reqs_before_copy=install_reqs_before_copy)
+                install_reqs_before_copy=install_reqs_before_copy,
+                executable_path_prefix=self.executable_path_prefix)
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_file, context_hash = self.preprocessor.context_tar_gz()
         self.image_tag = self.full_image_name(context_hash)

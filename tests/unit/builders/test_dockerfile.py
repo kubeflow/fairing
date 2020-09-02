@@ -14,7 +14,9 @@ def test_writedockerfile_with_docker_cmd():
     expected = """FROM foo_bar
 WORKDIR /pre
 ENV FAIRING_RUNTIME 1
-RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
+RUN if [ -e requirements.txt ];then if [ "$(whoami)" = "root" ];\
+then pip install --no-cache -r requirements.txt;\
+else pip install --user --no-cache -r requirements.txt; fi; fi
 COPY /pre /pre
 CMD python main.py"""
     assert actual == expected
@@ -31,7 +33,9 @@ def test_writedockerfile_without_docker_cmd():
     expected = """FROM foo_bar
 WORKDIR /pre
 ENV FAIRING_RUNTIME 1
-RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
+RUN if [ -e requirements.txt ];then if [ "$(whoami)" = "root" ];\
+then pip install --no-cache -r requirements.txt;\
+else pip install --user --no-cache -r requirements.txt; fi; fi
 COPY /pre /pre"""
     assert actual == expected
 
@@ -49,7 +53,30 @@ def test_writedockerfile_with_early_install_reqs():
 WORKDIR /pre
 ENV FAIRING_RUNTIME 1
 COPY /pre/requirements.txt /pre
-RUN if [ -e requirements.txt ];then pip install --no-cache -r requirements.txt; fi
+RUN if [ -e requirements.txt ];then if [ "$(whoami)" = "root" ];\
+then pip install --no-cache -r requirements.txt;\
+else pip install --user --no-cache -r requirements.txt; fi; fi
+COPY /pre /pre
+CMD python main.py"""
+    assert actual == expected
+
+
+def test_writedockerfile_with_executable_path_prefix():
+    _, tmp_file = tempfile.mkstemp()
+    dockerfile.write_dockerfile(
+        destination=tmp_file,
+        docker_command=["python", "main.py"],
+        path_prefix="/pre",
+        base_image="foo_bar",
+        executable_path_prefix="/home/jovyan")
+    actual = open(tmp_file, 'r').read()
+    expected = """FROM foo_bar
+WORKDIR /pre
+ENV FAIRING_RUNTIME 1
+ENV PATH /home/jovyan/.local/bin:$PATH
+RUN if [ -e requirements.txt ];then if [ "$(whoami)" = "root" ];\
+then pip install --no-cache -r requirements.txt;\
+else pip install --user --no-cache -r requirements.txt; fi; fi
 COPY /pre /pre
 CMD python main.py"""
     assert actual == expected

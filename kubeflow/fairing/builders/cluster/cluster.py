@@ -26,7 +26,8 @@ class ClusterBuilder(BaseBuilder):
                  pod_spec_mutators=None,
                  namespace=None,
                  dockerfile_path=None,
-                 cleanup=False):
+                 cleanup=False,
+                 executable_path_prefix=None):
         super().__init__(
             registry=registry,
             image_name=image_name,
@@ -41,6 +42,7 @@ class ClusterBuilder(BaseBuilder):
         self.pod_spec_mutators = pod_spec_mutators or []
         self.namespace = namespace or utils.get_default_target_namespace()
         self.cleanup = cleanup
+        self.executable_path_prefix = executable_path_prefix
 
     def build(self):
         logging.info("Building image using cluster builder.")
@@ -51,7 +53,8 @@ class ClusterBuilder(BaseBuilder):
             dockerfile_path = dockerfile.write_dockerfile(
                 path_prefix=self.preprocessor.path_prefix,
                 base_image=self.base_image,
-                install_reqs_before_copy=install_reqs_before_copy
+                install_reqs_before_copy=install_reqs_before_copy,
+                executable_path_prefix=self.executable_path_prefix
             )
         self.preprocessor.output_map[dockerfile_path] = 'Dockerfile'
         context_path, context_hash = self.preprocessor.context_tar_gz()

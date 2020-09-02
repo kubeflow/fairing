@@ -11,7 +11,8 @@ def write_dockerfile(
         destination=None,
         path_prefix=constants.DEFAULT_DEST_PREFIX,
         base_image=None,
-        install_reqs_before_copy=False):
+        install_reqs_before_copy=False,
+        executable_path_prefix=None):
     """Generate dockerfile accoding to the parameters
 
     :param docker_command: string, CMD of the dockerfile (Default value = None)
@@ -19,6 +20,8 @@ def write_dockerfile(
     :param path_prefix: string, WORKDIR (Default value = constants.DEFAULT_DEST_PREFIX)
     :param base_image: string, base image, example: gcr.io/kubeflow-image
     :param install_reqs_before_copy: whether to install the prerequisites (Default value = False)
+    :param executable_path_prefix: string, prefix for /.local/bin. ENV adds combined path to PATH
+        variable for python executables. example: /home/jovyan (Default value = None)
 
     """
     if not destination:
@@ -29,8 +32,12 @@ def write_dockerfile(
     copy_context = "COPY {} {}".format(path_prefix, path_prefix)
     if install_reqs_before_copy:
         content_lines.append("COPY {}/requirements.txt {}".format(path_prefix, path_prefix))
+    if executable_path_prefix:
+        content_lines.append("ENV PATH " + executable_path_prefix + "/.local/bin:$PATH")
     content_lines.append("RUN if [ -e requirements.txt ];" +
-                         "then pip install --no-cache -r requirements.txt; fi")
+                         "then if [ \"$(whoami)\" = \"root\" ];" +
+                         "then pip install --no-cache -r requirements.txt;" +
+                         "else pip install --user --no-cache -r requirements.txt; fi; fi")
     content_lines.append(copy_context)
 
     if docker_command:
