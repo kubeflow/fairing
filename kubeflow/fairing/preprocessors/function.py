@@ -66,7 +66,8 @@ class FunctionPreProcessor(BasePreProcessor):
         cloudpickle_dir = os.path.dirname(cloudpickle.__file__)
         cloudpickle_files = ['__init__.py', 'cloudpickle.py', 'cloudpickle_fast.py']
         cpf_dest = os.path.join(path_prefix, "cloudpickle")
-        cpf_output_map = {os.path.join(cloudpickle_dir, cpf): os.path.join(cpf_dest, cpf) for cpf in cloudpickle_files
+        cpf_output_map = {os.path.join(cloudpickle_dir, cpf): os.path.join(cpf_dest, cpf)
+                          for cpf in cloudpickle_files
                           if os.path.exists(os.path.join(cloudpickle_dir, cpf))}
         self.output_map.update(cpf_output_map)
 
