@@ -64,10 +64,12 @@ class FunctionPreProcessor(BasePreProcessor):
 
         # Make sure cloudpickle can be imported as a module
         cloudpickle_dir = os.path.dirname(cloudpickle.__file__)
-        self.output_map[os.path.join(cloudpickle_dir, '__init__.py')] = \
-            os.path.join(path_prefix, "cloudpickle", '__init__.py')
-        self.output_map[os.path.join(cloudpickle_dir, 'cloudpickle.py')] = \
-            os.path.join(path_prefix, "cloudpickle", 'cloudpickle.py')
+        cloudpickle_files = ['__init__.py', 'cloudpickle.py', 'cloudpickle_fast.py']
+        cpf_dest = os.path.join(path_prefix, "cloudpickle")
+        cpf_output_map = {os.path.join(cloudpickle_dir, cpf): os.path.join(cpf_dest, cpf)
+                          for cpf in cloudpickle_files
+                          if os.path.exists(os.path.join(cloudpickle_dir, cpf))}
+        self.output_map.update(cpf_output_map)
 
         _, temp_payload_file = tempfile.mkstemp()
         with open(temp_payload_file, "wb") as f:
