@@ -46,11 +46,16 @@ class ClusterBuilder(BaseBuilder):
 
     def build(self):
         logging.info("Building image using cluster builder.")
+        docker_command = self.preprocessor.get_command()
+        logger.warning("Docker command: {}".format(docker_command))
+        if not docker_command:
+            logger.warning("Not setting a command for the output docker image.")
         install_reqs_before_copy = self.preprocessor.is_requirements_txt_file_present()
         if self.dockerfile_path:
             dockerfile_path = self.dockerfile_path
         else:
             dockerfile_path = dockerfile.write_dockerfile(
+                docker_command=docker_command,
                 path_prefix=self.preprocessor.path_prefix,
                 base_image=self.base_image,
                 install_reqs_before_copy=install_reqs_before_copy,
