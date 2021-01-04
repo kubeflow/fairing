@@ -20,7 +20,8 @@ class DockerBuilder(BaseBuilder):
                  preprocessor=None,
                  push=True,
                  dockerfile_path=None,
-                 executable_path_prefix=None):
+                 executable_path_prefix=None
+                 docker_client_base_url=None):
         super().__init__(
             registry=registry,
             image_name=image_name,
@@ -29,10 +30,10 @@ class DockerBuilder(BaseBuilder):
             preprocessor=preprocessor,
             dockerfile_path=dockerfile_path)
         self.executable_path_prefix = executable_path_prefix
+        self.docker_client = APIClient(base_url=docker_client_base_url, version='auto')
 
     def build(self):
         logging.info("Building image using docker")
-        self.docker_client = APIClient(version='auto')
         self._build()
         if self.push:
             self.publish()
