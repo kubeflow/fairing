@@ -32,7 +32,7 @@ class MinioContextSource(ContextSourceInterface):
                                                bucket_name=bucket_name,
                                                file_to_upload=context_filename)
 
-    def generate_pod_spec(self, image_name, push):  # pylint: disable=arguments-differ
+    def generate_pod_spec(self, image_name, push, cache=False, single_snapshot=True):  # pylint: disable=arguments-differ
         """
         :param image_name: name of image to be built
         :param push: whether to push image to given registry or not
@@ -40,11 +40,16 @@ class MinioContextSource(ContextSourceInterface):
         args = [
             "--dockerfile=Dockerfile",
             "--destination=" + image_name,
-            "--context=" + self.uploaded_context_url,
-            "--single-snapshot"
+            "--context=" + self.uploaded_context_url
         ]
+        if single_snapshot:
+            args.append("--single-snapshot")
+
         if not push:
             args.append("--no-push")
+
+        if cache:
+            args.append("--cache=true")
 
         return client.V1PodSpec(
             containers=[
