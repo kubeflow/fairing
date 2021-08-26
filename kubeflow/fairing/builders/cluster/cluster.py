@@ -27,7 +27,9 @@ class ClusterBuilder(BaseBuilder):
                  namespace=None,
                  dockerfile_path=None,
                  cleanup=False,
-                 executable_path_prefix=None):
+                 executable_path_prefix=None,
+                 cache=False,
+                 single_snapshot=True):
         super().__init__(
             registry=registry,
             image_name=image_name,
@@ -43,6 +45,8 @@ class ClusterBuilder(BaseBuilder):
         self.namespace = namespace or utils.get_default_target_namespace()
         self.cleanup = cleanup
         self.executable_path_prefix = executable_path_prefix
+        self.cache = cache
+        self.single_snapshot = single_snapshot
 
     def build(self):
         logging.info("Building image using cluster builder.")
@@ -68,7 +72,7 @@ class ClusterBuilder(BaseBuilder):
         labels = {'fairing-builder': 'kaniko'}
         labels['fairing-build-id'] = str(uuid.uuid1())
         pod_spec = self.context_source.generate_pod_spec(
-            self.image_tag, self.push)
+            self.image_tag, self.push, self.cache, self.single_snapshot)
         for fn in self.pod_spec_mutators:
             fn(self.manager, pod_spec, self.namespace)
 
