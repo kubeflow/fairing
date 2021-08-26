@@ -1,0 +1,142 @@
+updates:
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: .
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/prediction
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/lightgbm
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/mnist
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: kubeflow/fairing/builders
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: tests/unit/builders
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: tests/integration/common
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: .
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/prediction
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/kubernetes-in-cluster-builder
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/kubernetes
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: examples/pytorch/mnist
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: tests/integration/common
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - xauthulei
+  directory: tests/integration/gcp
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  reviewers:
+  - pugangxa
+  schedule:
+    interval: daily
+version: 2
