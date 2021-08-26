@@ -18,7 +18,9 @@ class BaseTask:
            when building a new docker image as part of an ML task deployment.
     :param docker_registry: Docker registry to store output docker images.
     :param input_files: list of files that needs to be packaged along with the entry point.
-           E.g. local python modules, trained model weigths, etc.
+           E.g. local python modules, trained model weights, etc. If the list contains a 
+           'requirements.txt', python packages mentioned in the requirements file will be 
+           installed in the built docker image.
     """
 
     def __init__(self, entry_point, base_docker_image=None, docker_registry=None,
