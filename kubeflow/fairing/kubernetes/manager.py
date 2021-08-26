@@ -217,7 +217,7 @@ class KubeManager(object):
         :returns: bool: True if the secret exists, otherwise return False.
 
         """
-        secrets = client.CoreV1Api().list_namespaced_secret(namespace)
+        secrets = client.CoreV1Api().read_namespaced_secret(namespace)
         secret_names = [secret.metadata.name for secret in secrets.items]
         return name in secret_names
 
