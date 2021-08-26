@@ -5,13 +5,19 @@ import re
 from notebook.notebookapp import list_running_servers
 import requests
 from requests.compat import urljoin
+import importlib
 
 
 def get_notebook_name(): #pylint:disable=inconsistent-return-statements
     """Return the full path of the jupyter notebook. """
     kernel_id = re.search('kernel-(.*).json',
                           ipykernel.connect.get_connection_file()).group(1)
-    servers = list_running_servers()
+    jupyter_server_spec = importlib.util.find_spec("jupyter_server")
+    if jupyter_server_spec is not None:
+        from jupyter_server import serverapp
+        servers = serverapp.list_running_servers()
+    else:
+        servers = list_running_servers()
     for ss in servers:
         response = requests.get(urljoin(ss['url'], 'api/sessions'),
                                 params={'token': ss.get('token', '')})
