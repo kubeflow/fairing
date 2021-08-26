@@ -26,7 +26,7 @@ class GCPServingDeployer(DeployerInterface):
         if 'python_version' not in self._deploy_kwargs:
             self._deploy_kwargs['python_version'] = '3.5'
 
-    def deploy(self, pod_template_spec):
+    def deploy(self, pod_template_spec = ""):
         """Deploys the model to Cloud ML Engine.
 
         :param pod_template_spec: pod spec template of training job
