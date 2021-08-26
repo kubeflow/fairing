@@ -113,3 +113,20 @@ def add_env(env_vars):
             else:
                 pod_spec.containers[0].env = env_list
     return _add_env
+
+
+def get_node_selector(node_selector):
+    """This function for pod_spec_mutators to designate node selector.
+
+    :param node_selector: dict of selection constraint
+    :return: obejct: The mutator fucntion for setting node selector
+
+    """
+
+    def _node_selector(kube_master, pod_spec, namespace): #pylint:disable=unused-argument
+        if node_selector is None:
+            return
+        if pod_spec.containers and len(pod_spec.containers) >= 1:
+            pod_spec.node_selector = node_selector
+
+    return _node_selector
