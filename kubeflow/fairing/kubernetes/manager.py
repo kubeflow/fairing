@@ -5,8 +5,8 @@ import yaml
 from kubernetes import client, config, watch
 from kfserving import KFServingClient
 
-from kubeflow.tfjob import TFJobClient
-from kubeflow.pytorchjob import PyTorchJobClient
+from kubeflow.training import TFJobClient
+from kubeflow.training import PyTorchJobClient
 
 from kubeflow.fairing.utils import is_running_in_k8s, camel_to_snake
 from kubeflow.fairing.constants import constants
