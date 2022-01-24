@@ -1,12 +1,11 @@
 import logging
-from kubernetes import client as k8s_client
-
-from kubeflow.pytorchjob import V1ReplicaSpec
-from kubeflow.pytorchjob import V1PyTorchJob
-from kubeflow.pytorchjob import V1PyTorchJobSpec
 
 from kubeflow.fairing.constants import constants
 from kubeflow.fairing.deployers.job.job import Job
+from kubeflow.training import V1PyTorchJob
+from kubeflow.training import V1PyTorchJobSpec
+from kubeflow.training import V1ReplicaSpec, V1RunPolicy
+from kubernetes import client as k8s_client
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +13,7 @@ logger = logging.getLogger(__name__)
 class PyTorchJob(Job):
     """ Handle all the k8s' template building to create pytorch
         training job using Kubeflow PyTorch Operator"""
+
     def __init__(self, namespace=None, master_count=1, worker_count=1,
                  runs=1, job_name=None, stream_log=True, labels=None,
                  pod_spec_mutators=None, cleanup=False, annotations=None,
@@ -81,12 +81,12 @@ class PyTorchJob(Job):
 
         pytorchjob = V1PyTorchJob(
             api_version=constants.PYTORCH_JOB_GROUP + "/" + \
-                constants.PYTORCH_JOB_VERSION,
+                        constants.PYTORCH_JOB_VERSION,
             kind=constants.PYTORCH_JOB_KIND,
             metadata=k8s_client.V1ObjectMeta(name=self.job_name,
                                              generate_name=constants.PYTORCH_JOB_DEFAULT_NAME,
                                              labels=self.labels),
-            spec=V1PyTorchJobSpec(pytorch_replica_specs=pytorch_replica_specs)
+            spec=V1PyTorchJobSpec(pytorch_replica_specs=pytorch_replica_specs, run_policy=V1RunPolicy(clean_pod_policy="None"))
         )
 
         return pytorchjob

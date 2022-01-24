@@ -1,13 +1,13 @@
-import logging
 import copy
-from kubernetes import client as k8s_client
+import logging
 
-from kubeflow.tfjob import V1ReplicaSpec
-from kubeflow.tfjob import V1TFJob
-from kubeflow.tfjob import V1TFJobSpec
+from kubernetes import client as k8s_client
 
 from kubeflow.fairing.constants import constants
 from kubeflow.fairing.deployers.job.job import Job
+from kubeflow.training import V1ReplicaSpec, V1RunPolicy
+from kubeflow.training import V1TFJob
+from kubeflow.training import V1TFJobSpec
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class TfJob(Job):
     """ Handle all the k8s' template building to create tensorflow
         training job using Kubeflow TFOperator"""
+
     def __init__(self, namespace=None, worker_count=1, ps_count=0,
                  chief_count=0, runs=1, job_name=None, stream_log=True,
                  labels=None, pod_spec_mutators=None, cleanup=False, annotations=None,
@@ -90,7 +91,8 @@ class TfJob(Job):
             metadata=k8s_client.V1ObjectMeta(name=self.job_name,
                                              generate_name=constants.TF_JOB_DEFAULT_NAME,
                                              labels=self.labels),
-            spec=V1TFJobSpec(tf_replica_specs=tf_replica_specs)
+            spec=V1TFJobSpec(tf_replica_specs=tf_replica_specs, run_policy=V1RunPolicy(clean_pod_policy="None"))
+
         )
 
         return tfjob
