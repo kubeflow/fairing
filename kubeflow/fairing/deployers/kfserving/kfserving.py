@@ -12,27 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
 import logging
+import uuid
 
-from kubernetes import client as k8s_client
-
-from kfserving import V1alpha2EndpointSpec
-from kfserving import V1alpha2PredictorSpec
-from kfserving import V1alpha2TensorflowSpec
-from kfserving import V1alpha2ONNXSpec
-from kfserving import V1alpha2PyTorchSpec
-from kfserving import V1alpha2SKLearnSpec
-from kfserving import V1alpha2TritonSpec
-from kfserving import V1alpha2XGBoostSpec
-from kfserving import V1alpha2CustomSpec
-from kfserving import V1alpha2InferenceServiceSpec
-from kfserving import V1alpha2InferenceService
-
+from kfserving import V1beta1InferenceService
+from kfserving import V1beta1InferenceServiceSpec
+from kfserving import V1beta1PredictorSpec
+from kfserving import V1beta1SKLearnSpec
+from kfserving import V1beta1TFServingSpec
+from kfserving import V1beta1TorchServeSpec
+from kfserving import V1beta1TritonSpec
+from kfserving import V1beta1XGBoostSpec
+from kubeflow.fairing import utils
 from kubeflow.fairing.constants import constants
 from kubeflow.fairing.deployers.deployer import DeployerInterface
 from kubeflow.fairing.kubernetes.manager import KubeManager
-from kubeflow.fairing import utils
+from kubernetes import client as k8s_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,7 +36,7 @@ logger = logging.getLogger(__name__)
 class KFServing(DeployerInterface):
     """Serves a prediction endpoint using Kubeflow KFServing."""
 
-    def __init__(self, framework, default_storage_uri=None, canary_storage_uri=None,
+    def __init__(self, framework, default_storage_uri=None,
                  canary_traffic_percent=0, namespace=None, labels=None, annotations=None,
                  custom_default_container=None, custom_canary_container=None,
                  isvc_name=None, stream_log=False, cleanup=False, config_file=None,
@@ -50,7 +45,6 @@ class KFServing(DeployerInterface):
         :param framework: The framework for the InferenceService, such as Tensorflow,
             XGBoost and ScikitLearn etc.
         :param default_storage_uri: URI pointing to Saved Model assets for default service.
-        :param canary_storage_uri: URI pointing to Saved Model assets for canary service.
         :param canary_traffic_percent: The amount of traffic to sent to the canary, defaults to 0.
         :param namespace: The k8s namespace where the InferenceService will be deployed.
         :param labels: Labels for the InferenceService, separate with commas if have more than one.
@@ -73,7 +67,6 @@ class KFServing(DeployerInterface):
         self.framework = framework
         self.isvc_name = isvc_name
         self.default_storage_uri = default_storage_uri
-        self.canary_storage_uri = canary_storage_uri
         self.canary_traffic_percent = canary_traffic_percent
         self.annotations = annotations
         self.set_labels(labels)
@@ -135,68 +128,38 @@ class KFServing(DeployerInterface):
 
     def generate_isvc(self):
         """ generate InferenceService """
-
         api_version = constants.KFSERVING_GROUP + '/' + constants.KFSERVING_VERSION
-        default_predictor, canary_predictor = None, None
+        default_predictor = self.generate_predictor_spec(
+            self.framework, storage_uri=self.default_storage_uri)
+        return V1beta1InferenceService(api_version=api_version,
+                                       kind=constants.KFSERVING_KIND,
+                                       metadata=k8s_client.V1ObjectMeta(
+                                           name=self.isvc_name,
+                                           generate_name=constants.KFSERVING_DEFAULT_NAME,
+                                           namespace=self.namespace),
+                                       spec=V1beta1InferenceServiceSpec(
+                                           predictor=default_predictor
+                                       ))
 
-        if self.framework == 'custom':
-            default_predictor = self.generate_predictor_spec(
-                self.framework, container=self.custom_default_container)
-        else:
-            default_predictor = self.generate_predictor_spec(
-                self.framework, storage_uri=self.default_storage_uri)
-
-        if self.framework != 'custom' and self.canary_storage_uri is not None:
-            canary_predictor = self.generate_predictor_spec(
-                self.framework, storage_uri=self.canary_storage_uri)
-        if self.framework == 'custom' and self.custom_canary_container is not None:
-            canary_predictor = self.generate_predictor_spec(
-                self.framework, container=self.custom_canary_container)
-
-        if canary_predictor:
-            isvc_spec = V1alpha2InferenceServiceSpec(
-                default=V1alpha2EndpointSpec(predictor=default_predictor),
-                canary=V1alpha2EndpointSpec(predictor=canary_predictor),
-                canary_traffic_percent=self.canary_traffic_percent)
-        else:
-            isvc_spec = V1alpha2InferenceServiceSpec(
-                default=V1alpha2EndpointSpec(predictor=default_predictor),
-                canary_traffic_percent=self.canary_traffic_percent)
-
-        return V1alpha2InferenceService(api_version=api_version,
-                                        kind=constants.KFSERVING_KIND,
-                                        metadata=k8s_client.V1ObjectMeta(
-                                            name=self.isvc_name,
-                                            generate_name=constants.KFSERVING_DEFAULT_NAME,
-                                            namespace=self.namespace),
-                                        spec=isvc_spec)
-
-
-    def generate_predictor_spec(self, framework, storage_uri=None, container=None):
+    def generate_predictor_spec(self, framework, storage_uri=None):
         '''Generate predictor spec according to framework and
            default_storage_uri or custom container.
         '''
         if self.framework == 'tensorflow':
-            predictor = V1alpha2PredictorSpec(
-                tensorflow=V1alpha2TensorflowSpec(storage_uri=storage_uri))
-        elif self.framework == 'onnx':
-            predictor = V1alpha2PredictorSpec(
-                onnx=V1alpha2ONNXSpec(storage_uri=storage_uri))
+            predictor = V1beta1PredictorSpec(
+                tensorflow=V1beta1TFServingSpec(storage_uri=storage_uri))
         elif self.framework == 'pytorch':
-            predictor = V1alpha2PredictorSpec(
-                pytorch=V1alpha2PyTorchSpec(storage_uri=storage_uri))
+            predictor = V1beta1PredictorSpec(
+                pytorch=V1beta1TorchServeSpec(storage_uri=storage_uri))
         elif self.framework == 'sklearn':
-            predictor = V1alpha2PredictorSpec(
-                sklearn=V1alpha2SKLearnSpec(storage_uri=storage_uri))
+            predictor = V1beta1PredictorSpec(
+                sklearn=V1beta1SKLearnSpec(storage_uri=storage_uri))
         elif self.framework == 'triton':
-            predictor = V1alpha2PredictorSpec(
-                triton=V1alpha2TritonSpec(storage_uri=storage_uri))
+            predictor = V1beta1PredictorSpec(
+                triton=V1beta1TritonSpec(storage_uri=storage_uri))
         elif self.framework == 'xgboost':
-            predictor = V1alpha2PredictorSpec(
-                xgboost=V1alpha2XGBoostSpec(storage_uri=storage_uri))
-        elif self.framework == 'custom':
-            predictor = V1alpha2PredictorSpec(
-                custom=V1alpha2CustomSpec(container=container))
+            predictor = V1beta1PredictorSpec(
+                xgboost=V1beta1XGBoostSpec(storage_uri=storage_uri))
         else:
             raise RuntimeError("Unsupported framework {}".format(framework))
         return predictor
