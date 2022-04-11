@@ -82,6 +82,7 @@ class Layer(docker_image.DockerImage):
     self._config_file = json.dumps(config_file, sort_keys=True)
     manifest['config']['digest'] = docker_digest.SHA256(
         self._config_file.encode('utf8'))
+    manifest['config']['size'] = len(self._config_file)
     self._manifest = json.dumps(manifest, sort_keys=True)
 
   def manifest(self):
